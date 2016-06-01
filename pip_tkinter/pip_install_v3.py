@@ -20,6 +20,7 @@ search_hits = {}
 sysout = StringIO()
 syserr = StringIO()
 
+
 class redirect:
     """Context manager for temporarily redirecting stdout/err.
     Simplified and generalize from contextlib.redirect_stdout.
@@ -37,14 +38,15 @@ class redirect:
     def __exit__(self, exctype, excinst, exctb):
         setattr(sys, self._stdfile, self._old)
 
+
 # For GUI version, redirects would be here, done once.
 # Put in runpip for prototype testing in text mode, so can print.
 def runpip(argstring):
-    '''Run pip with argument string containing command and options.
+    """Run pip with argument string containing command and options.
 
-    Argstring is quoted version of what would follow 'pip'
-    on command line.
-    '''
+    :param argstring: is quoted version of what would follow 'pip'
+      on command line.
+    """
     with redirect('stdout', sysout) as f1, redirect('stderr', syserr) as f2:
         status = main(argstring.split())
         out = sysout.getvalue()
@@ -53,6 +55,7 @@ def runpip(argstring):
     sysout.seek(0); sysout.truncate(0)
     syserr.seek(0); syserr.truncate(0)
     return status, out, err
+
 
 class GUISearchCommand(SearchCommand):
     """
@@ -72,15 +75,16 @@ class GUISearchCommand(SearchCommand):
             raise CommandError('Missing required argument (search query).')
         query = args
         try:
-            #The developer version of pip uses options as argument
+            # The developer version of pip uses options as argument
             pypi_hits = self.search(query,options)
         except TypeError:
-            #But, the stable version of pip uses options.index as argument
+            # But, the stable version of pip uses options.index as argument
             pypi_hits = self.search(query,options.index)
         hits = transform_hits(pypi_hits)
         global search_hits
         search_hits = copy.deepcopy(hits)
         return SUCCESS
+
 
 def get_search_results(hits):
     """
@@ -93,9 +97,9 @@ def get_search_results(hits):
     if not hits:
         return None
 
-    #Here pkg_resources is a module of pip._vendor. It has been included
-    #in pip gui because as mentioned by pip, this module is considered to
-    #be 'immutable'. There are very less chances that it will changed in future
+    # Here pkg_resources is a module of pip._vendor. It has been included
+    # in pip gui because as mentioned by pip, this module is considered to
+    # be 'immutable'. There are very less chances that it will changed in future
     installed_packages = [p.project_name for p in pkg_resources.working_set]
     for hit in hits:
         hit['latest'] = highest_version(hit['versions'])
@@ -113,15 +117,17 @@ def pip_search_command(package_name):
     """
 
     search_object = GUISearchCommand()
-    cmd_name, cmd_args = parseopts(['search',package_name])
+    cmd_name, cmd_args = parseopts(['search', package_name])
     search_object.main(cmd_args)
     return get_search_results(search_hits)
+
 
 def pip_install_command_PyPI(package_args):
     """
     Wrapper for installing pip package from PyPI
     """
     return runpip('install -U {}'.format(package_args))
+
 
 class InstallPage(tk.Tk):
     """
@@ -136,24 +142,17 @@ class InstallPage(tk.Tk):
 
     def __init__(self, root):
         tk.Frame.__init__(self, root)
-
-        #Set properties for root window
         self.parent = root
         self.parent.title("PIP Package Manager")
         self.parent.rowconfigure(0, weight=1)
         self.parent.columnconfigure(0, weight=1)
-
-        #Set theme style
-        theme_style=ttk.Style()
+        theme_style = ttk.Style()
         if 'clam' in theme_style.theme_names():
             theme_style.theme_use('clam')
-
-        #Create container to hold other frames
         self.container = ttk.Frame(self.parent)
         self.container.grid(row=0, column=0, sticky='nsew')
         self.container.rowconfigure(0, weight=1)
-
-        self.adjustWindow()
+        self.adjust_window()
         self.manage_frames()
         self.create_side_navbar()
 
@@ -163,7 +162,7 @@ class InstallPage(tk.Tk):
         selecting different ways of installation
         """
 
-        #Create a navbar frame in which all navbar buttons will lie
+        # Create a navbar frame in which all navbar buttons will lie
         self.navbar_frame = ttk.Frame(
                                 self.container,
                                 borderwidth=3,
@@ -175,52 +174,57 @@ class InstallPage(tk.Tk):
                             sticky='nsw',
                             pady=(1,1),
                             padx=(1,1))
-        #Configure style for navbar frame
+        # Configure style for navbar frame
 
-        #Button text
+        # Button text
         pypi_text = "Install From PyPI"
         local_archive_text = "Install From Local Archive"
         requirements_text = "Install From Requirements File"
         pythonlibs_text = "Install From PythonLibs"
         alternate_repo_text = "Install From Alternate Repository"
 
-        #Button style
+        # Button style
         navbar_button_style = ttk.Style()
         navbar_button_style.configure(
-                                'navbar.TButton',
-                                padding=(6,25))
+            'navbar.TButton',
+            padding=(6, 25)
+        )
 
         self.button_pypi = ttk.Button(
-                                self.navbar_frame,
-                                text=pypi_text,
-                                state='active',
-                                style='navbar.TButton')
+            self.navbar_frame,
+            text=pypi_text,
+            state='active',
+            style='navbar.TButton'
+        )
         self.button_pypi.grid(row=0, column=0, sticky='nwe')
 
         self.button_local_archive = ttk.Button(
-                                        self.navbar_frame,
-                                        text=local_archive_text,
-                                        style='navbar.TButton')
+            self.navbar_frame,
+            text=local_archive_text,
+            style='navbar.TButton'
+        )
         self.button_local_archive.grid(row=1, column=0, sticky='nwe')
 
         self.button_requirements = ttk.Button(
-                                        self.navbar_frame,
-                                        text=requirements_text,
-                                        style='navbar.TButton')
+            self.navbar_frame,
+            text=requirements_text,
+            style='navbar.TButton'
+        )
         self.button_requirements.grid(row=2, column=0, sticky='nwe')
 
         self.button_pythonlibs = ttk.Button(
-                                    self.navbar_frame,
-                                    text=pythonlibs_text,
-                                    style='navbar.TButton')
+            self.navbar_frame,
+            text=pythonlibs_text,
+            style='navbar.TButton'
+        )
         self.button_pythonlibs.grid(row=3, column=0, sticky='nwe')
 
         self.button_alternate_repo = ttk.Button(
-                                        self.navbar_frame,
-                                        text=alternate_repo_text,
-                                        style='navbar.TButton')
+            self.navbar_frame,
+            text=alternate_repo_text,
+            style='navbar.TButton'
+        )
         self.button_alternate_repo.grid(row=4, column=0, sticky='nwe')
-
 
     def manage_frames(self):
         """
@@ -230,11 +234,12 @@ class InstallPage(tk.Tk):
         """
 
         frames_tuple = (
-                    InstallFromPyPI,
-                    InstallFromLocalArchive,
-                    InstallFromRequirements,
-                    InstallFromPythonlibs,
-                    InstallFromAlternateRepo)
+            InstallFromPyPI,
+            InstallFromLocalArchive,
+            InstallFromRequirements,
+            InstallFromPythonlibs,
+            InstallFromAlternateRepo
+        )
 
         self.frames_dict = {}
         for F in frames_tuple:
@@ -248,63 +253,66 @@ class InstallPage(tk.Tk):
         frame = self.frames_dict[frame_name]
         frame.tkraise()
 
-    def adjustWindow(self):
+    def adjust_window(self):
         """
         Set the window at center position of the screen and adjust it's
         size depending on screen size
         """
 
-        #Get the screen width and screen height
+        # Get the screen width and screen height
         screen_width = self.parent.winfo_screenwidth()
         screen_height = self.parent.winfo_screenheight()
 
-        #Calculate the appropriate window width and height
-        self.window_width = int(0.75*screen_width);
-        self.window_height = int(0.75*screen_height);
+        # Calculate the appropriate window width and height
+        self.window_width = int(0.75*screen_width)
+        self.window_height = int(0.75*screen_height)
 
-        #Determine the position of the window
+        # Determine the position of the window
         x = (screen_width - self.window_width)//2
         y = (screen_height - self.window_height)//2
 
-        self.parent.geometry('{}x{}+{}+{}'.format(
-                                            str(self.window_width),
-                                            str(self.window_height),
-                                            str(x),str(y)))
+        self.parent.geometry(
+            '{}x{}+{}+{}'.format(
+                str(self.window_width),
+                str(self.window_height),
+                str(x),
+                str(y))
+        )
 
     def onExit(self):
         self.parent.destroy()
 
-class InstallFromPyPI(tk.Frame):
 
-    def __init__(self, parent, controller):
+class InstallFromPyPI(tk.Frame):
+    def __init__(self, parent, controller, **kw):
         ttk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Install Page")
         label.pack(pady=10, padx=10)
 
-class InstallFromLocalArchive(tk.Frame):
 
-    def __init__(self, parent, controller):
+class InstallFromLocalArchive(tk.Frame):
+    def __init__(self, parent, controller, **kw):
         ttk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Install From Local Archive")
         label.pack(pady=10, padx=10)
 
-class InstallFromRequirements(tk.Frame):
 
-    def __init__(self, parent, controller):
+class InstallFromRequirements(tk.Frame):
+    def __init__(self, parent, controller, **kw):
         ttk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Install From Requirements File")
         label.pack(pady=10, padx=10)
 
-class InstallFromPythonlibs(tk.Frame):
 
-    def __init__(self, parent, controller):
+class InstallFromPythonlibs(tk.Frame):
+    def __init__(self, parent, controller, **kw):
         ttk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Install From Python libs")
         label.pack(pady=10, padx=10)
 
-class InstallFromAlternateRepo(tk.Frame):
 
-    def __init__(self, parent, controller):
+class InstallFromAlternateRepo(tk.Frame):
+    def __init__(self, parent, controller, **kw):
         ttk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Install From an alternate respository")
         label.pack(pady=10, padx=10)
@@ -312,11 +320,11 @@ class InstallFromAlternateRepo(tk.Frame):
 
 if __name__ == "__main__":
 
-    #If you want to check GUI
+    # If you want to check GUI
     root = tk.Tk()
-    #root.resizable(width='false', height='false')
+    # root.resizable(width='false', height='false')
     install_app = InstallPage(root)
     root.mainloop()
 
-    #If you want to check search command
-    #print (pip_search_command(package_name))
+    # If you want to check search command
+    # print (pip_search_command(package_name))
