@@ -121,7 +121,7 @@ def pip_install_command_PyPI(package_args):
     """
     Wrapper for installing pip package from PyPI
     """
-    return runpip('install -U {}'.format(package_arg))
+    return runpip('install -U {}'.format(package_args))
 
 class InstallPage(tk.Tk):
     """
