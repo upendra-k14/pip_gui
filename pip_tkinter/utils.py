@@ -13,7 +13,7 @@ sysout = StringIO()
 syserr = StringIO()
 
 
-class redirect:
+class Redirect:
     """Context manager for temporarily redirecting stdout/err.
     Simplified and generalize from contextlib.redirect_stdout.
     """
@@ -39,7 +39,7 @@ def runpip(argstring):
     :param argstring: is quoted version of what would follow 'pip'
       on command line.
     """
-    with redirect('stdout', sysout) as f1, redirect('stderr', syserr) as f2:
+    with Redirect('stdout', sysout) as f1, Redirect('stderr', syserr) as f2:
         status = main(argstring.split())
         out = sysout.getvalue()
         err = syserr.getvalue()

@@ -10,28 +10,12 @@ from pip import main
 
 from io import StringIO
 
+from pip_tkinter.utils import Redirect
+
 
 search_hits = {}
 sysout = StringIO()
 syserr = StringIO()
-
-
-class Redirect:
-    """Context manager for temporarily redirecting stdout/err.
-    Simplified and generalize from contextlib.redirect_stdout.
-    """
-
-    def __init__(self, stdfile, new_target):
-        self._stdfile = stdfile  # 'stdout' or 'stderr'
-        self._new_target = new_target
-
-    def __enter__(self):
-        self._old = getattr(sys, self._stdfile)
-        setattr(sys, self._stdfile, self._new_target)
-        return self._new_target
-
-    def __exit__(self, exctype, excinst, exctb):
-        setattr(sys, self._stdfile, self._old)
 
 
 # For GUI version, redirects would be here, done once.
