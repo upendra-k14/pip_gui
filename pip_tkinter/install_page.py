@@ -8,7 +8,7 @@ import copy
 from pip.commands.search import SearchCommand, transform_hits, highest_version
 from pip.exceptions import CommandError
 from pip.basecommand import SUCCESS
-from pip_tkinter._vendor import pkg_resources
+from pip_tkinter import _vendor
 from pip import parseopts, main
 
 from io import StringIO
@@ -100,12 +100,12 @@ def get_search_results(hits):
     # Here pkg_resources is a module of pip._vendor. It has been included
     # in pip gui because as mentioned by pip, this module is considered to
     # be 'immutable'. There are very less chances that it will changed in future
-    installed_packages = [p.project_name for p in pkg_resources.working_set]
+    installed_packages = [p.project_name for p in _vendor.pkg_resources.working_set]
     for hit in hits:
         hit['latest'] = highest_version(hit['versions'])
         name = hit['name']
         if name in installed_packages:
-            dist = pkg_resources.get_distribution(name)
+            dist = _vendor.pkg_resources.get_distribution(name)
             hit['installed'] = dist.version
 
     return hits
@@ -152,6 +152,7 @@ class InstallPage(tk.Tk):
         self.container = ttk.Frame(self.parent)
         self.container.grid(row=0, column=0, sticky='nsew')
         self.container.rowconfigure(0, weight=1)
+        self.container.columnconfigure(1, weight=1)
         self.adjust_window()
         self.manage_frames()
         self.create_side_navbar()
@@ -194,35 +195,40 @@ class InstallPage(tk.Tk):
             self.navbar_frame,
             text=pypi_text,
             state='active',
-            style='navbar.TButton'
+            style='navbar.TButton',
+            command=lambda : self.show_frame(InstallFromPyPI)
         )
         self.button_pypi.grid(row=0, column=0, sticky='nwe')
 
         self.button_local_archive = ttk.Button(
             self.navbar_frame,
             text=local_archive_text,
-            style='navbar.TButton'
+            style='navbar.TButton',
+            command=lambda : self.show_frame(InstallFromLocalArchive)
         )
         self.button_local_archive.grid(row=1, column=0, sticky='nwe')
 
         self.button_requirements = ttk.Button(
             self.navbar_frame,
             text=requirements_text,
-            style='navbar.TButton'
+            style='navbar.TButton',
+            command=lambda : self.show_frame(InstallFromRequirements)
         )
         self.button_requirements.grid(row=2, column=0, sticky='nwe')
 
         self.button_pythonlibs = ttk.Button(
             self.navbar_frame,
             text=pythonlibs_text,
-            style='navbar.TButton'
+            style='navbar.TButton',
+            command=lambda : self.show_frame(InstallFromPythonlibs)
         )
         self.button_pythonlibs.grid(row=3, column=0, sticky='nwe')
 
         self.button_alternate_repo = ttk.Button(
             self.navbar_frame,
             text=alternate_repo_text,
-            style='navbar.TButton'
+            style='navbar.TButton',
+            command=lambda : self.show_frame(InstallFromAlternateRepo)
         )
         self.button_alternate_repo.grid(row=4, column=0, sticky='nwe')
 
@@ -282,38 +288,232 @@ class InstallPage(tk.Tk):
     def onExit(self):
         self.parent.destroy()
 
+class MultiItemsList(object):
 
-class InstallFromPyPI(tk.Frame):
-    def __init__(self, parent, controller, **kw):
-        ttk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Install Page")
-        label.pack(pady=10, padx=10)
+    def __init__(self, parent, headers_list=None):
+        """
+        Initialize variables needed for creating Treeview
+        """
+
+        self.scroll_tree = None
+        self.parent = parent
+        self.headers_list = headers_list
+        self.items_list = None
+        self.create_treeview()
+        self.create_headers()
+
+    def create_treeview(self):
+        """
+        Create a multi items list consisting of a frame, horizontal and vertical
+        scroll bar and Treeview
+        """
+
+        self.myframe = ttk.Frame(self.parent)
+        self.myframe.pack(fill='both', expand=True)
+
+        self.scroll_tree = ttk.Treeview(
+            self.parent,
+            columns=self.headers_list,
+            show='headings')
+
+        vrtl_scrbar = ttk.Scrollbar(
+            orient="vertical",
+            command=self.scroll_tree.yview)
+        hrtl_scrbar = ttk.Scrollbar(
+            orient="horizontal",
+            command=self.scroll_tree.xview)
+
+        self.scroll_tree.configure(
+            yscrollcommand=vrtl_scrbar.set,
+            xscrollcommand=hrtl_scrbar.set)
+
+        self.scroll_tree.grid(column=0, row=0, sticky='nswe', in_=self.myframe)
+        vrtl_scrbar.grid(column=1, row=0, sticky='ns', in_=self.myframe)
+        hrtl_scrbar.grid(column=0, row=1, sticky='ew', in_=self.myframe)
+        self.myframe.grid_columnconfigure(0, weight=1)
+        self.myframe.grid_rowconfigure(0, weight=1)
+
+    def create_headers(self):
+
+        for header in self.headers_list:
+            self.scroll_tree.heading(header, text=header)
+            self.scroll_tree.column(header, width=30)
+
+    def populate_rows(self, items_list=None):
+
+        self.items_list = items_list
+        for item in self.items_list:
+            self.scroll_tree.insert('', 'end', values=item)
 
 
-class InstallFromLocalArchive(tk.Frame):
-    def __init__(self, parent, controller, **kw):
-        ttk.Frame.__init__(self, parent)
+class InstallFromPyPI(ttk.Frame):
+
+    def __init__(self, parent, controller):
+
+        #Change background color
+        frame_style = ttk.Style()
+        frame_style.configure('frame.TFrame')
+
+        ttk.Frame.__init__(
+            self,
+            parent,
+            borderwidth=3,
+            padding=0.5,
+            relief='ridge',
+            style='frame.TFrame')
+        self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
+        self.rowconfigure(1, weight=1)
+        self.columnconfigure(0, weight=1)
+        self.create_search_bar()
+        self.create_multitem_treeview()
+
+    def create_search_bar(self):
+
+        import pkg_resources, os
+
+        resource_package = __name__
+        resource_path = os.path.join('pic.dat')
+
+        #Configure style for search bar
+        data= pkg_resources.resource_string(resource_package, resource_path)
+        global s1,s2
+        s1 = tk.PhotoImage('search1', data=data, format='gif -index 0')
+        s2 = tk.PhotoImage('search2', data=data, format='gif -index 1')
+        style = ttk.Style()
+        style.element_create('Search.field', 'image', 'search1',
+            ('focus', 'search2'), border=[25, 9, 14], sticky='ew')
+        style.layout('Search.entry', [
+            ('Search.field', {'sticky': 'nswe', 'border': 1, 'children':
+                [('Entry.padding', {'sticky': 'nswe', 'children':
+                    [('Entry.textarea', {'sticky': 'nswe'})]
+                })]
+            })]
+        )
+        style.configure('Search.entry')
+
+        #Create search bar and button
+        self.search_var = tk.StringVar()
+        self.entry = ttk.Entry(
+            self,
+            style='Search.entry',
+            textvariable=self.search_var)
+        self.search_button = ttk.Button(
+            self,
+            text='Search',
+            command=lambda : self.update_list)
+
+        self.entry.grid(row=0, column=0, padx=3, pady=3, sticky='nwe')
+        self.search_button.grid(row=0, column=1, padx=1, pady = 0, sticky='nw')
+
+    def create_multitem_treeview(self):
+        """
+        Create multitem treeview to show search results with headers :
+        1. Python Module
+        2. Installed version
+        3. Available versions
+        """
+
+        self.headers = ['Python Module','Installed Version','Available Versions']
+        self.multi_items_list = MultiItemsList(self, self.headers)
+        self.multi_items_list.scroll_tree.bind(
+            "<Double-Button-1>",
+            self.show_summary)
+        self.selected_package_details=tk.StringVar()
+        self.selected_package_details.set('No module selected')
+        self.package_subwindow = ttk.Label(self,
+            textvariable=self.selected_package_details)
+        self.package_subwindow.grid(row=2, column=1, sticky='nswe')
+
+    def show_summary(self):
+        """
+        Show the details of the selected package
+        """
+
+        try:
+            curr_item = self.multi_items_list.scroll_tree.focus()
+            item_dict = self.multi_items_list.scroll_tree.item(curr_item)
+            selected_module = item_dict['values'][0]
+            installed_version = item_dict['values'][1]
+            latest_version = item_dict['latest'][2]
+            self.selected_package_details.set('{}\n{}\n{}\n'.format(
+                selected_module, installed_version, latest_version))
+            self.package_subwindow.config(
+                textvariable=self.selected_package_details)
+        except:
+            self.selected_package_details.set('No module selected')
+            self.package_subwindow.config(
+                textvariable=self.selected_package_details)
+
+    def update_search_results(self):
+        """
+        Show search results
+        """
+
+        search_term = self.search_var.get()
+        self.lbox.delete(0, tk.END)
+
+        try:
+            lbox_list = [str(x) for x in pip_search_command(search_term)]
+        except TypeError:
+            lbox_list = []
+
+        for item in lbox_list:
+            if search_term.lower() in item.lower():
+                self.lbox.insert(tk.END, item)
+
+
+class InstallFromLocalArchive(ttk.Frame):
+
+    def __init__(self, parent, controller):
+        ttk.Frame.__init__(
+                        self,
+                        parent,
+                        borderwidth=3,
+                        padding=0.5,
+                        relief='ridge')
+        self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
         label = tk.Label(self, text="Install From Local Archive")
         label.pack(pady=10, padx=10)
 
 
-class InstallFromRequirements(tk.Frame):
-    def __init__(self, parent, controller, **kw):
-        ttk.Frame.__init__(self, parent)
+class InstallFromRequirements(ttk.Frame):
+
+    def __init__(self, parent, controller):
+        ttk.Frame.__init__(
+                        self,
+                        parent,
+                        borderwidth=3,
+                        padding=0.5,
+                        relief='ridge')
+        self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
         label = tk.Label(self, text="Install From Requirements File")
         label.pack(pady=10, padx=10)
 
 
-class InstallFromPythonlibs(tk.Frame):
-    def __init__(self, parent, controller, **kw):
-        ttk.Frame.__init__(self, parent)
+class InstallFromPythonlibs(ttk.Frame):
+
+    def __init__(self, parent, controller):
+        ttk.Frame.__init__(
+                        self,
+                        parent,
+                        borderwidth=3,
+                        padding=0.5,
+                        relief='ridge')
+        self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
         label = tk.Label(self, text="Install From Python libs")
         label.pack(pady=10, padx=10)
 
 
-class InstallFromAlternateRepo(tk.Frame):
-    def __init__(self, parent, controller, **kw):
-        ttk.Frame.__init__(self, parent)
+class InstallFromAlternateRepo(ttk.Frame):
+
+    def __init__(self, parent, controller):
+        ttk.Frame.__init__(
+                        self,
+                        parent,
+                        borderwidth=3,
+                        padding=0.5,
+                        relief='ridge')
+        self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
         label = tk.Label(self, text="Install From an alternate respository")
         label.pack(pady=10, padx=10)
 
