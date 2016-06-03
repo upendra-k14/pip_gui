@@ -4,11 +4,11 @@ import pip
 import subprocess
 import sys
 import copy
+import operator
 
 from pip.commands.search import SearchCommand, transform_hits, highest_version
 from pip.exceptions import CommandError
 from pip.basecommand import SUCCESS
-from pip_tkinter import _vendor
 from pip import parseopts, main
 
 from io import StringIO
@@ -100,12 +100,13 @@ def get_search_results(hits):
     # Here pkg_resources is a module of pip._vendor. It has been included
     # in pip gui because as mentioned by pip, this module is considered to
     # be 'immutable'. There are very less chances that it will changed in future
-    installed_packages = [p.project_name for p in _vendor.pkg_resources.working_set]
+    from pip_tkinter._vendor import pkg_resources
+    installed_packages = [p.project_name for p in pkg_resources.working_set]
     for hit in hits:
         hit['latest'] = highest_version(hit['versions'])
         name = hit['name']
         if name in installed_packages:
-            dist = _vendor.pkg_resources.get_distribution(name)
+            dist = pkg_resources.get_distribution(name)
             hit['installed'] = dist.version
 
     return hits
@@ -309,7 +310,7 @@ class MultiItemsList(object):
         """
 
         self.myframe = ttk.Frame(self.parent)
-        self.myframe.pack(fill='both', expand=True)
+        self.myframe.grid(row=1, column=0, columnspan=2, sticky='nswe')
 
         self.scroll_tree = ttk.Treeview(
             self.parent,
@@ -341,6 +342,7 @@ class MultiItemsList(object):
 
     def populate_rows(self, items_list=None):
 
+        self.scroll_tree.delete(*self.scroll_tree.get_children())
         self.items_list = items_list
         for item in self.items_list:
             self.scroll_tree.insert('', 'end', values=item)
@@ -400,7 +402,7 @@ class InstallFromPyPI(ttk.Frame):
         self.search_button = ttk.Button(
             self,
             text='Search',
-            command=lambda : self.update_list)
+            command=lambda : self.update_search_results())
 
         self.entry.grid(row=0, column=0, padx=3, pady=3, sticky='nwe')
         self.search_button.grid(row=0, column=1, padx=1, pady = 0, sticky='nw')
@@ -415,14 +417,28 @@ class InstallFromPyPI(ttk.Frame):
 
         self.headers = ['Python Module','Installed Version','Available Versions']
         self.multi_items_list = MultiItemsList(self, self.headers)
+        self.package_subwindow = tk.LabelFrame(
+            self,
+            text="Package Details",
+            padx=5,
+            pady=5)
+        self.package_subwindow.grid(row=2, column=0, columnspan=2, sticky='nswe')
+        self.package_details = tk.Text(
+            self.package_subwindow,
+            wrap='word',
+            height=5)
+        self.package_details.insert(1.0, 'No module selected')
+        self.package_details.configure(state='disabled')
+        self.package_details.pack(side='left', fill='x', expand='yes')
+        yscrollbar=ttk.Scrollbar(
+            self.package_subwindow,
+            orient='vertical',
+            command=self.package_details.yview)
+        yscrollbar.pack(side='right', fill='y')
+        self.package_details["yscrollcommand"]=yscrollbar.set
         self.multi_items_list.scroll_tree.bind(
             "<Double-Button-1>",
-            self.show_summary)
-        self.selected_package_details=tk.StringVar()
-        self.selected_package_details.set('No module selected')
-        self.package_subwindow = ttk.Label(self,
-            textvariable=self.selected_package_details)
-        self.package_subwindow.grid(row=2, column=1, sticky='nswe')
+            lambda x: self.show_summary())
 
     def show_summary(self):
         """
@@ -432,17 +448,33 @@ class InstallFromPyPI(ttk.Frame):
         try:
             curr_item = self.multi_items_list.scroll_tree.focus()
             item_dict = self.multi_items_list.scroll_tree.item(curr_item)
-            selected_module = item_dict['values'][0]
-            installed_version = item_dict['values'][1]
-            latest_version = item_dict['latest'][2]
-            self.selected_package_details.set('{}\n{}\n{}\n'.format(
-                selected_module, installed_version, latest_version))
-            self.package_subwindow.config(
-                textvariable=self.selected_package_details)
+
+            selected_module = 'Module Name : {}'.format(item_dict['values'][0])
+            installed_version = 'Installed : {}'.format(item_dict['values'][1])
+            latest_version = 'Latest : {}'.format(item_dict['values'][2])
+
+            module_summary = "Not available"
+            for module in self.search_results:
+                if module['name'] == item_dict['values'][0]:
+                    module_summary = module['summary']
+                    break
+            module_summary = 'Summary {}'.format(module_summary)
+
+            selected_package_details = '{}\n{}\n{}\n{}'.format(
+                selected_module,
+                module_summary,
+                installed_version,
+                latest_version)
+            self.package_details.configure(state='normal')
+            self.package_details.delete(1.0, 'end')
+            self.package_details.insert(1.0, selected_package_details)
+            self.package_details.configure(state='disabled')
+
         except:
-            self.selected_package_details.set('No module selected')
-            self.package_subwindow.config(
-                textvariable=self.selected_package_details)
+            self.package_details.configure(state='normal')
+            self.package_details.delete(1.0, 'end')
+            self.package_details.insert(1.0, 'No module selected')
+            self.package_details.configure(state='disabled')
 
     def update_search_results(self):
         """
@@ -450,17 +482,26 @@ class InstallFromPyPI(ttk.Frame):
         """
 
         search_term = self.search_var.get()
-        self.lbox.delete(0, tk.END)
-
+        print (search_term)
         try:
-            lbox_list = [str(x) for x in pip_search_command(search_term)]
+            self.search_results = pip_search_command(search_term)
         except TypeError:
-            lbox_list = []
+            self.search_results = []
 
-        for item in lbox_list:
-            if search_term.lower() in item.lower():
-                self.lbox.insert(tk.END, item)
-
+        results_tuple = []
+        for item in self.search_results:
+            if search_term in item['name']:
+                if 'installed' in item.keys():
+                    results_tuple.insert(0, (
+                        item['name'],
+                        item['installed'],
+                        item['latest']))
+                else:
+                    results_tuple.insert(0, (
+                        item['name'],
+                        'not installed',
+                        item['latest']))
+        self.multi_items_list.populate_rows(results_tuple)
 
 class InstallFromLocalArchive(ttk.Frame):
 
