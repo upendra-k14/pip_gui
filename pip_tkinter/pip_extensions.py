@@ -3,20 +3,14 @@ from __future__ import absolute_import
 import sys
 import copy
 
+from io import StringIO
+
 from pip.commands.search import SearchCommand, transform_hits, highest_version
 from pip.exceptions import CommandError
 from pip.basecommand import SUCCESS
 from pip import main
 
-from io import StringIO
-
 from pip_tkinter.utils import Redirect
-
-
-search_hits = {}
-sysout = StringIO()
-syserr = StringIO()
-
 
 # For GUI version, redirects would be here, done once.
 # Put in runpip for prototype testing in text mode, so can print.
@@ -59,8 +53,30 @@ class GUISearchCommand(SearchCommand):
         except TypeError:
             # But, the stable version of pip uses options.index as argument
             pypi_hits = self.search(query,options.index)
-        hits = transform_hits(pypi_hits)
-        global search_hits
-        search_hits = copy.deepcopy(hits)
+        self.hits = transform_hits(pypi_hits)
         return SUCCESS
 
+    def get_search_results(self):
+        """
+        This code is taken from pip.commands.search.print_results(). It is modified
+        to return results in dictionary format instead of printing results
+        For all the search results obtained, we can check if a package is already
+        installed or not. If installed then the version of installed package is
+        found and stored.
+        """
+        if not self.hits:
+            return None
+
+        # Here pkg_resources is a module of pip._vendor. It has been included
+        # in pip gui because as mentioned by pip, this module is considered to
+        # be 'immutable'. There are very less chances that it will changed in future
+        from pip_tkinter._vendor import pkg_resources
+        self.installed_packages = [p.project_name for p in pkg_resources.working_set]
+        for hit in self.hits:
+            hit['latest'] = highest_version(hit['versions'])
+            name = hit['name']
+            if name in self.installed_packages:
+                dist = pkg_resources.get_distribution(name)
+                hit['installed'] = dist.version
+
+        return self.hits
