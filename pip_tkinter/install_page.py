@@ -5,11 +5,6 @@ from io import StringIO
 import tkinter as tk
 from tkinter import ttk
 
-search_hits = {}
-sysout = StringIO()
-syserr = StringIO()
-
-
 class InstallPage(tk.Tk):
     """
     Manage search and install. Implements GUI for
@@ -22,7 +17,7 @@ class InstallPage(tk.Tk):
     """
 
     def __init__(self, root):
-        tk.Frame.__init__(self, root)
+        ttk.Frame.__init__(self, root)
         self.parent = root
         self.parent.title("PIP Package Manager")
         self.parent.rowconfigure(0, weight=1)
@@ -364,7 +359,7 @@ class InstallFromPyPI(ttk.Frame):
         search_term = self.search_var.get()
         print (search_term)
         try:
-            from pip_tkinter.pip_extensions import pip_search_command
+            from pip_tkinter.utils import pip_search_command
             self.search_results = pip_search_command(search_term)
         except TypeError:
             self.search_results = []
@@ -408,8 +403,28 @@ class InstallFromRequirements(ttk.Frame):
                         padding=0.5,
                         relief='ridge')
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
-        label = tk.Label(self, text="Install From Requirements File")
-        label.pack(pady=10, padx=10)
+        self.create_entry_form()
+        self.create_nav_buttons()
+
+    def create_entry_form(self):
+        """
+        Make a labelled frame for entry widget with browse option
+        """
+
+        self.labelled_entry_frame = tk.LabelFrame(
+            self,
+            text="Enter path to requirement file",
+            padx=5,
+            pady=5)
+        self.labelled_entry_frame.grid(row=0, column=0, sticky='nswe')
+        self.path_to_requirement = tk.Entry(self.labelled_entry_frame)
+        self.path_to_requirement.grid(row=1, column=0, sticky='nswe')
+
+
+    def create_nav_buttons(self):
+        """
+        Create back and next buttons
+        """
 
 
 class InstallFromPythonlibs(ttk.Frame):
