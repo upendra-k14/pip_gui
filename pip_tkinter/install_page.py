@@ -72,7 +72,7 @@ class InstallPage(tk.Tk):
             text=pypi_text,
             state='active',
             style='navbar.TButton',
-            command=lambda : self.show_frame(InstallFromPyPI)
+            command=lambda : self.show_frame('InstallFromPyPI')
         )
         self.button_pypi.grid(row=0, column=0, sticky='nwe')
 
@@ -80,7 +80,7 @@ class InstallPage(tk.Tk):
             self.navbar_frame,
             text=local_archive_text,
             style='navbar.TButton',
-            command=lambda : self.show_frame(InstallFromLocalArchive)
+            command=lambda : self.show_frame('InstallFromLocalArchive')
         )
         self.button_local_archive.grid(row=1, column=0, sticky='nwe')
 
@@ -88,7 +88,7 @@ class InstallPage(tk.Tk):
             self.navbar_frame,
             text=requirements_text,
             style='navbar.TButton',
-            command=lambda : self.show_frame(InstallFromRequirements)
+            command=lambda : self.show_frame('InstallFromRequirements')
         )
         self.button_requirements.grid(row=2, column=0, sticky='nwe')
 
@@ -96,7 +96,7 @@ class InstallPage(tk.Tk):
             self.navbar_frame,
             text=pythonlibs_text,
             style='navbar.TButton',
-            command=lambda : self.show_frame(InstallFromPythonlibs)
+            command=lambda : self.show_frame('InstallFromPythonlibs')
         )
         self.button_pythonlibs.grid(row=3, column=0, sticky='nwe')
 
@@ -104,7 +104,7 @@ class InstallPage(tk.Tk):
             self.navbar_frame,
             text=alternate_repo_text,
             style='navbar.TButton',
-            command=lambda : self.show_frame(InstallFromAlternateRepo)
+            command=lambda : self.show_frame('InstallFromAlternateRepo')
         )
         self.button_alternate_repo.grid(row=4, column=0, sticky='nwe')
 
@@ -125,11 +125,12 @@ class InstallPage(tk.Tk):
 
         self.frames_dict = {}
         for F in frames_tuple:
+            frame_name = F.__name__
             new_frame = F(self.container, self)
             new_frame.grid(row=0, column=1, sticky='nsew')
-            self.frames_dict[F] = new_frame
+            self.frames_dict[frame_name] = new_frame
 
-        self.show_frame(InstallFromPyPI)
+        self.show_frame('InstallFromPyPI')
 
     def show_frame(self, frame_name):
         frame = self.frames_dict[frame_name]
@@ -188,10 +189,12 @@ class MultiItemsList(object):
         self.myframe.grid(row=1, column=0, columnspan=2, sticky='nswe')
 
         self.scroll_tree = ttk.Treeview(
-            self.parent,
+            self.myframe,
             columns=self.headers_list,
             show='headings')
 
+        '''
+        FIX : Scrollbar is creating problems while changing frame
         vrtl_scrbar = ttk.Scrollbar(
             orient="vertical",
             command=self.scroll_tree.yview)
@@ -202,10 +205,12 @@ class MultiItemsList(object):
         self.scroll_tree.configure(
             yscrollcommand=vrtl_scrbar.set,
             xscrollcommand=hrtl_scrbar.set)
-
+        '''
         self.scroll_tree.grid(column=0, row=0, sticky='nswe', in_=self.myframe)
+        '''
         vrtl_scrbar.grid(column=1, row=0, sticky='ns', in_=self.myframe)
         hrtl_scrbar.grid(column=0, row=1, sticky='ew', in_=self.myframe)
+        '''
         self.myframe.grid_columnconfigure(0, weight=1)
         self.myframe.grid_rowconfigure(0, weight=1)
 
@@ -243,6 +248,7 @@ class InstallFromPyPI(ttk.Frame):
         self.columnconfigure(0, weight=1)
         self.create_search_bar()
         self.create_multitem_treeview()
+        self.create_nav_buttons()
 
     def create_search_bar(self):
 
@@ -379,6 +385,25 @@ class InstallFromPyPI(ttk.Frame):
                         item['latest']))
         self.multi_items_list.populate_rows(results_tuple)
 
+    def create_nav_buttons(self):
+        """
+        Create back and next buttons
+        """
+
+        self.navigate_back = ttk.Button(self, text="Back")
+        self.navigate_back.grid(row=3, column=0, sticky='w')
+        self.navigate_next = ttk.Button(
+            self,
+            text="Install",
+            command=lambda: self.execute_pip_commands())
+        self.navigate_next.grid(row=3, column=1, sticky='e')
+
+    def execute_pip_commands(self):
+        """
+        Execute pip commands
+        """
+        pass
+
 class InstallFromLocalArchive(ttk.Frame):
 
     def __init__(self, parent, controller):
@@ -389,20 +414,91 @@ class InstallFromLocalArchive(ttk.Frame):
                         padding=0.5,
                         relief='ridge')
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
-        label = tk.Label(self, text="Install From Local Archive")
-        label.pack(pady=10, padx=10)
+
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+        self.create_entry_form()
+        self.create_nav_buttons()
+
+    def create_entry_form(self):
+        """
+        Make a labelled frame for entry widget with browse option
+        """
+
+        self.labelled_entry_frame = tk.LabelFrame(
+            self,
+            text="Enter path to local or remote archive file",
+            padx=5,
+            pady=30)
+
+        #Create labelled entry frame
+        self.labelled_entry_frame.grid(row=0, column=0, columnspan=2, sticky='nswe')
+        self.labelled_entry_frame.columnconfigure(0, weight=1)
+
+        #Create a entry widget for taking input for requirement file
+        self.path_to_requirement = ttk.Entry(self.labelled_entry_frame)
+        self.path_to_requirement.grid(row=0, column=0, sticky='nswe')
+
+        #Create a tk browse dialog button
+        self.browse_button = ttk.Button(
+            self.labelled_entry_frame,
+            text = "Browse",
+            command = self.get_file_name)
+        self.browse_button.grid(row = 0, column = 1, sticky = 'w')
+
+
+    def get_file_name(self):
+
+        from tkinter.filedialog import askopenfilename
+        from tkinter.messagebox import showerror
+        from os.path import expanduser
+
+        home_directory = expanduser("~")
+
+        req_file_name = askopenfilename(
+            filetypes = (
+                ("Archive file", "*.zip *.tar *tar.gz *.whl")
+                ,("All files", "*.*")),
+            initialdir = home_directory)
+
+        if req_file_name:
+            self.path_to_requirement.delete(0, 'end')
+            self.path_to_requirement.insert('end', req_file_name)
+
+
+    def create_nav_buttons(self):
+        """
+        Create back and next buttons
+        """
+
+        self.navigate_back = ttk.Button(self, text="Back")
+        self.navigate_back.grid(row=2, column=0, sticky='w')
+        self.navigate_next = ttk.Button(
+            self,
+            text="Install",
+            command=lambda: self.execute_pip_commands())
+        self.navigate_next.grid(row=2, column=1, sticky='e')
+
+    def execute_pip_commands(self):
+        """
+        Execute pip commands
+        """
+        pass
+
 
 
 class InstallFromRequirements(ttk.Frame):
 
     def __init__(self, parent, controller):
         ttk.Frame.__init__(
-                        self,
-                        parent,
-                        borderwidth=3,
-                        padding=0.5,
-                        relief='ridge')
+            self,
+            parent,
+            borderwidth=3,
+            padding=0.5,
+            relief='ridge')
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
         self.create_entry_form()
         self.create_nav_buttons()
 
@@ -415,10 +511,55 @@ class InstallFromRequirements(ttk.Frame):
             self,
             text="Enter path to requirement file",
             padx=5,
-            pady=5)
-        self.labelled_entry_frame.grid(row=0, column=0, sticky='nswe')
-        self.path_to_requirement = tk.Entry(self.labelled_entry_frame)
-        self.path_to_requirement.grid(row=1, column=0, sticky='nswe')
+            pady=30)
+
+        #Create labelled entry frame
+        self.labelled_entry_frame.grid(row=0, column=0, columnspan=2, sticky='nswe')
+        self.labelled_entry_frame.columnconfigure(0, weight=1)
+
+        #Create a entry widget for taking input for requirement file
+        self.path_to_requirement = ttk.Entry(self.labelled_entry_frame)
+        self.path_to_requirement.grid(row=0, column=0, sticky='nswe')
+
+        #Create a tk browse dialog button
+        self.browse_button = ttk.Button(
+            self.labelled_entry_frame,
+            text = "Browse",
+            command = self.get_file_name)
+        self.browse_button.grid(row = 0, column = 1, sticky = 'w')
+
+        #Create a note informing about the execution of requirement file
+        s = ttk.Style()
+        self.note_text = tk.Text(
+            self.labelled_entry_frame,
+            wrap='word',
+            bg=s.lookup('TFrame', 'background'),
+            height=8)
+        self.note_text.grid(row=1, column=0, columnspan=2, sticky='nwse', pady=(30,20))
+        note_content = "Note :\n\n\n\
+1. 'pip' doesn't offer any guarantee of the order of installation of packages \
+specified in requirements file.\n\n\
+2. In case a particular version is not found, the closest matching version \
+will be installed."
+        self.note_text.insert('end', note_content)
+        self.note_text.config(state='disabled')
+
+    def get_file_name(self):
+
+        from tkinter.filedialog import askopenfilename
+        from tkinter.messagebox import showerror
+        from os.path import expanduser
+
+        home_directory = expanduser("~")
+        req_file_name = askopenfilename(
+            filetypes = (
+                ("Requirement file", "*.txt")
+                ,("All files", "*.*")),
+            initialdir = home_directory)
+
+        if req_file_name:
+            self.path_to_requirement.delete(0, 'end')
+            self.path_to_requirement.insert('end', req_file_name)
 
 
     def create_nav_buttons(self):
@@ -426,6 +567,19 @@ class InstallFromRequirements(ttk.Frame):
         Create back and next buttons
         """
 
+        self.navigate_back = ttk.Button(self, text="Back")
+        self.navigate_back.grid(row=2, column=0, sticky='w')
+        self.navigate_next = ttk.Button(
+            self,
+            text="Install",
+            command=lambda: self.execute_pip_commands())
+        self.navigate_next.grid(row=2, column=1, sticky='e')
+
+    def execute_pip_commands(self):
+        """
+        Execute pip commands
+        """
+        pass
 
 class InstallFromPythonlibs(ttk.Frame):
 
