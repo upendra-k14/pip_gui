@@ -81,9 +81,6 @@ def get_python_distributions_in_windows():
 
     """
 
-    from _winreg import *
-
-    registry_keys = ['HKEY_LOCAL_MACHINE', 'HKEY_CURRENT_USER']
 
 if __name__ == "__main__":
 
