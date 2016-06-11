@@ -47,12 +47,43 @@ def get_python_distributions_in_linux():
 def get_python_distributions_in_macos():
     """
     Return path of Python executables in Mac OS
+    Common install locations in python :
+
+    1. /usr/bin/
+    2. /usr/local/bin/
+    3. /opt/local/bin (Homebrew installation)
     """
+
+    executable_paths = []
+    pattern = re.compile('python\d\.\d$')
+
+    python_install_dirs = [
+        '/usr/bin/',
+        '/usr/local/bin/',
+        '/opt/local/bin/']
+
+    for install_dir in python_install_dirs:
+        for executable in os.listdir(install_dir):
+            if re.match(pattern, executable):
+                executable_paths.append('{}{}'.format(install_dir, executable))
+
+    return executable_paths
 
 def get_python_distributions_in_windows():
     """
-    Return path of Python executables in Windows
+    Return path of Python executables in Windows. Install locations can be
+    found from windows registry.
+    Possible registry keys :
+
+    1. HKEY_CURRENT_USER\Software\Python\<Company>\<Tag>\<InstallPath>
+    2. HKEY_LOCAL_MACHINE\Software\Python\<Company>\<Tag>\<InstallPath>
+    3. HKEY_LOCAL_MACHINE\Wow6432Node\Python\<Company>\<Tag>\<InstallPath>
+
     """
+
+    from _winreg import *
+
+    registry_keys = ['HKEY_LOCAL_MACHINE', 'HKEY_CURRENT_USER']
 
 if __name__ == "__main__":
 
