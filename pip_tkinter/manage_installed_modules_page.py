@@ -1,22 +1,19 @@
 import tkinter as tk
 from tkinter import ttk
 
-class ManageInstalledPage(tk.Tk):
+class ManageInstalledPage(ttk.Frame):
     """
     Ask user about what to do :
     1. Install
     2. Uninstall or Update
     """
 
-    def __init__(self, root):
+    def __init__(self, root, controller):
         ttk.Frame.__init__(self, root)
         self.parent = root
-        self.parent.title("PIP Package Manager")
+        self.controller = controller
         self.parent.rowconfigure(0, weight=1)
         self.parent.columnconfigure(0, weight=1)
-        theme_style = ttk.Style()
-        if 'clam' in theme_style.theme_names():
-            theme_style.theme_use('clam')
 
 if __name__ == "__main__":
 

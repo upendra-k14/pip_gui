@@ -46,14 +46,15 @@ class MainApp(tk.Tk):
         for F in frames_tuple:
             frame_name = F.__name__
             new_frame = F(self.container, self)
-            new_frame.grid(row=0, column=1, sticky='nsew')
+            new_frame.grid(row=0, column=0, sticky='nsew')
             self.frames_dict[frame_name] = new_frame
 
-        self.show_frame(WelcomePage)
+        self.show_frame('WelcomePage')
 
     def show_frame(self, frame_name):
         frame = self.frames_dict[frame_name]
         frame.tkraise()
+        print (frame_name)
 
     def adjust_window(self):
         """
