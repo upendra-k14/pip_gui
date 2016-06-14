@@ -22,7 +22,7 @@ class MainApp(tk.Tk):
         self.container.grid(row=0, column=0, sticky='nsew')
         self.container.rowconfigure(0, weight=1)
         self.container.columnconfigure(0, weight=1)
-        self.adjust_window(0.55, 0.75)
+        self.adjust_window(0.45, 0.40)
         self.manage_frames()
 
     def manage_frames(self):
@@ -49,7 +49,7 @@ class MainApp(tk.Tk):
             new_frame.grid(row=0, column=0, sticky='nsew')
             self.frames_dict[frame_name] = new_frame
 
-        self.adjust_window(0.55, 0.75)
+        self.adjust_window(0.45, 0.40)
         self.show_frame('WelcomePage')
 
     def show_frame(self, frame_name):
@@ -57,7 +57,7 @@ class MainApp(tk.Tk):
         if frame_name!='WelcomePage':
             self.adjust_window(0.75, 0.75)
         else:
-            self.adjust_window(0.55, 0.75)
+            self.adjust_window(0.45, 0.40)
 
         frame = self.frames_dict[frame_name]
         frame.tkraise()
