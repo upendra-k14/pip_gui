@@ -21,9 +21,11 @@ class InstallPage(ttk.Frame):
         ttk.Frame.__init__(self, root)
         self.parent = root
         self.controller = controller
-        self.parent.rowconfigure(0, weight=1)
-        self.parent.columnconfigure(0, weight=1)
-        self.container = ttk.Frame(self.parent)
+
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+
+        self.container = ttk.Frame(self)
         self.container.grid(row=0, column=0, sticky='nsew')
         self.container.rowconfigure(0, weight=1)
         self.container.columnconfigure(1, weight=1)
@@ -38,16 +40,16 @@ class InstallPage(ttk.Frame):
 
         # Create a navbar frame in which all navbar buttons will lie
         self.navbar_frame = ttk.Frame(
-            self.container,
-            borderwidth=3,
-            padding=0.5,
-            relief='ridge')
+                                self.container,
+                                borderwidth=3,
+                                padding=0.5,
+                                relief='ridge')
         self.navbar_frame.grid(
-            row=0,
-            column=0,
-            sticky='nsw',
-            pady=(1,1),
-            padx=(1,1))
+                            row=0,
+                            column=0,
+                            sticky='nsw',
+                            pady=(1,1),
+                            padx=(1,1))
         # Configure style for navbar frame
 
         # Button text
@@ -133,7 +135,6 @@ class InstallPage(ttk.Frame):
         frame = self.frames_dict[frame_name]
         frame.tkraise()
 
-
 class MultiItemsList(object):
 
     def __init__(self, parent, headers_list=None):
@@ -201,18 +202,14 @@ class InstallFromPyPI(ttk.Frame):
 
     def __init__(self, parent, controller):
 
-        #Change background color
-        frame_style = ttk.Style()
-        frame_style.configure('frame.TFrame')
-
         ttk.Frame.__init__(
             self,
             parent,
             borderwidth=3,
             padding=0.5,
-            relief='ridge',
-            style='frame.TFrame')
+            relief='ridge')
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
+        self.controller = controller
         self.rowconfigure(1, weight=1)
         self.columnconfigure(0, weight=1)
         self.create_search_bar()
@@ -227,7 +224,7 @@ class InstallFromPyPI(ttk.Frame):
         resource_path = os.path.join('pic.dat')
 
         #Configure style for search bar
-        data = pkg_resources.resource_string(resource_package, resource_path)
+        data= pkg_resources.resource_string(resource_package, resource_path)
         global s1,s2
         s1 = tk.PhotoImage('search1', data=data, format='gif -index 0')
         s2 = tk.PhotoImage('search2', data=data, format='gif -index 1')
@@ -359,13 +356,22 @@ class InstallFromPyPI(ttk.Frame):
         Create back and next buttons
         """
 
-        self.navigate_back = ttk.Button(self, text="Back")
+        self.navigate_back = ttk.Button(
+            self,
+            text="Back",
+            command=lambda: self.navigate_previous_frame())
         self.navigate_back.grid(row=3, column=0, sticky='w')
         self.navigate_next = ttk.Button(
             self,
             text="Install",
             command=lambda: self.execute_pip_commands())
         self.navigate_next.grid(row=3, column=1, sticky='e')
+
+    def navigate_previous_frame(self):
+        """
+        Navigate to previous frame
+        """
+        self.controller.controller.show_frame('WelcomePage')
 
     def execute_pip_commands(self):
         """
@@ -383,7 +389,7 @@ class InstallFromLocalArchive(ttk.Frame):
                         padding=0.5,
                         relief='ridge')
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
-
+        self.controller = controller
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
         self.create_entry_form()
@@ -440,13 +446,22 @@ class InstallFromLocalArchive(ttk.Frame):
         Create back and next buttons
         """
 
-        self.navigate_back = ttk.Button(self, text="Back")
+        self.navigate_back = ttk.Button(
+            self,
+            text="Back",
+            command=lambda: self.navigate_previous_frame())
         self.navigate_back.grid(row=2, column=0, sticky='w')
         self.navigate_next = ttk.Button(
             self,
             text="Install",
             command=lambda: self.execute_pip_commands())
         self.navigate_next.grid(row=2, column=1, sticky='e')
+
+    def navigate_previous_frame(self):
+        """
+        Navigate to previous frame
+        """
+        self.controller.controller.show_frame('WelcomePage')
 
     def execute_pip_commands(self):
         """
@@ -466,6 +481,7 @@ class InstallFromRequirements(ttk.Frame):
             padding=0.5,
             relief='ridge')
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
+        self.controller = controller
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
         self.create_entry_form()
@@ -536,13 +552,22 @@ will be installed."
         Create back and next buttons
         """
 
-        self.navigate_back = ttk.Button(self, text="Back")
+        self.navigate_back = ttk.Button(
+            self,
+            text="Back",
+            command=lambda: self.navigate_previous_frame())
         self.navigate_back.grid(row=2, column=0, sticky='w')
         self.navigate_next = ttk.Button(
             self,
             text="Install",
             command=lambda: self.execute_pip_commands())
         self.navigate_next.grid(row=2, column=1, sticky='e')
+
+    def navigate_previous_frame(self):
+        """
+        Navigate to previous frame
+        """
+        self.controller.controller.show_frame('WelcomePage')
 
     def execute_pip_commands(self):
         """
@@ -560,6 +585,7 @@ class InstallFromPythonlibs(ttk.Frame):
                         padding=0.5,
                         relief='ridge')
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
+        self.controller = controller
         label = tk.Label(self, text="Install From Python libs")
         label.pack(pady=10, padx=10)
 
@@ -574,6 +600,7 @@ class InstallFromAlternateRepo(ttk.Frame):
                         padding=0.5,
                         relief='ridge')
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
+        self.controller = controller
         label = tk.Label(self, text="Install From an alternate respository")
         label.pack(pady=10, padx=10)
 
