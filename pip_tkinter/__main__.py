@@ -22,7 +22,7 @@ class MainApp(tk.Tk):
         self.container.grid(row=0, column=0, sticky='nsew')
         self.container.rowconfigure(0, weight=1)
         self.container.columnconfigure(0, weight=1)
-        self.adjust_window()
+        self.adjust_window(0.55, 0.75)
         self.manage_frames()
 
     def manage_frames(self):
@@ -49,14 +49,21 @@ class MainApp(tk.Tk):
             new_frame.grid(row=0, column=0, sticky='nsew')
             self.frames_dict[frame_name] = new_frame
 
+        self.adjust_window(0.55, 0.75)
         self.show_frame('WelcomePage')
 
     def show_frame(self, frame_name):
+
+        if frame_name!='WelcomePage':
+            self.adjust_window(0.75, 0.75)
+        else:
+            self.adjust_window(0.55, 0.75)
+
         frame = self.frames_dict[frame_name]
         frame.tkraise()
         print (frame_name)
 
-    def adjust_window(self):
+    def adjust_window(self, xratio, yratio):
         """
         Set the window at center position of the screen and adjust it's
         size depending on screen size
@@ -67,8 +74,8 @@ class MainApp(tk.Tk):
         screen_height = self.parent.winfo_screenheight()
 
         # Calculate the appropriate window width and height
-        self.window_width = int(0.75*screen_width)
-        self.window_height = int(0.75*screen_height)
+        self.window_width = int(xratio*screen_width)
+        self.window_height = int(yratio*screen_height)
 
         # Determine the position of the window
         x = (screen_width - self.window_width)//2
