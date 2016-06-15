@@ -17,7 +17,7 @@ class InstallPage(ttk.Frame):
     5. Install from alternate repository
     """
 
-    def __init__(self, root, controller):
+    def __init__(self, root, controller=None):
         ttk.Frame.__init__(self, root)
         self.parent = root
         self.controller = controller
@@ -135,68 +135,6 @@ class InstallPage(ttk.Frame):
         frame = self.frames_dict[frame_name]
         frame.tkraise()
 
-class MultiItemsList(object):
-
-    def __init__(self, parent, headers_list=None):
-        """
-        Initialize variables needed for creating Treeview
-        """
-
-        self.scroll_tree = None
-        self.parent = parent
-        self.headers_list = headers_list
-        self.items_list = None
-        self.create_treeview()
-        self.create_headers()
-
-    def create_treeview(self):
-        """
-        Create a multi items list consisting of a frame, horizontal and vertical
-        scroll bar and Treeview
-        """
-
-        self.myframe = ttk.Frame(self.parent)
-        self.myframe.grid(row=1, column=0, columnspan=2, sticky='nswe')
-
-        self.scroll_tree = ttk.Treeview(
-            self.myframe,
-            columns=self.headers_list,
-            show='headings')
-
-        '''
-        FIX : Scrollbar is creating problems while changing frame
-        vrtl_scrbar = ttk.Scrollbar(
-            orient="vertical",
-            command=self.scroll_tree.yview)
-        hrtl_scrbar = ttk.Scrollbar(
-            orient="horizontal",
-            command=self.scroll_tree.xview)
-
-        self.scroll_tree.configure(
-            yscrollcommand=vrtl_scrbar.set,
-            xscrollcommand=hrtl_scrbar.set)
-        '''
-        self.scroll_tree.grid(column=0, row=0, sticky='nswe', in_=self.myframe)
-        '''
-        vrtl_scrbar.grid(column=1, row=0, sticky='ns', in_=self.myframe)
-        hrtl_scrbar.grid(column=0, row=1, sticky='ew', in_=self.myframe)
-        '''
-        self.myframe.grid_columnconfigure(0, weight=1)
-        self.myframe.grid_rowconfigure(0, weight=1)
-
-    def create_headers(self):
-
-        for header in self.headers_list:
-            self.scroll_tree.heading(header, text=header)
-            self.scroll_tree.column(header, width=30)
-
-    def populate_rows(self, items_list=None):
-
-        self.scroll_tree.delete(*self.scroll_tree.get_children())
-        self.items_list = items_list
-        for item in self.items_list:
-            self.scroll_tree.insert('', 'end', values=item)
-
 
 class InstallFromPyPI(ttk.Frame):
 
@@ -263,6 +201,7 @@ class InstallFromPyPI(ttk.Frame):
         """
 
         self.headers = ['Python Module','Installed Version','Available Versions']
+        from pip_tkinter.utils import MultiItemsList
         self.multi_items_list = MultiItemsList(self, self.headers)
         self.package_subwindow = tk.LabelFrame(
             self,
@@ -549,7 +488,7 @@ will be installed."
 
     def create_nav_buttons(self):
         """
-        Create back and next buttons
+        Create 'back' and 'next' buttons
         """
 
         self.navigate_back = ttk.Button(

@@ -8,6 +8,70 @@ from io import StringIO
 
 search_hits = {}
 
+class MultiItemsList(object):
+
+    def __init__(self, parent, headers_list=None):
+        """
+        Initialize variables needed for creating Treeview
+        """
+
+        self.scroll_tree = None
+        self.parent = parent
+        self.headers_list = headers_list
+        self.items_list = None
+        self.create_treeview()
+        self.create_headers()
+
+    def create_treeview(self):
+        """
+        Create a multi items list consisting of a frame, horizontal and vertical
+        scroll bar and Treeview
+        """
+
+        self.myframe = ttk.Frame(self.parent)
+        self.myframe.grid(row=1, column=0, columnspan=2, sticky='nswe')
+
+        self.scroll_tree = ttk.Treeview(
+            self.myframe,
+            columns=self.headers_list,
+            show='headings')
+
+        '''
+        FIX : Scrollbar is creating problems while changing frame
+        vrtl_scrbar = ttk.Scrollbar(
+            orient="vertical",
+            command=self.scroll_tree.yview)
+        hrtl_scrbar = ttk.Scrollbar(
+            orient="horizontal",
+            command=self.scroll_tree.xview)
+
+        self.scroll_tree.configure(
+            yscrollcommand=vrtl_scrbar.set,
+            xscrollcommand=hrtl_scrbar.set)
+        '''
+        self.scroll_tree.grid(column=0, row=0, sticky='nswe', in_=self.myframe)
+        '''
+        vrtl_scrbar.grid(column=1, row=0, sticky='ns', in_=self.myframe)
+        hrtl_scrbar.grid(column=0, row=1, sticky='ew', in_=self.myframe)
+        '''
+        self.myframe.grid_columnconfigure(0, weight=1)
+        self.myframe.grid_rowconfigure(0, weight=1)
+
+    def create_headers(self):
+
+        for header in self.headers_list:
+            self.scroll_tree.heading(header, text=header)
+            self.scroll_tree.column(header, width=30)
+
+    def populate_rows(self, items_list=None):
+
+        self.scroll_tree.delete(*self.scroll_tree.get_children())
+        self.items_list = items_list
+        for item in self.items_list:
+            self.scroll_tree.insert('', 'end', values=item)
+
+
+
 class Redirect:
     """Context manager for temporarily redirecting stdout/err.
     Simplified and generalize from contextlib.redirect_stdout.
