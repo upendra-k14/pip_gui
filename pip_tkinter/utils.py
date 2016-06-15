@@ -6,6 +6,9 @@ from pip.commands.search import highest_version
 from pip import parseopts, main
 from io import StringIO
 
+import tkinter as tk
+from tkinter import ttk
+
 search_hits = {}
 
 class MultiItemsList(object):
