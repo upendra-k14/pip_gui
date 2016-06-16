@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 
 import sys
+import logging
+import threading
 
 from pip.commands.search import highest_version
 from pip import parseopts, main
@@ -10,6 +12,19 @@ import tkinter as tk
 from tkinter import ttk
 
 search_hits = {}
+
+class WidgetHandler(logging.Handler):
+    """
+    Log text to a Tkinter widget
+    """
+
+    def __init__(self, widget):
+        logging.Handler.__init__(self)
+        self.widget = widget
+
+    def emit(self, content_text):
+        msg = self.format(content_text)
+        self.widget.config(text=msg)
 
 class MultiItemsList(object):
 
@@ -118,7 +133,9 @@ def pip_search_command(package_name):
     """
     Uses pip.commands.search.SearchCommand to retrieve results of 'pip search'
     """
+
     from pip_tkinter.pip_extensions import GUISearchCommand
+
     search_object = GUISearchCommand()
     cmd_name, cmd_args = parseopts(['search', package_name])
     search_object.main(cmd_args)

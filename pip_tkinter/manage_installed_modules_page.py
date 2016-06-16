@@ -28,6 +28,7 @@ class ManageInstalledPage(ttk.Frame):
         self.container.columnconfigure(1, weight=1)
         self.manage_frames()
         self.create_side_navbar()
+        self.create_message_bar()
 
     def create_side_navbar(self):
         """
@@ -62,20 +63,20 @@ class ManageInstalledPage(ttk.Frame):
 
         self.button_update = ttk.Button(
             self.navbar_frame,
-            text=pypi_text,
+            text=update_archive_text,
             state='active',
             style='navbar.TButton',
             command=lambda : self.show_frame('UpdatePackage')
         )
-        self.button_pypi.grid(row=0, column=0, sticky='nwe')
+        self.button_update.grid(row=0, column=0, sticky='nwe')
 
         self.button_uninstall = ttk.Button(
             self.navbar_frame,
-            text=local_archive_text,
+            text=uninstall_archive_text,
             style='navbar.TButton',
             command=lambda : self.show_frame('UninstallPackage')
         )
-        self.button_local_archive.grid(row=1, column=0, sticky='nwe')
+        self.button_uninstall.grid(row=1, column=0, sticky='nwe')
 
     def manage_frames(self):
         """
@@ -98,8 +99,32 @@ class ManageInstalledPage(ttk.Frame):
         self.show_frame('UpdatePackage')
 
     def show_frame(self, frame_name):
+        """
+        Function for changing frames
+        """
+
         frame = self.frames_dict[frame_name]
         frame.tkraise()
+
+    def create_message_bar(self):
+        """
+        Print debug messages
+        """
+
+        self.debug_text = tk.StringVar()
+        self.debug_text.set("No message")
+        self.debug_bar = ttk.Label(
+            self.container,
+            textvariable=self.debug_text,
+            padding=0.5,
+            relief='ridge')
+        self.debug_bar.grid(
+            row=1,
+            column=0,
+            columnspan=2,
+            sticky='swe',
+            padx=(1,1),
+            pady=(1,1))
 
 
 class UpdatePackage(ttk.Frame):
@@ -283,6 +308,8 @@ class UpdatePackage(ttk.Frame):
         Execute pip commands
         """
         pass
+
+
 
 class UninstallPackage(ttk.Frame):
 

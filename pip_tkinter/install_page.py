@@ -6,6 +6,8 @@ from io import StringIO
 import tkinter as tk
 from tkinter import ttk
 
+import logging
+
 class InstallPage(ttk.Frame):
     """
     Manage search and install. Implements GUI for
@@ -29,6 +31,7 @@ class InstallPage(ttk.Frame):
         self.container.grid(row=0, column=0, sticky='nsew')
         self.container.rowconfigure(0, weight=1)
         self.container.columnconfigure(1, weight=1)
+        self.create_message_bar()
         self.manage_frames()
         self.create_side_navbar()
 
@@ -125,7 +128,7 @@ class InstallPage(ttk.Frame):
         self.frames_dict = {}
         for F in frames_tuple:
             frame_name = F.__name__
-            new_frame = F(self.container, self)
+            new_frame = F(self.container, self, self.logger)
             new_frame.grid(row=0, column=1, sticky='nsew')
             self.frames_dict[frame_name] = new_frame
 
@@ -135,10 +138,34 @@ class InstallPage(ttk.Frame):
         frame = self.frames_dict[frame_name]
         frame.tkraise()
 
+    def create_message_bar(self):
+        """
+        Create message bar for printing debug messages for user
+        """
+
+        self.debug_bar = ttk.Label(
+            self.container,
+            padding=0.5,
+            relief='ridge')
+        self.debug_bar.grid(
+            row=1,
+            column=0,
+            columnspan=2,
+            sticky='swe',
+            padx=(1,1),
+            pady=(1,1))
+        self.debug_bar.config(text="No message")
+
+        #Create logger for bottom message bar
+        from pip_tkinter.utils import WidgetHandler
+
+        self.message_handler = WidgetHandler(self.debug_bar)
+        self.logger = logging.getLogger()
+        self.logger.addHandler(self.message_handler)
 
 class InstallFromPyPI(ttk.Frame):
 
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller, logger):
 
         ttk.Frame.__init__(
             self,
@@ -148,11 +175,13 @@ class InstallFromPyPI(ttk.Frame):
             relief='ridge')
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
         self.controller = controller
+        self.logger = logger
         self.rowconfigure(1, weight=1)
         self.columnconfigure(0, weight=1)
         self.create_search_bar()
         self.create_multitem_treeview()
         self.create_nav_buttons()
+        self.logger.info("No")
 
     def create_search_bar(self):
 
@@ -167,10 +196,10 @@ class InstallFromPyPI(ttk.Frame):
         s1 = tk.PhotoImage('search1', data=data, format='gif -index 0')
         s2 = tk.PhotoImage('search2', data=data, format='gif -index 1')
         style = ttk.Style()
-        style.element_create('Search.field', 'image', 'search1',
+        style.element_create('Search.field1', 'image', 'search1',
             ('focus', 'search2'), border=[25, 9, 14], sticky='ew')
         style.layout('Search.entry', [
-            ('Search.field', {'sticky': 'nswe', 'border': 1, 'children':
+            ('Search.field1', {'sticky': 'nswe', 'border': 1, 'children':
                 [('Entry.padding', {'sticky': 'nswe', 'children':
                     [('Entry.textarea', {'sticky': 'nswe'})]
                 })]
@@ -268,12 +297,13 @@ class InstallFromPyPI(ttk.Frame):
         """
 
         search_term = self.search_var.get()
-        print (search_term)
+        self.logger.info('Fetching search results for {}...'.format(search_term))
         try:
             from pip_tkinter.utils import pip_search_command
             self.search_results = pip_search_command(search_term)
         except TypeError:
             self.search_results = []
+            self.logger.info('Error in fetching results')
 
         results_tuple = []
         for item in self.search_results:
@@ -289,6 +319,7 @@ class InstallFromPyPI(ttk.Frame):
                         'not installed',
                         item['latest']))
         self.multi_items_list.populate_rows(results_tuple)
+        self.logger.info('Done')
 
     def create_nav_buttons(self):
         """
@@ -320,7 +351,7 @@ class InstallFromPyPI(ttk.Frame):
 
 class InstallFromLocalArchive(ttk.Frame):
 
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller, logger):
         ttk.Frame.__init__(
                         self,
                         parent,
@@ -412,7 +443,7 @@ class InstallFromLocalArchive(ttk.Frame):
 
 class InstallFromRequirements(ttk.Frame):
 
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller, logger):
         ttk.Frame.__init__(
             self,
             parent,
@@ -516,7 +547,7 @@ will be installed."
 
 class InstallFromPythonlibs(ttk.Frame):
 
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller, logger):
         ttk.Frame.__init__(
                         self,
                         parent,
@@ -531,7 +562,7 @@ class InstallFromPythonlibs(ttk.Frame):
 
 class InstallFromAlternateRepo(ttk.Frame):
 
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller, logger):
         ttk.Frame.__init__(
                         self,
                         parent,

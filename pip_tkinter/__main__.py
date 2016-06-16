@@ -55,7 +55,7 @@ class MainApp(tk.Tk):
     def show_frame(self, frame_name):
 
         if frame_name!='WelcomePage':
-            self.adjust_window(0.75, 0.75)
+            self.adjust_window(0.75, 0.8)
         else:
             self.adjust_window(0.45, 0.40)
 
