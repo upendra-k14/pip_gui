@@ -280,7 +280,6 @@ class UpdatePackage(ttk.Frame):
         pass
 
 
-
 class UninstallPackage(ttk.Frame):
 
     def __init__(self, parent, controller):
@@ -370,7 +369,7 @@ class UninstallPackage(ttk.Frame):
             self.package_details.insert(1.0, 'No module selected')
             self.package_details.configure(state='disabled')
 
-    def update_search_results(self):
+    def refresh_installed_packages(self):
         """
         Show search results
         """
@@ -398,7 +397,7 @@ class UninstallPackage(ttk.Frame):
                         item['latest']))
         self.multi_items_list.populate_rows(results_tuple)
 
-    def create_nav_buttons(self):
+    def create_buttons(self):
         """
         Create back and next buttons
         """
@@ -408,11 +407,18 @@ class UninstallPackage(ttk.Frame):
             text="Back",
             command=lambda: self.navigate_previous_frame())
         self.navigate_back.grid(row=3, column=0, sticky='w')
+
+        self.refresh_button = ttk.Button(
+            self,
+            text="Refresh",
+            command=lambda: self.refresh_installed_packages())
+        self.refresh_button.grid(row=3, column=1, sticky='e')
+
         self.navigate_next = ttk.Button(
             self,
             text="Install",
             command=lambda: self.execute_pip_commands())
-        self.navigate_next.grid(row=3, column=1, sticky='e')
+        self.navigate_next.grid(row=3, column=2, sticky='e')
 
     def navigate_previous_frame(self):
         """

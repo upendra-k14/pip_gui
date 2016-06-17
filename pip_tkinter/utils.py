@@ -155,7 +155,7 @@ def pip_list_command():
 
 def pip_list_outdated_command():
     """
-    Lists all installed packages
+    Lists all outdated installed packages
     """
 
     from pip_tkinter.pip_extensions import GUIListCommand
