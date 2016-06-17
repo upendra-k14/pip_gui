@@ -141,6 +141,30 @@ def pip_search_command(package_name):
     search_object.main(cmd_args)
     return search_object.get_search_results()
 
+def pip_list_command():
+    """
+    Lists all installed packages
+    """
+
+    from pip_tkinter.pip_extensions import GUIListCommand
+
+    list_object = GUIListCommand()
+    cmd_name, cmd_args = parseopts(['list'])
+    list_object.main(cmd_args)
+    return list_object.get_installed_packages_list()
+
+def pip_list_outdated_command():
+    """
+    Lists all installed packages
+    """
+
+    from pip_tkinter.pip_extensions import GUIListCommand
+
+    list_object = GUIListCommand()
+    cmd_name, cmd_args = parseopts(['list','--outdated'])
+    list_object.main(cmd_args)
+    return list_object.get_installed_packages_list()
+
 
 def pip_install_from_PyPI(package_args):
     """

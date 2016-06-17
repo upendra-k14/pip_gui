@@ -6,6 +6,7 @@ import copy
 from io import StringIO
 
 from pip.commands.search import SearchCommand, transform_hits, highest_version
+from pip.commands.list import ListCommand
 from pip.exceptions import CommandError
 from pip.basecommand import SUCCESS
 from pip import main
@@ -80,3 +81,48 @@ class GUISearchCommand(SearchCommand):
                 hit['installed'] = dist.version
 
         return self.hits
+
+class GUIListCommand(ListCommand):
+    """
+    Extending the pip ListCommand to show list of packages :
+
+    1. For uninstall : retrieves list of installed packages with their versions
+    2. For update : retrieved list of installed packages which are outdated
+    """
+
+    self.installed_packages_list = []
+    self.outdated_packages_list = []
+    self.find_outdated = False
+
+    def output_package_listing(self, installed_packages):
+
+        installed_packages = sorted(
+            installed_packages,
+            key=lambda dist: dist.project_name.lower(),
+        )
+
+        for dist in installed_packages:
+            self.installed_packages_list.append(dist.project_name, dist.version)
+
+    def run_outdated(self, options):
+
+        if options.outdated:
+            self.find_outdated = True
+
+        for dist, latest_version, typ in sorted(
+                self.find_packages_latest_versions(options),
+                key=lambda p: p[0].project_name.lower()):
+            if latest_version > dist.parsed_version:
+                self.outdated_packages_list.append((
+                    dist.project_name,
+                    dist.version,
+                    str(latest_version),
+                ))
+
+    def get_installed_packages_list(self):
+
+        if self.find_outdated:
+            return self.outdated_packages_list
+
+        else:
+            return self.installed_packages_list
