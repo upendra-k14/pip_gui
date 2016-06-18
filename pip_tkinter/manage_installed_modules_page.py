@@ -141,9 +141,8 @@ class UpdatePackage(ttk.Frame):
         self.controller = controller
         self.rowconfigure(1, weight=1)
         self.columnconfigure(0, weight=1)
-        self.create_search_bar()
         self.create_multitem_treeview()
-        self.create_nav_buttons()
+        self.create_buttons()
 
 
     def create_multitem_treeview(self):
@@ -294,9 +293,8 @@ class UninstallPackage(ttk.Frame):
         self.controller = controller
         self.rowconfigure(1, weight=1)
         self.columnconfigure(0, weight=1)
-        self.create_search_bar()
         self.create_multitem_treeview()
-        self.create_nav_buttons()
+        self.create_buttons()
 
 
     def create_multitem_treeview(self):
