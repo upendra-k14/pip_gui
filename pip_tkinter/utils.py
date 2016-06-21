@@ -5,7 +5,7 @@ import logging
 import threading
 
 from pip.commands.search import highest_version
-from pip import parseopts, main
+from pip import parseopts
 from io import StringIO
 
 import tkinter as tk
@@ -119,15 +119,22 @@ def runpip(argstring):
     sysout = StringIO()
     syserr = StringIO()
 
+    print (argstring)
+    import sys
+    import os
+    base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.insert(0, base)
+    import pip
+
     with Redirect('stdout', sysout) as f1, Redirect('stderr', syserr) as f2:
-        status = main(argstring.split())
+        status = pip.main(argstring.split())
         out = sysout.getvalue()
         err = syserr.getvalue()
+        print('{}\n{}\n{}'.format(status, out, err))
 
     sysout.seek(0); sysout.truncate(0)
     syserr.seek(0); syserr.truncate(0)
     return status, out, err
-
 
 def pip_search_command(package_name):
     """
@@ -165,11 +172,11 @@ def pip_list_outdated_command():
     list_object.main(cmd_args)
     return list_object.get_installed_packages_list()
 
-
 def pip_install_from_PyPI(package_args):
     """
     Wrapper for installing pip package from PyPI
     """
+    print("Hello")
     return runpip('install -U {}'.format(package_args))
 
 def pip_install_from_local_archive(package_args):

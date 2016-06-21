@@ -7,6 +7,7 @@ from io import StringIO
 
 from pip.commands.search import SearchCommand, transform_hits, highest_version
 from pip.commands.list import ListCommand
+from pip.commands.install import InstallCommand
 from pip.exceptions import CommandError
 from pip.basecommand import SUCCESS
 from pip import main
@@ -65,7 +66,7 @@ class GUISearchCommand(SearchCommand):
         installed or not. If installed then the version of installed package is
         found and stored.
         """
-        if not self.hits:
+        if not hasattr(self, "hits"):
             return None
 
         # Here pkg_resources is a module of pip._vendor. It has been included
@@ -90,11 +91,10 @@ class GUIListCommand(ListCommand):
     2. For update : retrieved list of installed packages which are outdated
     """
 
-    self.installed_packages_list = []
-    self.outdated_packages_list = []
-    self.find_outdated = False
 
     def output_package_listing(self, installed_packages):
+
+        self.installed_packages_list = []
 
         installed_packages = sorted(
             installed_packages,
@@ -105,6 +105,8 @@ class GUIListCommand(ListCommand):
             self.installed_packages_list.append(dist.project_name, dist.version)
 
     def run_outdated(self, options):
+        self.find_outdated = False
+        self.outdated_packages_list = []
 
         if options.outdated:
             self.find_outdated = True
@@ -126,3 +128,9 @@ class GUIListCommand(ListCommand):
 
         else:
             return self.installed_packages_list
+
+
+class GUIInstallCommand(InstallCommand):
+    """
+    Inheriting the pip.commands.install.InstallCommand
+    """

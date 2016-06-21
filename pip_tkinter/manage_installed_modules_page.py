@@ -139,7 +139,7 @@ class UpdatePackage(ttk.Frame):
             relief='ridge')
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
         self.controller = controller
-        self.rowconfigure(1, weight=1)
+        self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
         self.create_multitem_treeview()
         self.create_buttons()
@@ -156,12 +156,13 @@ class UpdatePackage(ttk.Frame):
         self.headers = ['Python Module','Installed Version','Available Versions']
         from pip_tkinter.utils import MultiItemsList
         self.multi_items_list = MultiItemsList(self, self.headers)
+        self.multi_items_list.myframe.grid(row=0, column=0, columnspan=3, sticky='nsew')
         self.package_subwindow = tk.LabelFrame(
             self,
             text="Package Details",
             padx=5,
             pady=5)
-        self.package_subwindow.grid(row=2, column=0, columnspan=3, sticky='nswe')
+        self.package_subwindow.grid(row=1, column=0, columnspan=3, sticky='nswe')
         self.package_details = tk.Text(
             self.package_subwindow,
             wrap='word',
@@ -262,7 +263,7 @@ class UpdatePackage(ttk.Frame):
 
         self.navigate_next = ttk.Button(
             self,
-            text="Install",
+            text="Update",
             command=lambda: self.execute_pip_commands())
         self.navigate_next.grid(row=3, column=2, sticky='e')
 
@@ -291,7 +292,7 @@ class UninstallPackage(ttk.Frame):
             relief='ridge')
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
         self.controller = controller
-        self.rowconfigure(1, weight=1)
+        self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
         self.create_multitem_treeview()
         self.create_buttons()
@@ -308,12 +309,13 @@ class UninstallPackage(ttk.Frame):
         self.headers = ['Python Module','Installed Version','Available Versions']
         from pip_tkinter.utils import MultiItemsList
         self.multi_items_list = MultiItemsList(self, self.headers)
+        self.multi_items_list.myframe.grid(row=0, column=0, columnspan=3, sticky='nswe')
         self.package_subwindow = tk.LabelFrame(
             self,
             text="Package Details",
             padx=5,
             pady=5)
-        self.package_subwindow.grid(row=2, column=0, columnspan=2, sticky='nswe')
+        self.package_subwindow.grid(row=1, column=0, columnspan=3, sticky='nswe')
         self.package_details = tk.Text(
             self.package_subwindow,
             wrap='word',
@@ -414,7 +416,7 @@ class UninstallPackage(ttk.Frame):
 
         self.navigate_next = ttk.Button(
             self,
-            text="Install",
+            text="Uninstall",
             command=lambda: self.execute_pip_commands())
         self.navigate_next.grid(row=3, column=2, sticky='e')
 

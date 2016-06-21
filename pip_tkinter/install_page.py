@@ -347,7 +347,22 @@ class InstallFromPyPI(ttk.Frame):
         """
         Execute pip commands
         """
-        pass
+        from pip_tkinter.utils import pip_install_from_PyPI
+
+        #try:
+        curr_item = self.multi_items_list.scroll_tree.focus()
+        item_dict = self.multi_items_list.scroll_tree.item(curr_item)
+        selected_module = item_dict['values'][0]
+        self.logger.info("Installing package .....")
+        print (selected_module)
+        pip_install_from_PyPI(selected_module)
+        print("Success")
+        self.logger.info("Successfully installed")
+
+        #except:
+        #    self.logger.info("Unable to install package")
+
+
 
 class InstallFromLocalArchive(ttk.Frame):
 
