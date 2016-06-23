@@ -6,8 +6,6 @@ from io import StringIO
 import tkinter as tk
 from tkinter import ttk
 
-import logging
-
 class InstallPage(ttk.Frame):
     """
     Manage search and install. Implements GUI for
@@ -156,12 +154,6 @@ class InstallPage(ttk.Frame):
             pady=(1,1))
         self.debug_bar.config(text="No message")
 
-        #Create logger for bottom message bar
-        from pip_tkinter.utils import WidgetHandler
-
-        self.message_handler = WidgetHandler(self.debug_bar)
-        self.logger = logging.getLogger()
-        self.logger.addHandler(self.message_handler)
 
 class InstallFromPyPI(ttk.Frame):
 
@@ -352,11 +344,9 @@ class InstallFromPyPI(ttk.Frame):
         curr_item = self.multi_items_list.scroll_tree.focus()
         item_dict = self.multi_items_list.scroll_tree.item(curr_item)
         selected_module = item_dict['values'][0]
-        self.logger.info("Installing package .....")
-        print (selected_module)
+        print("Installing package .....")
         pip_install_from_PyPI(selected_module)
-        print("Success")
-        self.logger.info("Successfully installed")
+        print("Successfully installed")
 
 
 class InstallFromLocalArchive(ttk.Frame):
@@ -450,10 +440,9 @@ class InstallFromLocalArchive(ttk.Frame):
         from pip_tkinter.utils import pip_install_from_PyPI
 
         selected_module = self.req_file_name
-        self.logger.info("Installing package .....")
+        print("Installing package .....")
         pip_install_from_local_archive(selected_module)
-        print("Success")
-        self.logger.info("Successfully installed")
+        print("Successfully installed")
 
 
 

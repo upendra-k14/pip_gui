@@ -7,9 +7,9 @@ from io import StringIO
 
 from pip.commands.search import SearchCommand, transform_hits, highest_version
 from pip.commands.list import ListCommand
-from pip.commands.install import InstallCommand
+from pip.commands.show import ShowCommand
 from pip.exceptions import CommandError
-from pip.basecommand import SUCCESS
+from pip.basecommand import SUCCESS, ERROR
 from pip import main
 
 from pip_tkinter.utils import Redirect
@@ -129,3 +129,35 @@ class GUIListCommand(ListCommand):
 
         else:
             return self.installed_packages_list
+
+class GUIShowCommand(ShowCommand):
+
+    """
+    Parent class : pip.commands.show.ShowCommand
+    """
+
+    def run(self, options, args):
+        if not args:
+            logger.warning('ERROR: Please provide a package name or names.')
+            return ERROR
+        query = args
+
+        from pip.commands.show import search_packages_info
+
+        results = search_packages_info(query)
+        if not self.save_results(results, options.files):
+            return ERROR
+        return SUCCESS
+
+    def save_results(self, distributions, list_all_files):
+        results_printed = False
+        for dist in distributions:
+            results_printed = True
+            self.package_details.append(dist)
+        return results_printed
+
+    def get_package_details(self):
+        if hasattr(self,'package_details'):
+            return self.package_details
+        else:
+            return []

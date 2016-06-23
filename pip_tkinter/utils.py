@@ -119,14 +119,11 @@ def runpip(argstring):
     sysout = StringIO()
     syserr = StringIO()
 
-    print (argstring)
-    import sys
-    import os
-    base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.insert(0, base)
     import pip
 
     with Redirect('stdout', sysout) as f1, Redirect('stderr', syserr) as f2:
+        #Clear all loggers
+        pip.logger.consumers = []
         status = pip.main(argstring.split())
         out = sysout.getvalue()
         err = syserr.getvalue()
@@ -176,17 +173,12 @@ def pip_show_command(package_args):
     """
     Show details of a installed package
     """
-    print ("hell")
-    from pip.commands.show import search_packages_info
-    results = search_packages_info([package_args,])
-    print ("hell")
-    return results
+    return runpip('show {}'.format(package_args))
 
 def pip_install_from_PyPI(package_args):
     """
     Wrapper for installing pip package from PyPI
     """
-    print("Hello")
     return runpip('install -U {}'.format(package_args))
 
 def pip_install_from_local_archive(package_args):
