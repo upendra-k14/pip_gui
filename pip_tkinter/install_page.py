@@ -349,7 +349,6 @@ class InstallFromPyPI(ttk.Frame):
         """
         from pip_tkinter.utils import pip_install_from_PyPI
 
-        #try:
         curr_item = self.multi_items_list.scroll_tree.focus()
         item_dict = self.multi_items_list.scroll_tree.item(curr_item)
         selected_module = item_dict['values'][0]
@@ -358,10 +357,6 @@ class InstallFromPyPI(ttk.Frame):
         pip_install_from_PyPI(selected_module)
         print("Success")
         self.logger.info("Successfully installed")
-
-        #except:
-        #    self.logger.info("Unable to install package")
-
 
 
 class InstallFromLocalArchive(ttk.Frame):
@@ -415,13 +410,13 @@ class InstallFromLocalArchive(ttk.Frame):
 
         home_directory = expanduser("~")
 
-        req_file_name = askopenfilename(
+        self.req_file_name = askopenfilename(
             filetypes = (
                 ("Archive file", "*.zip *.tar *tar.gz *.whl")
                 ,("All files", "*.*")),
             initialdir = home_directory)
 
-        if req_file_name:
+        if self.req_file_name:
             self.path_to_requirement.delete(0, 'end')
             self.path_to_requirement.insert('end', req_file_name)
 
@@ -452,7 +447,13 @@ class InstallFromLocalArchive(ttk.Frame):
         """
         Execute pip commands
         """
-        pass
+        from pip_tkinter.utils import pip_install_from_PyPI
+
+        selected_module = self.req_file_name
+        self.logger.info("Installing package .....")
+        pip_install_from_local_archive(selected_module)
+        print("Success")
+        self.logger.info("Successfully installed")
 
 
 
@@ -521,13 +522,13 @@ will be installed."
         from os.path import expanduser
 
         home_directory = expanduser("~")
-        req_file_name = askopenfilename(
+        self.req_file_name = askopenfilename(
             filetypes = (
                 ("Requirement file", "*.txt")
                 ,("All files", "*.*")),
             initialdir = home_directory)
 
-        if req_file_name:
+        if self.req_file_name:
             self.path_to_requirement.delete(0, 'end')
             self.path_to_requirement.insert('end', req_file_name)
 
@@ -558,7 +559,13 @@ will be installed."
         """
         Execute pip commands
         """
-        pass
+        from pip_tkinter.utils import pip_install_from_requirements
+
+        selected_module = self.req_file_name
+        self.logger.info("Installing package .....")
+        pip_install_from_requirements(selected_module)
+        print("Success")
+        self.logger.info("Successfully installed")
 
 class InstallFromPythonlibs(ttk.Frame):
 

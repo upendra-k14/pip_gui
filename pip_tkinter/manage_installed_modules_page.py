@@ -153,10 +153,11 @@ class UpdatePackage(ttk.Frame):
         3. Available versions
         """
 
-        self.headers = ['Python Module','Installed Version','Available Versions']
+        self.headers = ['Python Module','Installed Version','Latest Version']
         from pip_tkinter.utils import MultiItemsList
         self.multi_items_list = MultiItemsList(self, self.headers)
         self.multi_items_list.myframe.grid(row=0, column=0, columnspan=3, sticky='nsew')
+        self.refresh_installed_packages()
         self.package_subwindow = tk.LabelFrame(
             self,
             text="Package Details",
@@ -185,63 +186,54 @@ class UpdatePackage(ttk.Frame):
         Show the details of the selected package
         """
 
-        try:
-            curr_item = self.multi_items_list.scroll_tree.focus()
-            item_dict = self.multi_items_list.scroll_tree.item(curr_item)
+        #try:
+        curr_item = self.multi_items_list.scroll_tree.focus()
+        item_dict = self.multi_items_list.scroll_tree.item(curr_item)
 
-            selected_module = 'Module Name : {}'.format(item_dict['values'][0])
-            installed_version = 'Installed : {}'.format(item_dict['values'][1])
-            latest_version = 'Latest : {}'.format(item_dict['values'][2])
+        selected_module = 'Module Name : {}'.format(item_dict['values'][0])
 
-            module_summary = "Not available"
-            for module in self.search_results:
-                if module['name'] == item_dict['values'][0]:
-                    module_summary = module['summary']
-                    break
-            module_summary = 'Summary {}'.format(module_summary)
+        from pip_tkinter.utils import pip_show_command
+        #distributions is a generator object
+        self.distributions = pip_show_command(selected_module)
 
-            selected_package_details = '{}\n{}\n{}\n{}'.format(
-                selected_module,
-                module_summary,
-                installed_version,
-                latest_version)
+        for dist in self.distributions:
+            print (dist)
+            metadata_version = 'Metadata Version : {}'.format(
+                dist.get('metadata-version'))
+            package_name = 'Package name : {}'.format(dist['name'])
+            version = 'Version : {}'.format(dist['version'])
+            summary = 'Summary : {}'.format(dist.get('summary'))
+            license = 'License : {}'.fromat(dist.get('license'))
+            location = 'Location : {}'.fromat(dist['location'])
+            requires = 'Requires : {}'.format(', '.join(dist['requires']))
+            selected_package_details = '{}\n{}\n{}\n{}\n{}\n{}\n{}'.format(
+                metadata_version,
+                package_name,
+                version,
+                summary,
+                license,
+                location,
+                requires)
             self.package_details.configure(state='normal')
             self.package_details.delete(1.0, 'end')
             self.package_details.insert(1.0, selected_package_details)
             self.package_details.configure(state='disabled')
 
-        except:
-            self.package_details.configure(state='normal')
-            self.package_details.delete(1.0, 'end')
-            self.package_details.insert(1.0, 'No module selected')
-            self.package_details.configure(state='disabled')
+        #except:
+        #    self.package_details.configure(state='normal')
+        #    self.package_details.delete(1.0, 'end')
+        #    self.package_details.insert(1.0, 'No module selected')
+        #    self.package_details.configure(state='disabled')
 
     def refresh_installed_packages(self):
         """
         Show search results
         """
 
-        search_term = self.search_var.get()
-        print (search_term)
-        try:
-            from pip_tkinter.utils import pip_search_command
-            self.search_results = pip_search_command(search_term)
-        except TypeError:
-            self.search_results = []
+        from pip_tkinter.utils import pip_list_outdated_command
 
-        results_tuple = []
-        for item in self.search_results:
-            if search_term in item['name']:
-                if 'installed' in item.keys():
-                    results_tuple.insert(0, (
-                        item['name'],
-                        item['installed'],
-                        item['latest']))
-                else:
-                    results_tuple.insert(0, (
-                        item['name'],
-                        'not installed',
-                        item['latest']))
+        self.installed_packages_list = pip_list_outdated_command()
+        results_tuple = self.installed_packages_list
         self.multi_items_list.populate_rows(results_tuple)
 
     def create_buttons(self):
@@ -277,7 +269,7 @@ class UpdatePackage(ttk.Frame):
         """
         Execute pip commands
         """
-        pass
+
 
 
 class UninstallPackage(ttk.Frame):
@@ -306,10 +298,11 @@ class UninstallPackage(ttk.Frame):
         3. Available versions
         """
 
-        self.headers = ['Python Module','Installed Version','Available Versions']
+        self.headers = ['Python Module','Installed Version']
         from pip_tkinter.utils import MultiItemsList
         self.multi_items_list = MultiItemsList(self, self.headers)
         self.multi_items_list.myframe.grid(row=0, column=0, columnspan=3, sticky='nswe')
+        self.refresh_installed_packages()
         self.package_subwindow = tk.LabelFrame(
             self,
             text="Package Details",
@@ -374,27 +367,11 @@ class UninstallPackage(ttk.Frame):
         Show search results
         """
 
-        search_term = self.search_var.get()
-        print (search_term)
-        try:
-            from pip_tkinter.utils import pip_search_command
-            self.search_results = pip_search_command(search_term)
-        except TypeError:
-            self.search_results = []
+        from pip_tkinter.utils import pip_list_command
 
-        results_tuple = []
-        for item in self.search_results:
-            if search_term in item['name']:
-                if 'installed' in item.keys():
-                    results_tuple.insert(0, (
-                        item['name'],
-                        item['installed'],
-                        item['latest']))
-                else:
-                    results_tuple.insert(0, (
-                        item['name'],
-                        'not installed',
-                        item['latest']))
+        self.installed_packages_list = pip_list_command()
+        results_tuple = self.installed_packages_list
+        print (results_tuple)
         self.multi_items_list.populate_rows(results_tuple)
 
     def create_buttons(self):

@@ -102,7 +102,7 @@ class GUIListCommand(ListCommand):
         )
 
         for dist in installed_packages:
-            self.installed_packages_list.append(dist.project_name, dist.version)
+            self.installed_packages_list.append((dist.project_name, dist.version))
 
     def run_outdated(self, options):
         self.find_outdated = False
@@ -123,14 +123,9 @@ class GUIListCommand(ListCommand):
 
     def get_installed_packages_list(self):
 
-        if self.find_outdated:
-            return self.outdated_packages_list
+        if hasattr(self,'find_outdated'):
+            if self.find_outdated:
+                return self.outdated_packages_list
 
         else:
             return self.installed_packages_list
-
-
-class GUIInstallCommand(InstallCommand):
-    """
-    Inheriting the pip.commands.install.InstallCommand
-    """

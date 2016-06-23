@@ -172,6 +172,16 @@ def pip_list_outdated_command():
     list_object.main(cmd_args)
     return list_object.get_installed_packages_list()
 
+def pip_show_command(package_args):
+    """
+    Show details of a installed package
+    """
+    print ("hell")
+    from pip.commands.show import search_packages_info
+    results = search_packages_info([package_args,])
+    print ("hell")
+    return results
+
 def pip_install_from_PyPI(package_args):
     """
     Wrapper for installing pip package from PyPI
