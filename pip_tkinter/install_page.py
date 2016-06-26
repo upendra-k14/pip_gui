@@ -1,10 +1,14 @@
 # coding=utf-8
 from __future__ import absolute_import
 
-from io import StringIO
+import logging
+import threading
+import queue
+import socket
 
 import tkinter as tk
 from tkinter import ttk
+from io import StringIO
 
 class InstallPage(ttk.Frame):
     """
@@ -126,7 +130,7 @@ class InstallPage(ttk.Frame):
         self.frames_dict = {}
         for F in frames_tuple:
             frame_name = F.__name__
-            new_frame = F(self.container, self, self.logger)
+            new_frame = F(self.container, self)
             new_frame.grid(row=0, column=1, sticky='nsew')
             self.frames_dict[frame_name] = new_frame
 
@@ -157,7 +161,7 @@ class InstallPage(ttk.Frame):
 
 class InstallFromPyPI(ttk.Frame):
 
-    def __init__(self, parent, controller, logger):
+    def __init__(self, parent, controller):
 
         ttk.Frame.__init__(
             self,
@@ -167,13 +171,11 @@ class InstallFromPyPI(ttk.Frame):
             relief='ridge')
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
         self.controller = controller
-        self.logger = logger
         self.rowconfigure(1, weight=1)
         self.columnconfigure(0, weight=1)
         self.create_search_bar()
         self.create_multitem_treeview()
         self.create_nav_buttons()
-        self.logger.info("No")
 
     def create_search_bar(self):
 
@@ -219,6 +221,11 @@ class InstallFromPyPI(ttk.Frame):
         1. Python Module
         2. Installed version
         3. Available versions
+
+        List of buttons :
+        1. navigate_back
+        2. navigate_next
+        3. search_button
         """
 
         self.headers = ['Python Module','Installed Version','Available Versions']
@@ -288,30 +295,60 @@ class InstallFromPyPI(ttk.Frame):
         Show search results
         """
 
-        search_term = self.search_var.get()
-        self.logger.info('Fetching search results for {}...'.format(search_term))
-        try:
-            from pip_tkinter.utils import pip_search_command
-            self.search_results = pip_search_command(search_term)
-        except TypeError:
-            self.search_results = []
-            self.logger.info('Error in fetching results')
+        self.search_term = self.search_var.get()
+        #Update the bottom message bar to inform user that the program
+        #is fetching search results
+        self.controller.debug_bar.config(text='Fetching search results ...')
 
-        results_tuple = []
-        for item in self.search_results:
-            if search_term in item['name']:
-                if 'installed' in item.keys():
-                    results_tuple.insert(0, (
-                        item['name'],
-                        item['installed'],
-                        item['latest']))
-                else:
-                    results_tuple.insert(0, (
-                        item['name'],
-                        'not installed',
-                        item['latest']))
-        self.multi_items_list.populate_rows(results_tuple)
-        self.logger.info('Done')
+        #Disable buttons like :
+        self.navigate_back.config(state='disabled')
+        self.navigate_next.config(state='disabled')
+        self.search_button.config(state='disabled')
+
+        #Spawn a new thread for searching packages,
+        #Search results will be returned in the @param : self.thread_queue
+        self.search_queue = queue.Queue()
+
+        from pip_tkinter.utils import pip_search_command
+        self.search_thread = threading.Thread(
+            target=pip_search_command,
+            kwargs={
+                'package_name':self.search_term,
+                'thread_queue':self.search_queue})
+        self.search_thread.start()
+        self.after(100, self.check_search_queue)
+
+    def check_search_queue(self):
+        try:
+            self.search_results = self.search_queue.get(0)
+            results_tuple = []
+
+            try:
+                for item in self.search_results:
+                    if self.search_term in item['name']:
+                        if 'installed' in item.keys():
+                            results_tuple.insert(0, (
+                                item['name'],
+                                item['installed'],
+                                item['latest']))
+                        else:
+                            results_tuple.insert(0, (
+                                item['name'],
+                                'not installed',
+                                item['latest']))
+                self.multi_items_list.populate_rows(results_tuple)
+                self.controller.debug_bar.config(text='Fetched search results')
+
+            except TypeError:
+                self.controller.debug_bar.config(
+                    text='Unable to fetch results. Please verify your internet connection')
+
+            self.navigate_back.config(state='normal')
+            self.navigate_next.config(state='normal')
+            self.search_button.config(state='normal')
+
+        except queue.Empty:
+            self.after(100, self.check_search_queue)
 
     def create_nav_buttons(self):
         """
@@ -339,19 +376,49 @@ class InstallFromPyPI(ttk.Frame):
         """
         Execute pip commands
         """
+        self.navigate_back.config(state='disabled')
+        self.navigate_next.config(state='disabled')
+        self.search_button.config(state='disabled')
+
         from pip_tkinter.utils import pip_install_from_PyPI
 
         curr_item = self.multi_items_list.scroll_tree.focus()
         item_dict = self.multi_items_list.scroll_tree.item(curr_item)
         selected_module = item_dict['values'][0]
-        print("Installing package .....")
-        pip_install_from_PyPI(selected_module)
-        print("Successfully installed")
+        self.controller.debug_bar.config(
+            text='Installing package {}...Please wait'.format(selected_module))
 
+        self.install_queue = queue.Queue()
+        self.install_thread = threading.Thread(
+            target=pip_install_from_PyPI,
+            kwargs={
+                'package_args':selected_module,
+                'thread_queue':self.install_queue})
+        self.install_thread.start()
+        self.after(100, self.check_install_queue)
+
+    def abort_pip_command(self):
+        """
+        Stop pip installation : Currently not sure to provide option for
+        aborting installation in between
+        """
+        self.search_thread.stop()
+
+    def check_install_queue(self):
+        try:
+            self.install_message = self.install_queue.get(0)
+            self.controller.debug_bar.config(text=self.install_message)
+
+            self.navigate_back.config(state='normal')
+            self.navigate_next.config(state='normal')
+            self.search_button.config(state='normal')
+
+        except queue.Empty:
+            self.after(100, self.check_search_queue)
 
 class InstallFromLocalArchive(ttk.Frame):
 
-    def __init__(self, parent, controller, logger):
+    def __init__(self, parent, controller):
         ttk.Frame.__init__(
                         self,
                         parent,
@@ -448,7 +515,7 @@ class InstallFromLocalArchive(ttk.Frame):
 
 class InstallFromRequirements(ttk.Frame):
 
-    def __init__(self, parent, controller, logger):
+    def __init__(self, parent, controller):
         ttk.Frame.__init__(
             self,
             parent,
@@ -551,14 +618,12 @@ will be installed."
         from pip_tkinter.utils import pip_install_from_requirements
 
         selected_module = self.req_file_name
-        self.logger.info("Installing package .....")
         pip_install_from_requirements(selected_module)
         print("Success")
-        self.logger.info("Successfully installed")
 
 class InstallFromPythonlibs(ttk.Frame):
 
-    def __init__(self, parent, controller, logger):
+    def __init__(self, parent, controller):
         ttk.Frame.__init__(
                         self,
                         parent,
@@ -573,7 +638,7 @@ class InstallFromPythonlibs(ttk.Frame):
 
 class InstallFromAlternateRepo(ttk.Frame):
 
-    def __init__(self, parent, controller, logger):
+    def __init__(self, parent, controller):
         ttk.Frame.__init__(
                         self,
                         parent,

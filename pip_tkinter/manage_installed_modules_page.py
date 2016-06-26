@@ -381,5 +381,5 @@ class UninstallPackage(ttk.Frame):
         item_dict = self.multi_items_list.scroll_tree.item(curr_item)
         selected_module = item_dict['values'][0]
         print ("Updating package .....")
-        pip_uninstall(selected_module)
+        print (pip_uninstall(selected_module))
         print ("Success")

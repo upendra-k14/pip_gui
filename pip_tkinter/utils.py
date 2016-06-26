@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 import sys
-import logging
 import threading
 
 from pip.commands.search import highest_version
@@ -12,6 +11,8 @@ import tkinter as tk
 from tkinter import ttk
 
 search_hits = {}
+
+'''
 
 class WidgetHandler(logging.Handler):
     """
@@ -24,7 +25,10 @@ class WidgetHandler(logging.Handler):
 
     def emit(self, content_text):
         msg = self.format(content_text)
-        self.widget.config(text=msg)
+        def update():
+            self.widget.config(text=msg)
+        self.widget.after(0, update)
+'''
 
 class MultiItemsList(object):
 
@@ -124,16 +128,17 @@ def runpip(argstring):
     with Redirect('stdout', sysout) as f1, Redirect('stderr', syserr) as f2:
         #Clear all loggers
         pip.logger.consumers = []
+
         status = pip.main(argstring.split())
         out = sysout.getvalue()
         err = syserr.getvalue()
-        print('{}\n{}\n{}'.format(status, out, err))
+        #print('{}\n{}\n{}'.format(status, out, err))
 
     sysout.seek(0); sysout.truncate(0)
     syserr.seek(0); syserr.truncate(0)
     return status, out, err
 
-def pip_search_command(package_name):
+def pip_search_command(package_name=None, thread_queue=None):
     """
     Uses pip.commands.search.SearchCommand to retrieve results of 'pip search'
     """
@@ -143,7 +148,7 @@ def pip_search_command(package_name):
     search_object = GUISearchCommand()
     cmd_name, cmd_args = parseopts(['search', package_name])
     search_object.main(cmd_args)
-    return search_object.get_search_results()
+    thread_queue.put(search_object.get_search_results())
 
 def pip_list_command():
     """
@@ -153,7 +158,7 @@ def pip_list_command():
     from pip_tkinter.pip_extensions import GUIListCommand
 
     list_object = GUIListCommand()
-    cmd_name, cmd_args = parseopts(['list'])
+    cmd_name, cmd_args = parseopts(['list','--no-cache-dir'])
     list_object.main(cmd_args)
     return list_object.get_installed_packages_list()
 
@@ -173,13 +178,17 @@ def pip_show_command(package_args):
     """
     Show details of a installed package
     """
-    return runpip('show {}'.format(package_args))
+    return runpip('show --no-cache-dir {}'.format(package_args))
 
-def pip_install_from_PyPI(package_args):
+def pip_install_from_PyPI(package_args, thread_queue):
     """
     Wrapper for installing pip package from PyPI
     """
-    return runpip('install -U {}'.format(package_args))
+    stat, out, err = runpip('install -U {}'.format(package_args))
+    print (stat)
+    print (out)
+    print (err)
+    thread_queue.put(out)
 
 def pip_install_from_local_archive(package_args):
     """
@@ -203,4 +212,4 @@ def pip_uninstall(package_args):
     """
     Uninstall packages
     """
-    return runpip('uninstall {}'.format(package_args))
+    return runpip('uninstall --yes {}'.format(package_args))
