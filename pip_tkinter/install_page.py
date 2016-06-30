@@ -96,6 +96,7 @@ class InstallPage(ttk.Frame):
         )
         self.button_requirements.grid(row=2, column=0, sticky='nwe')
 
+        '''
         self.button_pythonlibs = ttk.Button(
             self.navbar_frame,
             text=pythonlibs_text,
@@ -111,6 +112,7 @@ class InstallPage(ttk.Frame):
             command=lambda : self.show_frame('InstallFromAlternateRepo')
         )
         self.button_alternate_repo.grid(row=4, column=0, sticky='nwe')
+        '''
 
     def manage_frames(self):
         """
@@ -123,8 +125,6 @@ class InstallPage(ttk.Frame):
             InstallFromPyPI,
             InstallFromLocalArchive,
             InstallFromRequirements,
-            InstallFromPythonlibs,
-            InstallFromAlternateRepo
         )
 
         self.frames_dict = {}
@@ -375,6 +375,7 @@ class InstallFromPyPI(ttk.Frame):
     def execute_pip_commands(self):
         """
         Execute pip commands
+        #FIX IT : unable to work properly with threads
         """
         self.navigate_back.config(state='disabled')
         self.navigate_next.config(state='disabled')
@@ -385,19 +386,19 @@ class InstallFromPyPI(ttk.Frame):
         curr_item = self.multi_items_list.scroll_tree.focus()
         item_dict = self.multi_items_list.scroll_tree.item(curr_item)
         selected_module = item_dict['values'][0]
-        self.controller.debug_bar.config(
-            text='Installing package {}...Please wait'.format(selected_module))
 
-        self.install_queue = queue.Queue()
-        self.install_thread = threading.Thread(
-            target=pip_install_from_PyPI,
-            kwargs={
-                'package_args':selected_module,
-                'thread_queue':self.install_queue})
-        self.install_thread.start()
-        self.after(100, self.check_install_queue)
+        status, output, err = pip_install_from_PyPI(selected_module)
 
-    def abort_pip_command(self):
+        if str(status) == '0':
+            self.controller.debug_bar.config(text='Successfully installed')
+        else:
+            self.controller.debug_bar.config(text='Error in installing package')
+
+        self.navigate_back.config(state='normal')
+        self.navigate_next.config(state='normal')
+        self.search_button.config(state='normal')
+
+    def abort_search_command(self):
         """
         Stop pip installation : Currently not sure to provide option for
         aborting installation in between

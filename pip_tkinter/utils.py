@@ -12,23 +12,6 @@ from tkinter import ttk
 
 search_hits = {}
 
-'''
-
-class WidgetHandler(logging.Handler):
-    """
-    Log text to a Tkinter widget
-    """
-
-    def __init__(self, widget):
-        logging.Handler.__init__(self)
-        self.widget = widget
-
-    def emit(self, content_text):
-        msg = self.format(content_text)
-        def update():
-            self.widget.config(text=msg)
-        self.widget.after(0, update)
-'''
 
 class MultiItemsList(object):
 
@@ -180,15 +163,11 @@ def pip_show_command(package_args):
     """
     return runpip('show --no-cache-dir {}'.format(package_args))
 
-def pip_install_from_PyPI(package_args, thread_queue):
+def pip_install_from_PyPI(package_args):
     """
     Wrapper for installing pip package from PyPI
     """
-    stat, out, err = runpip('install -U {}'.format(package_args))
-    print (stat)
-    print (out)
-    print (err)
-    thread_queue.put(out)
+    return runpip('install -U {}'.format(package_args))
 
 def pip_install_from_local_archive(package_args):
     """

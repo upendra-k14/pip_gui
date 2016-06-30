@@ -9,7 +9,7 @@ from pip.commands.search import SearchCommand, transform_hits, highest_version
 from pip.commands.list import ListCommand
 from pip.commands.show import ShowCommand
 from pip.exceptions import CommandError
-from pip.basecommand import SUCCESS, ERROR
+from pip.status_codes import SUCCESS, ERROR, NO_MATCHES_FOUND
 from pip import main
 
 from pip_tkinter.utils import Redirect
@@ -52,11 +52,19 @@ class GUISearchCommand(SearchCommand):
         try:
             # The developer version of pip uses options as argument
             pypi_hits = self.search(query,options)
+            self.hits = transform_hits(pypi_hits)
+            if pypi_hits:
+                return SUCCESS
+            else:
+                return NO_MATCHES_FOUND
         except TypeError:
             # But, the stable version of pip uses options.index as argument
             pypi_hits = self.search(query,options.index)
-        self.hits = transform_hits(pypi_hits)
-        return SUCCESS
+            self.hits = transform_hits(pypi_hits)
+            if pypi_hits:
+                return SUCCESS
+            else:
+                return NO_MATCHES_FOUND
 
     def get_search_results(self):
         """
