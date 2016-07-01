@@ -39,26 +39,26 @@ class MultiItemsList(object):
         self.scroll_tree = ttk.Treeview(
             self.myframe,
             columns=self.headers_list,
-            show='headings')
+            show='headings',
+            selectmode='browse')
 
-        '''
-        FIX : Scrollbar is creating problems while changing frame
         vrtl_scrbar = ttk.Scrollbar(
+            self.myframe,
             orient="vertical",
             command=self.scroll_tree.yview)
         hrtl_scrbar = ttk.Scrollbar(
+            self.myframe,
             orient="horizontal",
             command=self.scroll_tree.xview)
 
         self.scroll_tree.configure(
             yscrollcommand=vrtl_scrbar.set,
             xscrollcommand=hrtl_scrbar.set)
-        '''
+
         self.scroll_tree.grid(column=0, row=0, sticky='nswe', in_=self.myframe)
-        '''
         vrtl_scrbar.grid(column=1, row=0, sticky='ns', in_=self.myframe)
         hrtl_scrbar.grid(column=0, row=1, sticky='ew', in_=self.myframe)
-        '''
+
         self.myframe.grid_columnconfigure(0, weight=1)
         self.myframe.grid_rowconfigure(0, weight=1)
 

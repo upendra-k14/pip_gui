@@ -17,7 +17,9 @@ class PipExtensionsTest(unittest.TestCase):
         Check if search results of overidden method return SUCCESS on
         successfully finding package
         """
-        status = self.test_gui_search.main('pip')
+        cmdline = "--index=http://pypi.python.org/pypi pip"
+        options, args = self.test_gui_search.parse_args(cmdline.split())
+        status = self.test_gui_search.run(options, args)
         self.assertEquals(status, SUCCESS)
 
     def test_return_value_for_unsuccessful_search_results(self):
@@ -25,7 +27,9 @@ class PipExtensionsTest(unittest.TestCase):
         Check if search results of overidden method return NO_MATCHES_FOUND on
         unable to find package
         """
-        status = self.test_gui_search.main('nonexistentpackage')
+        cmdline = "--index=http://pypi.python.org/pypi nonexistentpackage"
+        options, args = self.test_gui_search.parse_args(cmdline.split())
+        status = self.test_gui_search.run(options, args)
         self.assertEquals(status, NO_MATCHES_FOUND)
 
     def test_return_value_for_results_of_show_command_existing_package(self):

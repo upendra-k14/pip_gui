@@ -249,9 +249,9 @@ class UpdatePackage(ttk.Frame):
         curr_item = self.multi_items_list.scroll_tree.focus()
         item_dict = self.multi_items_list.scroll_tree.item(curr_item)
         selected_module = item_dict['values'][0]
-        print("Installing package .....")
+        print("Updating package .....")
         pip_install_from_PyPI(selected_module)
-        print("Successfully installed")
+        print("Successfully updated")
 
 
 
@@ -380,6 +380,6 @@ class UninstallPackage(ttk.Frame):
         curr_item = self.multi_items_list.scroll_tree.focus()
         item_dict = self.multi_items_list.scroll_tree.item(curr_item)
         selected_module = item_dict['values'][0]
-        print ("Updating package .....")
+        print ("Uninstalling package .....")
         print (pip_uninstall(selected_module))
-        print ("Success")
+        print ("Successfully removed")

@@ -231,6 +231,7 @@ class InstallFromPyPI(ttk.Frame):
         self.headers = ['Python Module','Installed Version','Available Versions']
         from pip_tkinter.utils import MultiItemsList
         self.multi_items_list = MultiItemsList(self, self.headers)
+
         self.package_subwindow = tk.LabelFrame(
             self,
             text="Package Details",
