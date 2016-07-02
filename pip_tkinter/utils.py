@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import sys
 import threading
+import http.client
 
 from pip.commands.search import highest_version
 from pip import parseopts
@@ -141,7 +142,7 @@ def pip_list_command():
     from pip_tkinter.pip_extensions import GUIListCommand
 
     list_object = GUIListCommand()
-    cmd_name, cmd_args = parseopts(['list','--no-cache-dir'])
+    cmd_name, cmd_args = parseopts(['list'])
     list_object.main(cmd_args)
     return list_object.get_installed_packages_list()
 
@@ -192,3 +193,14 @@ def pip_uninstall(package_args):
     Uninstall packages
     """
     return runpip('uninstall --yes {}'.format(package_args))
+
+def verify_pypi_url():
+    """
+    Check if URL can be accessed
+    """
+    try:
+        http_conn = http.client.HTTPConnection('https://pypi.python.org/pypi')
+        http_conn.connect()
+        return True
+    except http.client.HTTPException:
+        return False
