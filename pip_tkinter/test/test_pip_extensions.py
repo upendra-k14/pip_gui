@@ -77,8 +77,7 @@ class PipExtensionsTest(unittest.TestCase):
         self.assertEqual('pipguidummypackageAAZZBBCC' in package_names_list, True)
 
     def tearDown(self):
-        pass
-        #uninstall_dummy_package()
+        uninstall_dummy_package()
 
 if __name__ == 'main':
     unittest.main()
