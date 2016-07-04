@@ -5,6 +5,7 @@ from io import StringIO
 
 import tkinter as tk
 from tkinter import ttk
+import asyncio
 
 class ManageInstalledPage(ttk.Frame):
     """
@@ -157,7 +158,7 @@ class UpdatePackage(ttk.Frame):
         from pip_tkinter.utils import MultiItemsList
         self.multi_items_list = MultiItemsList(self, self.headers)
         self.multi_items_list.myframe.grid(row=0, column=0, columnspan=3, sticky='nsew')
-        self.refresh_installed_packages()
+        #self.refresh_installed_packages()
         self.package_subwindow = tk.LabelFrame(
             self,
             text="Package Details",
