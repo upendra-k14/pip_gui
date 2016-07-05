@@ -2,7 +2,8 @@
 from __future__ import absolute_import
 
 from io import StringIO
-
+import queue
+import threading
 import tkinter as tk
 from tkinter import ttk
 import asyncio
@@ -204,12 +205,36 @@ class UpdatePackage(ttk.Frame):
         """
         Show search results
         """
+        #Update the bottom message bar to inform user that the program
+        #is fetching outdated packages list
+        self.after(0, self.controller.debug_bar.config(
+            text='Fetching outdated packages ...'))
+
+        #Disable buttons like :
+        self.navigate_back.config(state='disabled')
+        self.navigate_next.config(state='disabled')
+        self.refresh_button.config(state='disabled')
+
+        #Spawn a new thread for getting list of outdated packages,
+        #Search results will be returned in the @param : self.outdated_queue
+        self.after(100, self.check_for_outdated_packages_queue)
+
+    def check_for_outdated_packages_queue(self):
 
         from pip_tkinter.utils import pip_list_outdated_command
+        results_tuple = pip_list_outdated_command()
 
-        self.installed_packages_list = pip_list_outdated_command()
-        results_tuple = self.installed_packages_list
-        self.multi_items_list.populate_rows(results_tuple)
+        if len(results_tuple) > 0:
+            self.multi_items_list.populate_rows(results_tuple)
+            self.controller.debug_bar.config(
+                text='Got list of outdated packages')
+        else:
+            self.controller.debug_bar.config(
+                text='Error in fetching list of outdated packages')
+
+        self.navigate_back.config(state='normal')
+        self.navigate_next.config(state='normal')
+        self.refresh_button.config(state='normal')
 
     def create_buttons(self):
         """
@@ -244,15 +269,34 @@ class UpdatePackage(ttk.Frame):
         """
         Execute pip commands
         """
+        self.navigate_back.config(state='disabled')
+        self.navigate_next.config(state='disabled')
+        self.search_button.config(state='disabled')
 
+        self.after(0, self.controller.debug_bar.config(
+            text='Updating package. Please wait ...'))
+        self.after(100, self.update_install_text)
+
+        self.navigate_back.config(state='normal')
+        self.navigate_next.config(state='normal')
+        self.search_button.config(state='normal')
+
+    def update_install_text(self):
+        """
+        Update install text
+        """
         from pip_tkinter.utils import pip_install_from_PyPI
 
         curr_item = self.multi_items_list.scroll_tree.focus()
         item_dict = self.multi_items_list.scroll_tree.item(curr_item)
         selected_module = item_dict['values'][0]
-        print("Updating package .....")
-        pip_install_from_PyPI(selected_module)
-        print("Successfully updated")
+
+        status, output, err = pip_install_from_PyPI(selected_module)
+
+        if str(status) == '0':
+            self.controller.debug_bar.config(text='Successfully updated package')
+        else:
+            self.controller.debug_bar.config(text='Error in updating package')
 
 
 
@@ -375,12 +419,31 @@ class UninstallPackage(ttk.Frame):
         """
         Execute pip commands
         """
+        self.navigate_back.config(state='disabled')
+        self.navigate_next.config(state='disabled')
+        self.search_button.config(state='disabled')
 
+        self.after(0, self.controller.debug_bar.config(
+            text='Uninstalling package. Please wait ...'))
+        self.after(100, self.update_uninstall_text)
+
+        self.navigate_back.config(state='normal')
+        self.navigate_next.config(state='normal')
+        self.search_button.config(state='normal')
+
+    def update_uninstall_text(self):
+        """
+        Update install text
+        """
         from pip_tkinter.utils import pip_uninstall
 
         curr_item = self.multi_items_list.scroll_tree.focus()
         item_dict = self.multi_items_list.scroll_tree.item(curr_item)
         selected_module = item_dict['values'][0]
-        print ("Uninstalling package .....")
-        print (pip_uninstall(selected_module))
-        print ("Successfully removed")
+
+        status, output, err = pip_uninstall(selected_module)
+
+        if str(status) == '0':
+            self.controller.debug_bar.config(text='Package removed')
+        else:
+            self.controller.debug_bar.config(text='Error in uninstalling package')

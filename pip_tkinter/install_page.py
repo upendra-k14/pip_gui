@@ -375,16 +375,10 @@ class InstallFromPyPI(ttk.Frame):
     def execute_pip_commands(self):
         """
         Execute pip commands
-        #FIX IT : unable to work properly with threads
         """
         self.navigate_back.config(state='disabled')
         self.navigate_next.config(state='disabled')
         self.search_button.config(state='disabled')
-
-        from pip_tkinter.utils import pip_install_from_PyPI
-
-        #self.controller.debug_bar.config(text='Installing package. Please wait ...')
-        self.install_queue = queue.Queue()
 
         self.after(0, self.controller.debug_bar.config(text='Installing package. Please wait ...'))
         self.after(100, self.update_install_text)
@@ -398,7 +392,7 @@ class InstallFromPyPI(ttk.Frame):
         Update install text
         """
         from pip_tkinter.utils import pip_install_from_PyPI
-        
+
         curr_item = self.multi_items_list.scroll_tree.focus()
         item_dict = self.multi_items_list.scroll_tree.item(curr_item)
         selected_module = item_dict['values'][0]
@@ -521,12 +515,32 @@ class InstallFromLocalArchive(ttk.Frame):
         """
         Execute pip commands
         """
-        from pip_tkinter.utils import pip_install_from_PyPI
+
+        self.navigate_back.config(state='disabled')
+        self.navigate_next.config(state='disabled')
+        self.search_button.config(state='disabled')
+
+        self.after(0, self.controller.debug_bar.config(
+            text='Installing package from archive. Please wait ...'))
+        self.after(100, self.update_install_text)
+
+        self.navigate_back.config(state='normal')
+        self.navigate_next.config(state='normal')
+        self.search_button.config(state='normal')
+
+    def update_install_text(self):
+        """
+        Update install text
+        """
+        from pip_tkinter.utils import pip_install_from_local_archive
 
         selected_module = self.req_file_name
-        print("Installing package .....")
-        pip_install_from_local_archive(selected_module)
-        print("Successfully installed")
+        status, output, err = pip_install_from_local_archive(selected_module)
+
+        if str(status) == '0':
+            self.controller.debug_bar.config(text='Successfully installed')
+        else:
+            self.controller.debug_bar.config(text='Error in installing package')
 
 
 
@@ -633,11 +647,31 @@ will be installed."
         """
         Execute pip commands
         """
-        from pip_tkinter.utils import pip_install_from_requirements
 
+        self.navigate_back.config(state='disabled')
+        self.navigate_next.config(state='disabled')
+        self.search_button.config(state='disabled')
+
+        self.after(0, self.controller.debug_bar.config(
+            text='Installing package(s) from requirement file. Please wait ...'))
+        self.after(100, self.update_install_text)
+
+        self.navigate_back.config(state='normal')
+        self.navigate_next.config(state='normal')
+        self.search_button.config(state='normal')
+
+    def update_install_text(self):
+        """
+        Update install text
+        """
+        from pip_tkinter.utils import pip_install_from_requirements
         selected_module = self.req_file_name
-        pip_install_from_requirements(selected_module)
-        print("Success")
+        status, output, err = pip_install_from_requirements(selected_module)
+
+        if str(status) == '0':
+            self.controller.debug_bar.config(text='Successfully installed')
+        else:
+            self.controller.debug_bar.config(text='Error in installing package')
 
 class InstallFromPythonlibs(ttk.Frame):
 

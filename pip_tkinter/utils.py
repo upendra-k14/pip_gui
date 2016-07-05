@@ -171,33 +171,29 @@ def pip_install_from_PyPI(package_args):
     """
     return (runpip('install -U {}'.format(package_args)))
 
-@asyncio.coroutine
 def pip_install_from_local_archive(package_args):
     """
     Wrapper for installing pip package from local Archive
     """
-    return (yield from runpip('install {}'.format(package_args)))
+    return (runpip('install {}'.format(package_args)))
 
-@asyncio.coroutine
 def pip_install_from_requirements(package_args):
     """
     Wrapper for installing pip package from requirements file
     """
-    return (yield from runpip('install -r {}'.format(package_args)))
+    return (runpip('install -r {}'.format(package_args)))
 
-@asyncio.coroutine
 def pip_install_from_alternate_repo(package_args):
     """
     Wrapper for installing pip package from Pythonlibs
     """
-    return (yield from runpip('install --index-url{}'.format(package_args)))
+    return (runpip('install --index-url{}'.format(package_args)))
 
-@asyncio.coroutine
 def pip_uninstall(package_args):
     """
     Uninstall packages
     """
-    return (yield from runpip('uninstall --yes {}'.format(package_args)))
+    return (runpip('uninstall --yes {}'.format(package_args)))
 
 def verify_pypi_url():
     """
