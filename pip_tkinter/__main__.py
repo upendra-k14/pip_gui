@@ -61,6 +61,7 @@ class MainApp(tk.Tk):
 
         frame = self.frames_dict[frame_name]
         frame.tkraise()
+        frame.focus_set()
 
     def adjust_window(self, xratio, yratio):
         """

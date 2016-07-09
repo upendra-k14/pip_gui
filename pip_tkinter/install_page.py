@@ -5,6 +5,7 @@ import logging
 import threading
 import queue
 import socket
+import asyncio
 
 import tkinter as tk
 from tkinter import ttk
@@ -173,19 +174,17 @@ class InstallFromPyPI(ttk.Frame):
         self.controller = controller
         self.rowconfigure(1, weight=1)
         self.columnconfigure(0, weight=1)
+        self.create_nav_buttons()
         self.create_search_bar()
         self.create_multitem_treeview()
-        self.create_nav_buttons()
+        self.event_loop = asyncio.get_event_loop()
 
     def create_search_bar(self):
 
         import pkg_resources, os
 
-        resource_package = __name__
-        resource_path = os.path.join('pic.dat')
-
         #Configure style for search bar
-        data= pkg_resources.resource_string(resource_package, resource_path)
+        data= pkg_resources.resource_string(__name__, 'pic.dat')
         global s1,s2
         s1 = tk.PhotoImage('search1', data=data, format='gif -index 0')
         s2 = tk.PhotoImage('search2', data=data, format='gif -index 1')
@@ -207,6 +206,7 @@ class InstallFromPyPI(ttk.Frame):
             self,
             style='Search.entry',
             textvariable=self.search_var)
+        #self.entry.bind('<Return>',lambda : self.update_search_results())
         self.search_button = ttk.Button(
             self,
             text='Search',
@@ -376,12 +376,22 @@ class InstallFromPyPI(ttk.Frame):
     def execute_pip_commands(self):
         """
         Execute pip commands
-        #FIX IT : unable to work properly with threads
         """
         self.navigate_back.config(state='disabled')
         self.navigate_next.config(state='disabled')
         self.search_button.config(state='disabled')
 
+        self.after(0, self.controller.debug_bar.config(text='Installing package. Please wait ...'))
+        self.after(100, self.update_install_text)
+
+        self.navigate_back.config(state='normal')
+        self.navigate_next.config(state='normal')
+        self.search_button.config(state='normal')
+
+    def update_install_text(self):
+        """
+        Update install text
+        """
         from pip_tkinter.utils import pip_install_from_PyPI
 
         curr_item = self.multi_items_list.scroll_tree.focus()
@@ -395,10 +405,6 @@ class InstallFromPyPI(ttk.Frame):
         else:
             self.controller.debug_bar.config(text='Error in installing package')
 
-        self.navigate_back.config(state='normal')
-        self.navigate_next.config(state='normal')
-        self.search_button.config(state='normal')
-
     def abort_search_command(self):
         """
         Stop pip installation : Currently not sure to provide option for
@@ -409,7 +415,10 @@ class InstallFromPyPI(ttk.Frame):
     def check_install_queue(self):
         try:
             self.install_message = self.install_queue.get(0)
-            self.controller.debug_bar.config(text=self.install_message)
+
+            if str(self.install_message) == 'install_started':
+                self.controller.debug_bar.config(
+                    text='Installing package. Please wait ...')
 
             self.navigate_back.config(state='normal')
             self.navigate_next.config(state='normal')
@@ -433,6 +442,7 @@ class InstallFromLocalArchive(ttk.Frame):
         self.columnconfigure(0, weight=1)
         self.create_entry_form()
         self.create_nav_buttons()
+        self.event_loop = asyncio.get_event_loop()
 
     def create_entry_form(self):
         """
@@ -506,12 +516,32 @@ class InstallFromLocalArchive(ttk.Frame):
         """
         Execute pip commands
         """
-        from pip_tkinter.utils import pip_install_from_PyPI
+
+        self.navigate_back.config(state='disabled')
+        self.navigate_next.config(state='disabled')
+        self.search_button.config(state='disabled')
+
+        self.after(0, self.controller.debug_bar.config(
+            text='Installing package from archive. Please wait ...'))
+        self.after(100, self.update_install_text)
+
+        self.navigate_back.config(state='normal')
+        self.navigate_next.config(state='normal')
+        self.search_button.config(state='normal')
+
+    def update_install_text(self):
+        """
+        Update install text
+        """
+        from pip_tkinter.utils import pip_install_from_local_archive
 
         selected_module = self.req_file_name
-        print("Installing package .....")
-        pip_install_from_local_archive(selected_module)
-        print("Successfully installed")
+        status, output, err = pip_install_from_local_archive(selected_module)
+
+        if str(status) == '0':
+            self.controller.debug_bar.config(text='Successfully installed')
+        else:
+            self.controller.debug_bar.config(text='Error in installing package')
 
 
 
@@ -530,6 +560,7 @@ class InstallFromRequirements(ttk.Frame):
         self.columnconfigure(0, weight=1)
         self.create_entry_form()
         self.create_nav_buttons()
+        self.event_loop = asyncio.get_event_loop()
 
     def create_entry_form(self):
         """
@@ -617,11 +648,31 @@ will be installed."
         """
         Execute pip commands
         """
-        from pip_tkinter.utils import pip_install_from_requirements
 
+        self.navigate_back.config(state='disabled')
+        self.navigate_next.config(state='disabled')
+        self.search_button.config(state='disabled')
+
+        self.after(0, self.controller.debug_bar.config(
+            text='Installing package(s) from requirement file. Please wait ...'))
+        self.after(100, self.update_install_text)
+
+        self.navigate_back.config(state='normal')
+        self.navigate_next.config(state='normal')
+        self.search_button.config(state='normal')
+
+    def update_install_text(self):
+        """
+        Update install text
+        """
+        from pip_tkinter.utils import pip_install_from_requirements
         selected_module = self.req_file_name
-        pip_install_from_requirements(selected_module)
-        print("Success")
+        status, output, err = pip_install_from_requirements(selected_module)
+
+        if str(status) == '0':
+            self.controller.debug_bar.config(text='Successfully installed')
+        else:
+            self.controller.debug_bar.config(text='Error in installing package')
 
 class InstallFromPythonlibs(ttk.Frame):
 
@@ -636,6 +687,7 @@ class InstallFromPythonlibs(ttk.Frame):
         self.controller = controller
         label = tk.Label(self, text="Install From Python libs")
         label.pack(pady=10, padx=10)
+        self.event_loop = asyncio.get_event_loop()
 
 
 class InstallFromAlternateRepo(ttk.Frame):
@@ -651,6 +703,7 @@ class InstallFromAlternateRepo(ttk.Frame):
         self.controller = controller
         label = tk.Label(self, text="Install From an alternate respository")
         label.pack(pady=10, padx=10)
+        self.event_loop = asyncio.get_event_loop()
 
 
 if __name__ == "__main__":

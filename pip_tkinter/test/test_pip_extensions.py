@@ -10,17 +10,14 @@ from pip_tkinter.config import find_bit_of_python
 def install_dummy_package():
 
     import pkg_resources, os
-    resource_package = 'pip_tkinter'
 
     if find_bit_of_python()=='64bit':
-        resource_path = os.path.join(
-            resource_package,
-            'test',
+        resource_path = pkg_resources.resource_filename(
+            __name__,
             'pipguidummypackageAAZZBBCC-1.0-cp34-cp34m-linux_x86_64.whl')
     else:
-        resource_path = os.path.join(
-            resource_package,
-            'test',
+        resource_path = pkg_resources.resource_filename(
+            __name__,
             'pipguidummypackageAAZZBBCC-1.0-py3-none-any.whl')
 
     status, out, err = pip_install_from_local_archive(resource_path)

@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import sys
 import threading
 import http.client
+import asyncio
 
 from pip.commands.search import highest_version
 from pip import parseopts
@@ -130,7 +131,7 @@ def pip_search_command(package_name=None, thread_queue=None):
     from pip_tkinter.pip_extensions import GUISearchCommand
 
     search_object = GUISearchCommand()
-    cmd_name, cmd_args = parseopts(['search', package_name])
+    cmd_name, cmd_args = parseopts(['search', '--no-cache-dir', package_name])
     search_object.main(cmd_args)
     thread_queue.put(search_object.get_search_results())
 
@@ -142,7 +143,7 @@ def pip_list_command():
     from pip_tkinter.pip_extensions import GUIListCommand
 
     list_object = GUIListCommand()
-    cmd_name, cmd_args = parseopts(['list'])
+    cmd_name, cmd_args = parseopts(['list', '--no-cache-dir'])
     list_object.main(cmd_args)
     return list_object.get_installed_packages_list()
 
@@ -154,7 +155,7 @@ def pip_list_outdated_command():
     from pip_tkinter.pip_extensions import GUIListCommand
 
     list_object = GUIListCommand()
-    cmd_name, cmd_args = parseopts(['list','--outdated'])
+    cmd_name, cmd_args = parseopts(['list','--outdated', '--no-cache-dir'])
     list_object.main(cmd_args)
     return list_object.get_installed_packages_list()
 
@@ -168,31 +169,31 @@ def pip_install_from_PyPI(package_args):
     """
     Wrapper for installing pip package from PyPI
     """
-    return runpip('install -U {}'.format(package_args))
+    return (runpip('install -U {}'.format(package_args)))
 
 def pip_install_from_local_archive(package_args):
     """
     Wrapper for installing pip package from local Archive
     """
-    return runpip('install {}'.format(package_args))
+    return (runpip('install {}'.format(package_args)))
 
 def pip_install_from_requirements(package_args):
     """
     Wrapper for installing pip package from requirements file
     """
-    return runpip('install -r {}'.format(package_args))
+    return (runpip('install -r {}'.format(package_args)))
 
 def pip_install_from_alternate_repo(package_args):
     """
     Wrapper for installing pip package from Pythonlibs
     """
-    return runpip('install --index-url{}'.format(package_args))
+    return (runpip('install --index-url{}'.format(package_args)))
 
 def pip_uninstall(package_args):
     """
     Uninstall packages
     """
-    return runpip('uninstall --yes {}'.format(package_args))
+    return (runpip('uninstall --yes {}'.format(package_args)))
 
 def verify_pypi_url():
     """

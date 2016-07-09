@@ -17,4 +17,3 @@ This project is intended to provide a GUI version for "pip". It is currently a c
 # Bug Tracker
 
 * http://bugs.python.org/issue27051
-
