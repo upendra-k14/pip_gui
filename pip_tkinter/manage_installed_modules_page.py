@@ -299,7 +299,6 @@ class UpdatePackage(ttk.Frame):
             self.controller.debug_bar.config(text='Error in updating package')
 
 
-
 class UninstallPackage(ttk.Frame):
 
     def __init__(self, parent, controller):

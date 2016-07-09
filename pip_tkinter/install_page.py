@@ -174,9 +174,9 @@ class InstallFromPyPI(ttk.Frame):
         self.controller = controller
         self.rowconfigure(1, weight=1)
         self.columnconfigure(0, weight=1)
+        self.create_nav_buttons()
         self.create_search_bar()
         self.create_multitem_treeview()
-        self.create_nav_buttons()
         self.event_loop = asyncio.get_event_loop()
 
     def create_search_bar(self):
@@ -206,6 +206,7 @@ class InstallFromPyPI(ttk.Frame):
             self,
             style='Search.entry',
             textvariable=self.search_var)
+        #self.entry.bind('<Return>',lambda : self.update_search_results())
         self.search_button = ttk.Button(
             self,
             text='Search',
