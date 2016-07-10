@@ -13,6 +13,8 @@ This project is intended to provide a GUI version for "pip". It is currently a c
 # TODO list
 
 * write tests
+* fix issues
+* create docs
 
 # Bug Tracker
 
