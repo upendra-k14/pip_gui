@@ -11,6 +11,8 @@ import tkinter as tk
 from tkinter import ttk
 from io import StringIO
 
+logger = logging.getLogger(__name__)
+
 class InstallPage(ttk.Frame):
     """
     Manage search and install. Implements GUI for

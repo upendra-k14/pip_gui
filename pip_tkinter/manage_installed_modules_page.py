@@ -1,12 +1,14 @@
 # coding=utf-8
 from __future__ import absolute_import
 
-from io import StringIO
 import queue
 import threading
+import asyncio
 import tkinter as tk
 from tkinter import ttk
-import asyncio
+from io import StringIO
+
+logger = logging.getLogger(__name__)
 
 class ManageInstalledPage(ttk.Frame):
     """

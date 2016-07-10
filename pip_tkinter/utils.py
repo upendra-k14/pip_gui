@@ -4,6 +4,8 @@ import sys
 import threading
 import http.client
 import asyncio
+import logging
+import os.path
 
 from pip.commands.search import highest_version
 from pip import parseopts
