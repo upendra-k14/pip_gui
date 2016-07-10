@@ -4,6 +4,7 @@ from __future__ import absolute_import
 import traceback
 import logging
 import os.path
+import sys
 import tkinter as tk
 from tkinter import ttk
 
@@ -17,7 +18,6 @@ class MainApp(tk.Tk):
     def __init__(self, root):
         ttk.Frame.__init__(self, root)
         self.parent = root
-        self.parent.report_call
         self.parent.title("PIP Package Manager")
         self.parent.rowconfigure(0, weight=1)
         self.parent.columnconfigure(0, weight=1)
@@ -109,20 +109,26 @@ class MainloopExceptionCatcher:
     def __call__(self, *args):
         try:
             if self.subst:
-                args = apply(self.subst, args)
-            return apply(self.func, args)
-        except SystemExit, msg:
-            raise SystemExit, msg
+                args = self.subst(*args)
+            return self.func(*args)
+        except KeyboardInterrupt:
+            logger.info('Got keyboard interrupt from user. Application terminated')
+            sys.exit()
         except:
             logger.exception('Logging an uncaught exception in tkinter mainloop')
 
 
-def configure_loggers(logging_dir):
+def configure_loggers():
     """
     Configure the loggers for the pip_tkinter application
     """
 
     logger.setLevel(logging.DEBUG)
+
+    #Create a logging directory if not there
+    logging_dir = os.path.join(os.path.expanduser('~'),'.pip_tkinter')
+    if not os.path.isdir(logging_dir):
+        os.makedirs(logging_dir)
 
     # creating logger for logging output to console
     handler = logging.StreamHandler()
@@ -134,7 +140,7 @@ def configure_loggers(logging_dir):
 
     # Log to a file
     handler = logging.FileHandler(
-        os.path.join(output_dir, 'pip_error.log'),
+        os.path.join(logging_dir, 'pip_error.log'),
         'a',
         encoding='utf-8',
         delay='true')
@@ -146,7 +152,7 @@ def configure_loggers(logging_dir):
 
     # create debug file handler and set level to debug
     handler = logging.FileHandler(
-        os.path.join(output_dir, 'pip_all.log'),
+        os.path.join(logging_dir, 'pip_all.log'),
         'a',
         encoding='utf-8')
     handler.setLevel(logging.DEBUG)
@@ -159,8 +165,9 @@ def configure_loggers(logging_dir):
 if __name__ == "__main__":
 
     configure_loggers()
-    tk.CallWrapper = MainloopExceptionCatcher
+    logger.info("Welcome today")
     root = tk.Tk()
+    tk.CallWrapper = MainloopExceptionCatcher
     # root.resizable(width='false', height='false')
     main_app = MainApp(root)
     root.mainloop()

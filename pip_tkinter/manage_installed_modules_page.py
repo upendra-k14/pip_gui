@@ -4,6 +4,7 @@ from __future__ import absolute_import
 import queue
 import threading
 import asyncio
+import logging
 import tkinter as tk
 from tkinter import ttk
 from io import StringIO
