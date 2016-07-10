@@ -6,8 +6,10 @@ import copy
 from io import StringIO
 
 from pip.commands.search import SearchCommand, transform_hits, highest_version
+from pip.commands.list import ListCommand
+from pip.commands.show import ShowCommand
 from pip.exceptions import CommandError
-from pip.basecommand import SUCCESS
+from pip.status_codes import SUCCESS, ERROR, NO_MATCHES_FOUND
 from pip import main
 
 from pip_tkinter.utils import Redirect
@@ -50,11 +52,19 @@ class GUISearchCommand(SearchCommand):
         try:
             # The developer version of pip uses options as argument
             pypi_hits = self.search(query,options)
+            self.hits = transform_hits(pypi_hits)
+            if pypi_hits:
+                return SUCCESS
+            else:
+                return NO_MATCHES_FOUND
         except TypeError:
             # But, the stable version of pip uses options.index as argument
             pypi_hits = self.search(query,options.index)
-        self.hits = transform_hits(pypi_hits)
-        return SUCCESS
+            self.hits = transform_hits(pypi_hits)
+            if pypi_hits:
+                return SUCCESS
+            else:
+                return NO_MATCHES_FOUND
 
     def get_search_results(self):
         """
@@ -64,7 +74,7 @@ class GUISearchCommand(SearchCommand):
         installed or not. If installed then the version of installed package is
         found and stored.
         """
-        if not self.hits:
+        if not hasattr(self, "hits"):
             return None
 
         # Here pkg_resources is a module of pip._vendor. It has been included
@@ -80,3 +90,82 @@ class GUISearchCommand(SearchCommand):
                 hit['installed'] = dist.version
 
         return self.hits
+
+class GUIListCommand(ListCommand):
+    """
+    Extending the pip ListCommand to show list of packages :
+
+    1. For uninstall : retrieves list of installed packages with their versions
+    2. For update : retrieved list of installed packages which are outdated
+    """
+
+
+    def output_package_listing(self, installed_packages):
+
+        self.installed_packages_list = []
+
+        installed_packages = sorted(
+            installed_packages,
+            key=lambda dist: dist.project_name.lower(),
+        )
+
+        for dist in installed_packages:
+            self.installed_packages_list.append((dist.project_name, dist.version))
+
+    def run_outdated(self, options):
+        self.find_outdated = False
+        self.outdated_packages_list = []
+
+        if options.outdated:
+            self.find_outdated = True
+
+        for dist, latest_version, typ in sorted(
+                self.find_packages_latest_versions(options),
+                key=lambda p: p[0].project_name.lower()):
+            if latest_version > dist.parsed_version:
+                self.outdated_packages_list.append((
+                    dist.project_name,
+                    dist.version,
+                    str(latest_version),
+                ))
+
+    def get_installed_packages_list(self):
+
+        if hasattr(self,'find_outdated'):
+            if self.find_outdated:
+                return self.outdated_packages_list
+
+        else:
+            return self.installed_packages_list
+
+class GUIShowCommand(ShowCommand):
+
+    """
+    Parent class : pip.commands.show.ShowCommand
+    """
+
+    def run(self, options, args):
+        if not args:
+            logger.warning('ERROR: Please provide a package name or names.')
+            return ERROR
+        query = args
+
+        from pip.commands.show import search_packages_info
+
+        results = search_packages_info(query)
+        if not self.save_results(results, options.files):
+            return ERROR
+        return SUCCESS
+
+    def save_results(self, distributions, list_all_files):
+        results_printed = False
+        for dist in distributions:
+            results_printed = True
+            self.package_details.append(dist)
+        return results_printed
+
+    def get_package_details(self):
+        if hasattr(self,'package_details'):
+            return self.package_details
+        else:
+            return []

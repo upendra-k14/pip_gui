@@ -1,10 +1,15 @@
 # coding=utf-8
 from __future__ import absolute_import
 
-from io import StringIO
+import logging
+import threading
+import queue
+import socket
+import asyncio
 
 import tkinter as tk
 from tkinter import ttk
+from io import StringIO
 
 class InstallPage(ttk.Frame):
     """
@@ -17,7 +22,7 @@ class InstallPage(ttk.Frame):
     5. Install from alternate repository
     """
 
-    def __init__(self, root, controller):
+    def __init__(self, root, controller=None):
         ttk.Frame.__init__(self, root)
         self.parent = root
         self.controller = controller
@@ -29,6 +34,7 @@ class InstallPage(ttk.Frame):
         self.container.grid(row=0, column=0, sticky='nsew')
         self.container.rowconfigure(0, weight=1)
         self.container.columnconfigure(1, weight=1)
+        self.create_message_bar()
         self.manage_frames()
         self.create_side_navbar()
 
@@ -91,6 +97,7 @@ class InstallPage(ttk.Frame):
         )
         self.button_requirements.grid(row=2, column=0, sticky='nwe')
 
+        '''
         self.button_pythonlibs = ttk.Button(
             self.navbar_frame,
             text=pythonlibs_text,
@@ -106,6 +113,7 @@ class InstallPage(ttk.Frame):
             command=lambda : self.show_frame('InstallFromAlternateRepo')
         )
         self.button_alternate_repo.grid(row=4, column=0, sticky='nwe')
+        '''
 
     def manage_frames(self):
         """
@@ -118,8 +126,6 @@ class InstallPage(ttk.Frame):
             InstallFromPyPI,
             InstallFromLocalArchive,
             InstallFromRequirements,
-            InstallFromPythonlibs,
-            InstallFromAlternateRepo
         )
 
         self.frames_dict = {}
@@ -135,67 +141,23 @@ class InstallPage(ttk.Frame):
         frame = self.frames_dict[frame_name]
         frame.tkraise()
 
-class MultiItemsList(object):
-
-    def __init__(self, parent, headers_list=None):
+    def create_message_bar(self):
         """
-        Initialize variables needed for creating Treeview
+        Create message bar for printing debug messages for user
         """
 
-        self.scroll_tree = None
-        self.parent = parent
-        self.headers_list = headers_list
-        self.items_list = None
-        self.create_treeview()
-        self.create_headers()
-
-    def create_treeview(self):
-        """
-        Create a multi items list consisting of a frame, horizontal and vertical
-        scroll bar and Treeview
-        """
-
-        self.myframe = ttk.Frame(self.parent)
-        self.myframe.grid(row=1, column=0, columnspan=2, sticky='nswe')
-
-        self.scroll_tree = ttk.Treeview(
-            self.myframe,
-            columns=self.headers_list,
-            show='headings')
-
-        '''
-        FIX : Scrollbar is creating problems while changing frame
-        vrtl_scrbar = ttk.Scrollbar(
-            orient="vertical",
-            command=self.scroll_tree.yview)
-        hrtl_scrbar = ttk.Scrollbar(
-            orient="horizontal",
-            command=self.scroll_tree.xview)
-
-        self.scroll_tree.configure(
-            yscrollcommand=vrtl_scrbar.set,
-            xscrollcommand=hrtl_scrbar.set)
-        '''
-        self.scroll_tree.grid(column=0, row=0, sticky='nswe', in_=self.myframe)
-        '''
-        vrtl_scrbar.grid(column=1, row=0, sticky='ns', in_=self.myframe)
-        hrtl_scrbar.grid(column=0, row=1, sticky='ew', in_=self.myframe)
-        '''
-        self.myframe.grid_columnconfigure(0, weight=1)
-        self.myframe.grid_rowconfigure(0, weight=1)
-
-    def create_headers(self):
-
-        for header in self.headers_list:
-            self.scroll_tree.heading(header, text=header)
-            self.scroll_tree.column(header, width=30)
-
-    def populate_rows(self, items_list=None):
-
-        self.scroll_tree.delete(*self.scroll_tree.get_children())
-        self.items_list = items_list
-        for item in self.items_list:
-            self.scroll_tree.insert('', 'end', values=item)
+        self.debug_bar = ttk.Label(
+            self.container,
+            padding=0.5,
+            relief='ridge')
+        self.debug_bar.grid(
+            row=1,
+            column=0,
+            columnspan=2,
+            sticky='swe',
+            padx=(1,1),
+            pady=(1,1))
+        self.debug_bar.config(text="No message")
 
 
 class InstallFromPyPI(ttk.Frame):
@@ -212,27 +174,24 @@ class InstallFromPyPI(ttk.Frame):
         self.controller = controller
         self.rowconfigure(1, weight=1)
         self.columnconfigure(0, weight=1)
+        self.create_nav_buttons()
         self.create_search_bar()
         self.create_multitem_treeview()
-        self.create_nav_buttons()
 
     def create_search_bar(self):
 
         import pkg_resources, os
 
-        resource_package = __name__
-        resource_path = os.path.join('pic.dat')
-
         #Configure style for search bar
-        data= pkg_resources.resource_string(resource_package, resource_path)
+        data= pkg_resources.resource_string(__name__, 'pic.dat')
         global s1,s2
         s1 = tk.PhotoImage('search1', data=data, format='gif -index 0')
         s2 = tk.PhotoImage('search2', data=data, format='gif -index 1')
         style = ttk.Style()
-        style.element_create('Search.field', 'image', 'search1',
+        style.element_create('Search.field1', 'image', 'search1',
             ('focus', 'search2'), border=[25, 9, 14], sticky='ew')
         style.layout('Search.entry', [
-            ('Search.field', {'sticky': 'nswe', 'border': 1, 'children':
+            ('Search.field1', {'sticky': 'nswe', 'border': 1, 'children':
                 [('Entry.padding', {'sticky': 'nswe', 'children':
                     [('Entry.textarea', {'sticky': 'nswe'})]
                 })]
@@ -246,6 +205,7 @@ class InstallFromPyPI(ttk.Frame):
             self,
             style='Search.entry',
             textvariable=self.search_var)
+        self.entry.bind('<Return>', lambda event : self.update_search_results())
         self.search_button = ttk.Button(
             self,
             text='Search',
@@ -260,10 +220,17 @@ class InstallFromPyPI(ttk.Frame):
         1. Python Module
         2. Installed version
         3. Available versions
+
+        List of buttons :
+        1. navigate_back
+        2. navigate_next
+        3. search_button
         """
 
         self.headers = ['Python Module','Installed Version','Available Versions']
+        from pip_tkinter.utils import MultiItemsList
         self.multi_items_list = MultiItemsList(self, self.headers)
+
         self.package_subwindow = tk.LabelFrame(
             self,
             text="Package Details",
@@ -328,28 +295,60 @@ class InstallFromPyPI(ttk.Frame):
         Show search results
         """
 
-        search_term = self.search_var.get()
-        print (search_term)
-        try:
-            from pip_tkinter.utils import pip_search_command
-            self.search_results = pip_search_command(search_term)
-        except TypeError:
-            self.search_results = []
+        self.search_term = self.search_var.get()
+        #Update the bottom message bar to inform user that the program
+        #is fetching search results
+        self.controller.debug_bar.config(text='Fetching search results ...')
 
-        results_tuple = []
-        for item in self.search_results:
-            if search_term in item['name']:
-                if 'installed' in item.keys():
-                    results_tuple.insert(0, (
-                        item['name'],
-                        item['installed'],
-                        item['latest']))
-                else:
-                    results_tuple.insert(0, (
-                        item['name'],
-                        'not installed',
-                        item['latest']))
-        self.multi_items_list.populate_rows(results_tuple)
+        #Disable buttons like :
+        self.navigate_back.config(state='disabled')
+        self.navigate_next.config(state='disabled')
+        self.search_button.config(state='disabled')
+
+        #Spawn a new thread for searching packages,
+        #Search results will be returned in the @param : self.thread_queue
+        self.search_queue = queue.Queue()
+
+        from pip_tkinter.utils import pip_search_command
+        self.search_thread = threading.Thread(
+            target=pip_search_command,
+            kwargs={
+                'package_name':self.search_term,
+                'thread_queue':self.search_queue})
+        self.search_thread.start()
+        self.after(100, self.check_search_queue)
+
+    def check_search_queue(self):
+        try:
+            self.search_results = self.search_queue.get(0)
+            results_tuple = []
+
+            try:
+                for item in self.search_results:
+                    if self.search_term in item['name']:
+                        if 'installed' in item.keys():
+                            results_tuple.insert(0, (
+                                item['name'],
+                                item['installed'],
+                                item['latest']))
+                        else:
+                            results_tuple.insert(0, (
+                                item['name'],
+                                'not installed',
+                                item['latest']))
+                self.multi_items_list.populate_rows(results_tuple)
+                self.controller.debug_bar.config(text='Fetched search results')
+
+            except TypeError:
+                self.controller.debug_bar.config(
+                    text='Unable to fetch results. Please verify your internet connection')
+
+            self.navigate_back.config(state='normal')
+            self.navigate_next.config(state='normal')
+            self.search_button.config(state='normal')
+
+        except queue.Empty:
+            self.after(100, self.check_search_queue)
 
     def create_nav_buttons(self):
         """
@@ -377,7 +376,55 @@ class InstallFromPyPI(ttk.Frame):
         """
         Execute pip commands
         """
-        pass
+        self.navigate_back.config(state='disabled')
+        self.navigate_next.config(state='disabled')
+        self.search_button.config(state='disabled')
+
+        self.after(0, self.controller.debug_bar.config(text='Installing package. Please wait ...'))
+        self.after(100, self.update_install_text)
+
+        self.navigate_back.config(state='normal')
+        self.navigate_next.config(state='normal')
+        self.search_button.config(state='normal')
+
+    def update_install_text(self):
+        """
+        Update install text
+        """
+        from pip_tkinter.utils import pip_install_from_PyPI
+
+        curr_item = self.multi_items_list.scroll_tree.focus()
+        item_dict = self.multi_items_list.scroll_tree.item(curr_item)
+        selected_module = item_dict['values'][0]
+
+        status, output, err = pip_install_from_PyPI(selected_module)
+
+        if str(status) == '0':
+            self.controller.debug_bar.config(text='Successfully installed')
+        else:
+            self.controller.debug_bar.config(text='Error in installing package')
+
+    def abort_search_command(self):
+        """
+        Stop pip installation : Currently not sure to provide option for
+        aborting installation in between
+        """
+        self.search_thread.stop()
+
+    def check_install_queue(self):
+        try:
+            self.install_message = self.install_queue.get(0)
+
+            if str(self.install_message) == 'install_started':
+                self.controller.debug_bar.config(
+                    text='Installing package. Please wait ...')
+
+            self.navigate_back.config(state='normal')
+            self.navigate_next.config(state='normal')
+            self.search_button.config(state='normal')
+
+        except queue.Empty:
+            self.after(100, self.check_search_queue)
 
 class InstallFromLocalArchive(ttk.Frame):
 
@@ -430,13 +477,13 @@ class InstallFromLocalArchive(ttk.Frame):
 
         home_directory = expanduser("~")
 
-        req_file_name = askopenfilename(
+        self.req_file_name = askopenfilename(
             filetypes = (
                 ("Archive file", "*.zip *.tar *tar.gz *.whl")
                 ,("All files", "*.*")),
             initialdir = home_directory)
 
-        if req_file_name:
+        if self.req_file_name:
             self.path_to_requirement.delete(0, 'end')
             self.path_to_requirement.insert('end', req_file_name)
 
@@ -467,8 +514,37 @@ class InstallFromLocalArchive(ttk.Frame):
         """
         Execute pip commands
         """
-        pass
 
+        self.navigate_back.config(state='disabled')
+        self.navigate_next.config(state='disabled')
+        #self.search_button.config(state='disabled')
+
+        self.after(0, self.controller.debug_bar.config(
+            text='Installing package from archive. Please wait ...'))
+        self.after(100, self.update_install_text)
+
+        self.navigate_back.config(state='normal')
+        self.navigate_next.config(state='normal')
+        #self.search_button.config(state='normal')
+
+    def update_install_text(self):
+        """
+        Update install text
+        """
+        from pip_tkinter.utils import pip_install_from_local_archive
+
+        try:
+            selected_module = self.req_file_name
+            status, output, err = pip_install_from_local_archive(selected_module)
+
+            if str(status) == '0':
+                self.controller.debug_bar.config(text='Successfully installed')
+            else:
+                self.controller.debug_bar.config(text='Error in installing package')
+                print (err)
+
+        except AttributeError:
+            self.controller.debug_bar.config(text='Please enter the path')
 
 
 class InstallFromRequirements(ttk.Frame):
@@ -486,6 +562,7 @@ class InstallFromRequirements(ttk.Frame):
         self.columnconfigure(0, weight=1)
         self.create_entry_form()
         self.create_nav_buttons()
+        self.event_loop = asyncio.get_event_loop()
 
     def create_entry_form(self):
         """
@@ -536,20 +613,20 @@ will be installed."
         from os.path import expanduser
 
         home_directory = expanduser("~")
-        req_file_name = askopenfilename(
+        self.req_file_name = askopenfilename(
             filetypes = (
                 ("Requirement file", "*.txt")
                 ,("All files", "*.*")),
             initialdir = home_directory)
 
-        if req_file_name:
+        if self.req_file_name:
             self.path_to_requirement.delete(0, 'end')
             self.path_to_requirement.insert('end', req_file_name)
 
 
     def create_nav_buttons(self):
         """
-        Create back and next buttons
+        Create 'back' and 'next' buttons
         """
 
         self.navigate_back = ttk.Button(
@@ -573,7 +650,36 @@ will be installed."
         """
         Execute pip commands
         """
-        pass
+
+        self.navigate_back.config(state='disabled')
+        self.navigate_next.config(state='disabled')
+
+        self.after(0, self.controller.debug_bar.config(
+            text='Installing package(s) from requirement file. Please wait ...'))
+        self.after(100, self.update_install_text)
+
+        self.navigate_back.config(state='normal')
+        self.navigate_next.config(state='normal')
+
+    def update_install_text(self):
+        """
+        Update install text
+        """
+        from pip_tkinter.utils import pip_install_from_requirements
+
+        try:
+            selected_module = self.req_file_name
+            status, output, err = pip_install_from_requirements(selected_module)
+
+            if str(status) == '0':
+                self.controller.debug_bar.config(text='Successfully installed')
+            else:
+                self.controller.debug_bar.config(text='Error in installing package')
+                print (err)
+
+        except AttributeError:
+            self.controller.debug_bar.config(text='Enter path to requirement file')
+
 
 class InstallFromPythonlibs(ttk.Frame):
 
@@ -588,6 +694,7 @@ class InstallFromPythonlibs(ttk.Frame):
         self.controller = controller
         label = tk.Label(self, text="Install From Python libs")
         label.pack(pady=10, padx=10)
+        self.event_loop = asyncio.get_event_loop()
 
 
 class InstallFromAlternateRepo(ttk.Frame):
@@ -603,6 +710,7 @@ class InstallFromAlternateRepo(ttk.Frame):
         self.controller = controller
         label = tk.Label(self, text="Install From an alternate respository")
         label.pack(pady=10, padx=10)
+        self.event_loop = asyncio.get_event_loop()
 
 
 if __name__ == "__main__":

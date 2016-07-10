@@ -15,7 +15,7 @@ class WelcomePage(ttk.Frame):
 
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
-        
+
         self.container = ttk.Frame(self)
         self.container.grid(
             row=0,
