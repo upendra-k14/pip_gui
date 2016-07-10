@@ -152,6 +152,14 @@ class TestGUIApp(unittest.TestCase):
         install_page = self.main_app.frames_dict["InstallPage"]
         install_from_arch = install_page.frames_dict["InstallFromLocalArchive"]
 
+        #Set focus to search entry widget
+        install_from_arch.path_to_requirement.focus_force()
+        install_from_arch.path_to_requirement.update()
+        install_from_arch.path_to_requirement.insert(0, 'Hello')
+
+        #Check if entry widget has text 'Hello'
+        self.assertEqual(install_from_arch.path_to_requirement.get(),'Hello')
+
     def check_install_from_requirements(self):
         """
         Test install from requirements
@@ -159,6 +167,14 @@ class TestGUIApp(unittest.TestCase):
 
         install_page = self.main_app.frames_dict["InstallPage"]
         install_from_req = install_page.frames_dict["InstallFromRequirements"]
+
+        #Set focus to search entry widget
+        install_from_req.path_to_requirement.focus_force()
+        install_from_req.path_to_requirement.update()
+        install_from_req.path_to_requirement.insert(0, 'Hello')
+
+        #Check if entry widget has text 'Hello'
+        self.assertEqual(install_from_req.path_to_requirement.get(),'Hello')
 
     def check_manage_installed_modules(self):
         """"
