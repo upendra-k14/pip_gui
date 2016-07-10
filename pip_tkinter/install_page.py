@@ -177,7 +177,6 @@ class InstallFromPyPI(ttk.Frame):
         self.create_nav_buttons()
         self.create_search_bar()
         self.create_multitem_treeview()
-        self.event_loop = asyncio.get_event_loop()
 
     def create_search_bar(self):
 
@@ -206,7 +205,7 @@ class InstallFromPyPI(ttk.Frame):
             self,
             style='Search.entry',
             textvariable=self.search_var)
-        #self.entry.bind('<Return>',lambda : self.update_search_results())
+        self.entry.bind('<Return>', lambda event : self.update_search_results())
         self.search_button = ttk.Button(
             self,
             text='Search',
@@ -442,7 +441,6 @@ class InstallFromLocalArchive(ttk.Frame):
         self.columnconfigure(0, weight=1)
         self.create_entry_form()
         self.create_nav_buttons()
-        self.event_loop = asyncio.get_event_loop()
 
     def create_entry_form(self):
         """
@@ -519,7 +517,7 @@ class InstallFromLocalArchive(ttk.Frame):
 
         self.navigate_back.config(state='disabled')
         self.navigate_next.config(state='disabled')
-        self.search_button.config(state='disabled')
+        #self.search_button.config(state='disabled')
 
         self.after(0, self.controller.debug_bar.config(
             text='Installing package from archive. Please wait ...'))
@@ -527,7 +525,7 @@ class InstallFromLocalArchive(ttk.Frame):
 
         self.navigate_back.config(state='normal')
         self.navigate_next.config(state='normal')
-        self.search_button.config(state='normal')
+        #self.search_button.config(state='normal')
 
     def update_install_text(self):
         """
@@ -535,14 +533,18 @@ class InstallFromLocalArchive(ttk.Frame):
         """
         from pip_tkinter.utils import pip_install_from_local_archive
 
-        selected_module = self.req_file_name
-        status, output, err = pip_install_from_local_archive(selected_module)
+        try:
+            selected_module = self.req_file_name
+            status, output, err = pip_install_from_local_archive(selected_module)
 
-        if str(status) == '0':
-            self.controller.debug_bar.config(text='Successfully installed')
-        else:
-            self.controller.debug_bar.config(text='Error in installing package')
+            if str(status) == '0':
+                self.controller.debug_bar.config(text='Successfully installed')
+            else:
+                self.controller.debug_bar.config(text='Error in installing package')
+                print (err)
 
+        except AttributeError:
+            self.controller.debug_bar.config(text='Please enter the path')
 
 
 class InstallFromRequirements(ttk.Frame):
@@ -651,7 +653,6 @@ will be installed."
 
         self.navigate_back.config(state='disabled')
         self.navigate_next.config(state='disabled')
-        self.search_button.config(state='disabled')
 
         self.after(0, self.controller.debug_bar.config(
             text='Installing package(s) from requirement file. Please wait ...'))
@@ -659,20 +660,26 @@ will be installed."
 
         self.navigate_back.config(state='normal')
         self.navigate_next.config(state='normal')
-        self.search_button.config(state='normal')
 
     def update_install_text(self):
         """
         Update install text
         """
         from pip_tkinter.utils import pip_install_from_requirements
-        selected_module = self.req_file_name
-        status, output, err = pip_install_from_requirements(selected_module)
 
-        if str(status) == '0':
-            self.controller.debug_bar.config(text='Successfully installed')
-        else:
-            self.controller.debug_bar.config(text='Error in installing package')
+        try:
+            selected_module = self.req_file_name
+            status, output, err = pip_install_from_requirements(selected_module)
+
+            if str(status) == '0':
+                self.controller.debug_bar.config(text='Successfully installed')
+            else:
+                self.controller.debug_bar.config(text='Error in installing package')
+                print (err)
+
+        except AttributeError:
+            self.controller.debug_bar.config(text='Enter path to requirement file')
+
 
 class InstallFromPythonlibs(ttk.Frame):
 
