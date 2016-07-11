@@ -42,6 +42,12 @@ The design of the pip gui should adhere to these principles :
 * UI should be task centric, not feature centric
 * The UI elements should be consistent, not over-creative
 
+# Simple User Model
+
+A very simple navigation based minimalistic GUI is intended to be designed. The aim of this user work flow is to help user to easily navigate through proper options in order to complete their tasks easily.
+
+![alt tag](https://github.com/upendra-k14/pip_gui/blob/master/UserWorkFlow.png)
+
 # TODO list
 
 * write tests
