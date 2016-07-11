@@ -5,8 +5,8 @@ A GUI for "pip"
 
 1. Clone the repo from here : https://github.com/upendra-k14/pip_gui.git , Otherwise do :
    `git clone https://github.com/upendra-k14/pip_gui.git <targetlocation>`
-2. Navigate to the `<targetlocation>/pip_tkinter/` folder
-3. From inside the pip\_tkinter folder : `python -m pip_tkinter`
+2. Navigate to the `<targetlocation>/pip_gui/` folder
+3. From inside the pip\_gui folder : `python -m pip_tkinter`
 
 # Motivation
 This project is intended to provide a GUI version for "pip". It is currently a command line based package manager used to install and manage software packages written in Python. But, many users are not familiar with the command line and thus find difficulties using and accessing PIP. People who still don’t have enough exposure to command line tools(specially in case of Windows) find installing packages using PIP very cumbersome. Therefore, the main motivation behind this project is to make various functionalities provided by PIP accessible to Windows/LINUX/Mac based users through a tkinter based GUI interface which could be further integrated with IDLE. As a whole, it would help beginners to focus more on learning and using new Python packages rather than getting in unavoidable trouble of configuring various paths and configurations in order to install new Python Packages from PyPI.
