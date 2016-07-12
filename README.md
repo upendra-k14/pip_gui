@@ -53,6 +53,8 @@ A very simple navigation based minimalistic GUI is intended to be designed. The 
 * write tests
 * fix issues
 * create docs
+* switch to subprocess module
+* implement new features
 
 # Bug Tracker
 
