@@ -1,12 +1,15 @@
 # coding=utf-8
 from __future__ import absolute_import
 
-from io import StringIO
 import queue
 import threading
+import asyncio
+import logging
 import tkinter as tk
 from tkinter import ttk
-import asyncio
+from io import StringIO
+
+logger = logging.getLogger(__name__)
 
 class ManageInstalledPage(ttk.Frame):
     """
@@ -202,6 +205,7 @@ class UpdatePackage(ttk.Frame):
         self.package_details.insert(1.0, selected_package_details)
         self.package_details.configure(state='disabled')
 
+
     def refresh_installed_packages(self):
         """
         Show search results
@@ -331,7 +335,7 @@ class UninstallPackage(ttk.Frame):
             column=0,
             columnspan=3,
             sticky='nswe')
-        self.refresh_installed_packages()
+        #self.refresh_installed_packages()
         self.package_subwindow = tk.LabelFrame(
             self,
             text="Package Details",

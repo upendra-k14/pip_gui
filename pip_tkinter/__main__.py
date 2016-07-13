@@ -1,8 +1,14 @@
 # coding=utf-8
 from __future__ import absolute_import
 
+import traceback
+import logging
+import os.path
+import sys
 import tkinter as tk
 from tkinter import ttk
+
+logger = logging.getLogger(__name__)
 
 class MainApp(tk.Tk):
     """
@@ -92,10 +98,76 @@ class MainApp(tk.Tk):
     def onExit(self):
         self.parent.destroy()
 
+
+class MainloopExceptionCatcher:
+
+    def __init__(self, func, subst, widget):
+        self.func = func
+        self.subst = subst
+        self.widget = widget
+
+    def __call__(self, *args):
+        try:
+            if self.subst:
+                args = self.subst(*args)
+            return self.func(*args)
+        except KeyboardInterrupt:
+            logger.info('Got keyboard interrupt from user. Application terminated')
+            sys.exit()
+        except:
+            logger.exception('Logging an uncaught exception in tkinter mainloop')
+
+
+def configure_loggers():
+    """
+    Configure the loggers for the pip_tkinter application
+    """
+
+    logger.setLevel(logging.DEBUG)
+
+    #Create a logging directory if not there
+    logging_dir = os.path.join(os.path.expanduser('~'),'.pip_tkinter')
+    if not os.path.isdir(logging_dir):
+        os.makedirs(logging_dir)
+
+    # creating logger for logging output to console
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    # Log to a file
+    handler = logging.FileHandler(
+        os.path.join(logging_dir, 'pip_error.log'),
+        'a',
+        encoding='utf-8',
+        delay='true')
+    handler.setLevel(logging.ERROR)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    # create debug file handler and set level to debug
+    handler = logging.FileHandler(
+        os.path.join(logging_dir, 'pip_all.log'),
+        'a',
+        encoding='utf-8')
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+
 if __name__ == "__main__":
 
-    # If you want to check GUI
+    configure_loggers()
+    logger.info("Welcome today")
     root = tk.Tk()
+    tk.CallWrapper = MainloopExceptionCatcher
     # root.resizable(width='false', height='false')
     main_app = MainApp(root)
     root.mainloop()
