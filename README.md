@@ -13,7 +13,7 @@ This project is intended to provide a GUI version for "pip". It is currently a c
 
 The product developed will be a GUI for pip to make various functionalities of pip ( a command line tool for installing Python packages) easily accessible to users. Main motivation behind the need for GUI version of Python Package Manager is :
 
-* Make various functionalities provided by PIP easily accessible to Windows/LINUX/Mac based users 
+* Make various functionalities provided by PIP easily accessible to Windows/LINUX/Mac based users
 * Help people to focus only on fulfilling the task of installing Python packages rather than getting in unavoidable trouble of configuring various paths, versions and configurations
 
 # Target Users
@@ -23,7 +23,7 @@ The product developed will be a GUI for pip to make various functionalities of p
 
 # Targeted Tasks
 
-* Search, select version and install package 
+* Search, select version and install package
 * Check for new updates and install them
 * Uninstall a package
 * Support different installation methods :

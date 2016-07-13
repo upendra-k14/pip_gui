@@ -4,6 +4,9 @@ import sys
 import threading
 import http.client
 import asyncio
+import logging
+import os
+import subprocess
 
 from pip.commands.search import highest_version
 from pip import parseopts
@@ -100,10 +103,10 @@ class Redirect:
 # For GUI version, redirects would be here, done once.
 # Put in runpip for prototype testing in text mode, so can print.
 def runpip(argstring):
-    """Run pip with argument string containing command and options.
-
-    :param argstring: is quoted version of what would follow 'pip'
-      on command line.
+    """
+    Run pip with argument string containing command and options.
+    :param argstring: is quoted version of what would follow 'pip' on command
+     line.
     """
     sysout = StringIO()
     syserr = StringIO()
@@ -123,41 +126,134 @@ def runpip(argstring):
     syserr.seek(0); syserr.truncate(0)
     return status, out, err
 
+def runpip_using_subprocess(argstring):
+    """
+    Run pip with argument string containing command and options. Uses
+    subprocess module for executing pip commands. Returns output and error
+    once execution of process teriminates
+    """
+
+    pip_process = subprocess.Popen(
+        argstring.split(),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    pip_output, pip_error = pip_process.communicate()
+    return (pip_output.decode('utf-8'), pip_error.decode('utf-8'))
+
+class RunpipSubprocess():
+    """
+    Run pip with argument string containing command and options. Uses
+    subprocess module for executing pip commands. Logs real time output in
+    output queue and error queue.
+    """
+
+    def __init__(self, argstring, output_queue, error_queue):
+        """
+        Initialize subprocess for running pip commands.
+        :param output_queue: queue for buffering line by line output
+        :param error_queue: queue for buffering line by line error
+        :param argstring: is quoted version of what would follow 'pip' on
+         command line.
+        """
+
+        self.pip_process = subprocess.Popen(
+            argstring.split(),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            bufsize=1)
+        self.output_queue = output_queue
+        self.error_queue = error_queue
+
+        outputstream_thread = threading.Thread(target=self.getoutput)
+        errorstream_thread = threading.Thread(target=self.geterror)
+
+        outputstream_thread.start()
+        errorstream_thread.start()
+
+    def getoutput(self):
+        """
+        Iterate over output line by line
+        """
+
+        for line in iter(self.pip_process.stdout.readline, b''):
+            self.output_queue.put(line)
+        self.pip_process.stdout.close()
+        self.pip_process.wait()
+
+    def geterror(self):
+        """
+        Iterate over error line by line
+        """
+
+        for line in iter(self.pip_process.stderr.readline, b''):
+            self.error_queue.put(line)
+        self.pip_process.stderr.close()
+        self.pip_process.wait()
+
+
 def pip_search_command(package_name=None, thread_queue=None):
     """
-    Uses pip.commands.search.SearchCommand to retrieve results of 'pip search'
+    Uses subprocess to retrieve results of 'pip search'
     """
 
-    from pip_tkinter.pip_extensions import GUISearchCommand
+    search_result, errors = runpip_using_subprocess(
+        'pip3 search {}'.format(package_name))
 
-    search_object = GUISearchCommand()
-    cmd_name, cmd_args = parseopts(['search', '--no-cache-dir', package_name])
-    search_object.main(cmd_args)
-    thread_queue.put(search_object.get_search_results())
+    if errors.strip() != '':
+        thread_queue.put(errors)
+
+    count = 0
+    installed_packages = []
+    for x in search_result.split("\n"):
+        try:
+            if ('INSTALLED:' not in x) and (
+                ('(' in x) and (')' in x) and (
+                    not x.startswith('-'))):
+                open_bracket_index = x.index('(')
+                close_bracket_index = x.index(')')
+                pkg_name = x[:open_bracket_index-1].strip()
+                latest_version = x[open_bracket_index+1:close_bracket_index]
+                installed_packages.append([pkg_name,'Not installed',latest_version])
+                count = count + 1
+            elif 'INSTALLED:' in x:
+                st_index = x.index(':')
+                end_index = x.index('(')
+                installed_packages[-1][1] = x[st_index+1:end_index].strip()
+        except:
+            pass
+    thread_queue.put([tuple(x) for x in installed_packages])
 
 def pip_list_command():
     """
     Lists all installed packages
     """
 
-    from pip_tkinter.pip_extensions import GUIListCommand
-
-    list_object = GUIListCommand()
-    cmd_name, cmd_args = parseopts(['list', '--no-cache-dir'])
-    list_object.main(cmd_args)
-    return list_object.get_installed_packages_list()
+    list_output, error = runpip_using_subprocess('pip3 list')
+    installed_pkg_list = list_output.splitlines()
+    for i in range(len(installed_pkg_list)):
+        pkg_name, pkg_version = installed_pkg_list[i].split('(')
+        pkg_version = pkg_version[:len(pkg_version)-1]
+        latest_version = '  '
+        installed_pkg_list[i] = (pkg_name, pkg_version)
+    return installed_pkg_list
 
 def pip_list_outdated_command():
     """
     Lists all outdated installed packages
     """
 
-    from pip_tkinter.pip_extensions import GUIListCommand
-
-    list_object = GUIListCommand()
-    cmd_name, cmd_args = parseopts(['list','--outdated', '--no-cache-dir'])
-    list_object.main(cmd_args)
-    return list_object.get_installed_packages_list()
+    list_output, error = runpip_using_subprocess('pip3 list --outdated')
+    installed_pkg_list = list_output.splitlines()
+    for i in range(len(installed_pkg_list)):
+        open_bracket_index = installed_pkg_list[i].index('(')
+        close_bracket_index = installed_pkg_list[i].index(')')
+        pkg_name = installed_pkg_list[i][:open_bracket_index-1]
+        pkg_version = installed_pkg_list[i][open_bracket_index+1:close_bracket_index]
+        latest_version = installed_pkg_list[i].split(' - Latest: ')[1].split(' [')[0]
+        print (latest_version)
+        installed_pkg_list[i] = (pkg_name, pkg_version, latest_version)
+    return installed_pkg_list
 
 def pip_show_command(package_args):
     """

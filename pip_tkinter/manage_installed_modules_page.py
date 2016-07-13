@@ -1,12 +1,15 @@
 # coding=utf-8
 from __future__ import absolute_import
 
-from io import StringIO
 import queue
 import threading
+import asyncio
+import logging
 import tkinter as tk
 from tkinter import ttk
-import asyncio
+from io import StringIO
+
+logger = logging.getLogger(__name__)
 
 class ManageInstalledPage(ttk.Frame):
     """
@@ -28,9 +31,10 @@ class ManageInstalledPage(ttk.Frame):
         self.container.grid(row=0, column=0, sticky='nsew')
         self.container.rowconfigure(0, weight=1)
         self.container.columnconfigure(1, weight=1)
+        self.create_message_bar()
         self.manage_frames()
         self.create_side_navbar()
-        self.create_message_bar()
+
 
     def create_side_navbar(self):
         """
@@ -201,36 +205,35 @@ class UpdatePackage(ttk.Frame):
         self.package_details.insert(1.0, selected_package_details)
         self.package_details.configure(state='disabled')
 
+
     def refresh_installed_packages(self):
         """
         Show search results
         """
-        #Update the bottom message bar to inform user that the program
-        #is fetching outdated packages list
-        self.after(0, self.controller.debug_bar.config(
-            text='Fetching outdated packages ...'))
 
         #Disable buttons like :
         self.navigate_back.config(state='disabled')
         self.navigate_next.config(state='disabled')
         self.refresh_button.config(state='disabled')
 
-        #Spawn a new thread for getting list of outdated packages,
-        #Search results will be returned in the @param : self.outdated_queue
-        self.after(100, self.check_for_outdated_packages_queue)
+        #Update the bottom message bar to inform user that the program
+        #is fetching outdated packages list
+        self.after(0, self.controller.debug_text.set('Fetching outdated packages ...'))
 
-    def check_for_outdated_packages_queue(self):
+        #Spawn a new thread for getting list of outdated packages
+        self.after(100, self.update_outdated_packages)
+
+    def update_outdated_packages(self):
 
         from pip_tkinter.utils import pip_list_outdated_command
         results_tuple = pip_list_outdated_command()
 
         if len(results_tuple) > 0:
             self.multi_items_list.populate_rows(results_tuple)
-            self.controller.debug_bar.config(
-                text='Got list of outdated packages')
+            self.controller.debug_text.set('Found outdated packages')
         else:
-            self.controller.debug_bar.config(
-                text='Error in fetching list of outdated packages')
+            self.controller.debug_text.set('Error in fetching list of outdated\
+            packages. Please check your internet settings')
 
         self.navigate_back.config(state='normal')
         self.navigate_next.config(state='normal')
@@ -273,8 +276,7 @@ class UpdatePackage(ttk.Frame):
         self.navigate_next.config(state='disabled')
         self.search_button.config(state='disabled')
 
-        self.after(0, self.controller.debug_bar.config(
-            text='Updating package. Please wait ...'))
+        self.after(0, self.controller.debug_text.set('Updating package. Please wait ...'))
         self.after(100, self.update_install_text)
 
         self.navigate_back.config(state='normal')
@@ -294,9 +296,9 @@ class UpdatePackage(ttk.Frame):
         status, output, err = pip_install_from_PyPI(selected_module)
 
         if str(status) == '0':
-            self.controller.debug_bar.config(text='Successfully updated package')
+            self.controller.debug_text.set('Successfully updated package')
         else:
-            self.controller.debug_bar.config(text='Error in updating package')
+            self.controller.debug_text.set('Error in updating package')
 
 
 class UninstallPackage(ttk.Frame):
@@ -333,7 +335,7 @@ class UninstallPackage(ttk.Frame):
             column=0,
             columnspan=3,
             sticky='nswe')
-        self.refresh_installed_packages()
+        #self.refresh_installed_packages()
         self.package_subwindow = tk.LabelFrame(
             self,
             text="Package Details",
@@ -385,6 +387,8 @@ class UninstallPackage(ttk.Frame):
         results_tuple = self.installed_packages_list
         self.multi_items_list.populate_rows(results_tuple)
 
+        self.controller.debug_text.set('Found installed packages')
+
     def create_buttons(self):
         """
         Create back and next buttons
@@ -420,15 +424,11 @@ class UninstallPackage(ttk.Frame):
         """
         self.navigate_back.config(state='disabled')
         self.navigate_next.config(state='disabled')
-        self.search_button.config(state='disabled')
+        self.refresh_button.config(state='disabled')
 
-        self.after(0, self.controller.debug_bar.config(
-            text='Uninstalling package. Please wait ...'))
+        self.after(0, self.controller.debug_text.set(
+            'Uninstalling package. Please wait ...'))
         self.after(100, self.update_uninstall_text)
-
-        self.navigate_back.config(state='normal')
-        self.navigate_next.config(state='normal')
-        self.search_button.config(state='normal')
 
     def update_uninstall_text(self):
         """
@@ -443,6 +443,11 @@ class UninstallPackage(ttk.Frame):
         status, output, err = pip_uninstall(selected_module)
 
         if str(status) == '0':
-            self.controller.debug_bar.config(text='Package removed')
+            self.controller.debug_text.set('Package removed')
         else:
-            self.controller.debug_bar.config(text='Error in uninstalling package')
+            self.controller.debug_text.set('Error in uninstalling package')
+            print (err)
+
+        self.navigate_back.config(state='normal')
+        self.navigate_next.config(state='normal')
+        self.refresh_button.config(state='normal')
