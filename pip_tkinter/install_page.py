@@ -37,9 +37,36 @@ class InstallPage(ttk.Frame):
         self.container.grid(row=0, column=0, sticky='nsew')
         self.container.rowconfigure(0, weight=1)
         self.container.columnconfigure(1, weight=1)
+
         self.create_message_bar()
         self.manage_frames()
         self.create_side_navbar()
+        self.create_complete_tasks()
+
+        self.container.tkraise()
+
+    def create_complete_tasks(self):
+
+        self.task_frame = ttk.Frame(self)
+        self.task_frame.grid(row=0, column=0, sticky='nsew')
+        self.task_frame.rowconfigure(0, weight=1)
+        self.task_frame.columnconfigure(0, weight=1)
+
+        self.process_details = tk.Text(
+            self.task_frame,
+            wrap='word',
+            height=5,
+            padx=5,
+            pady=5)
+        self.process_details.insert(1.0, 'No process started')
+        self.process_details.configure(state='disabled')
+        self.process_details.grid(row=0, column=0, sticky='nsew', padx=5, pady=5)
+        yscrollbar=ttk.Scrollbar(
+            self.task_frame,
+            orient='vertical',
+            command=self.process_details.yview)
+        yscrollbar.grid(row=0, column=1, sticky='nse')
+        self.process_details["yscrollcommand"]=yscrollbar.set
 
     def create_side_navbar(self):
         """
@@ -49,16 +76,16 @@ class InstallPage(ttk.Frame):
 
         # Create a navbar frame in which all navbar buttons will lie
         self.navbar_frame = ttk.Frame(
-                                self.container,
-                                borderwidth=3,
-                                padding=0.5,
-                                relief='ridge')
+            self.container,
+            borderwidth=3,
+            padding=0.5,
+            relief='ridge')
         self.navbar_frame.grid(
-                            row=0,
-                            column=0,
-                            sticky='nsw',
-                            pady=(1,1),
-                            padx=(1,1))
+            row=0,
+            column=0,
+            sticky='nsw',
+            pady=(1,1),
+            padx=(1,1))
         # Configure style for navbar frame
 
         # Button text
@@ -150,7 +177,7 @@ class InstallPage(ttk.Frame):
         """
 
         self.debug_bar = ttk.Label(
-            self.container,
+            self,
             padding=0.5,
             relief='ridge')
         self.debug_bar.grid(
@@ -272,10 +299,10 @@ class InstallFromPyPI(ttk.Frame):
 
             module_summary = "Not available"
             for module in self.search_results:
-                if module['name'] == item_dict['values'][0]:
-                    module_summary = module['summary']
+                if module[0] == item_dict['values'][0]:
+                    module_summary = module[3]
                     break
-            module_summary = 'Summary {}'.format(module_summary)
+            module_summary = 'Summary : {}'.format(module_summary)
 
             selected_package_details = '{}\n{}\n{}\n{}'.format(
                 selected_module,
@@ -324,22 +351,9 @@ class InstallFromPyPI(ttk.Frame):
     def check_search_queue(self):
         try:
             results_tuple = self.search_queue.get(0)
+            self.search_results = results_tuple
 
             try:
-                '''
-                for item in self.search_results:
-                    if self.search_term in item['name']:
-                        if 'installed' in item.keys():
-                            results_tuple.insert(0, (
-                                item['name'],
-                                item['installed'],
-                                item['latest']))
-                        else:
-                            results_tuple.insert(0, (
-                                item['name'],
-                                'not installed',
-                                item['latest']))
-                '''
                 self.multi_items_list.populate_rows(results_tuple)
                 self.controller.debug_bar.config(text='Fetched search results')
 
@@ -367,7 +381,7 @@ class InstallFromPyPI(ttk.Frame):
         self.navigate_next = ttk.Button(
             self,
             text="Install",
-            command=lambda: self.execute_pip_commands())
+            command=lambda: self.go_to_complete_installation())
         self.navigate_next.grid(row=3, column=1, sticky='e')
 
     def navigate_previous_frame(self):
@@ -375,6 +389,12 @@ class InstallFromPyPI(ttk.Frame):
         Navigate to previous frame
         """
         self.controller.controller.show_frame('WelcomePage')
+
+    def go_to_complete_installation(self):
+        """
+        Navigate to next frame
+        """
+        self.controller.controller.show_frame('CompleteInstall')
 
     def execute_pip_commands(self):
         """

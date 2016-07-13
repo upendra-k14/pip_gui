@@ -196,6 +196,7 @@ def pip_search_command(package_name=None, thread_queue=None):
     """
     Uses subprocess to retrieve results of 'pip search'
     """
+    import re
 
     search_result, errors = runpip_using_subprocess(
         'pip3 search {}'.format(package_name))
@@ -214,12 +215,17 @@ def pip_search_command(package_name=None, thread_queue=None):
                 close_bracket_index = x.index(')')
                 pkg_name = x[:open_bracket_index-1].strip()
                 latest_version = x[open_bracket_index+1:close_bracket_index]
-                installed_packages.append([pkg_name,'Not installed',latest_version])
+                summary = re.split(r'\)\s+- ',x)[1].strip()
+                installed_packages.append(
+                    [pkg_name,'Not installed',latest_version,summary])
                 count = count + 1
             elif 'INSTALLED:' in x:
                 st_index = x.index(':')
                 end_index = x.index('(')
                 installed_packages[-1][1] = x[st_index+1:end_index].strip()
+            else:
+                installed_packages[-1][3] = '{} {}'.format(
+                    installed_packages[-1][3],x.strip())
         except:
             pass
     thread_queue.put([tuple(x) for x in installed_packages])
@@ -251,7 +257,6 @@ def pip_list_outdated_command():
         pkg_name = installed_pkg_list[i][:open_bracket_index-1]
         pkg_version = installed_pkg_list[i][open_bracket_index+1:close_bracket_index]
         latest_version = installed_pkg_list[i].split(' - Latest: ')[1].split(' [')[0]
-        print (latest_version)
         installed_pkg_list[i] = (pkg_name, pkg_version, latest_version)
     return installed_pkg_list
 

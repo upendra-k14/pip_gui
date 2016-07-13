@@ -274,14 +274,14 @@ class UpdatePackage(ttk.Frame):
         """
         self.navigate_back.config(state='disabled')
         self.navigate_next.config(state='disabled')
-        self.search_button.config(state='disabled')
+        self.refresh_button.config(state='disabled')
 
         self.after(0, self.controller.debug_text.set('Updating package. Please wait ...'))
         self.after(100, self.update_install_text)
 
         self.navigate_back.config(state='normal')
         self.navigate_next.config(state='normal')
-        self.search_button.config(state='normal')
+        self.refresh_button.config(state='normal')
 
     def update_install_text(self):
         """
