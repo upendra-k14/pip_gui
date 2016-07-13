@@ -192,17 +192,37 @@ class RunpipSubprocess():
         self.pip_process.wait()
 
 
-def pip_search_command(package_name=None):
+def pip_search_command(package_name=None, thread_queue=None):
     """
-    Uses pip.commands.search.SearchCommand to retrieve results of 'pip search'
+    Uses subprocess to retrieve results of 'pip search'
     """
 
-    from pip_tkinter.pip_extensions import GUISearchCommand
+    search_result, errors = runpip_using_subprocess(
+        'pip3 search {}'.format(package_name))
 
-    search_object = GUISearchCommand()
-    cmd_name, cmd_args = parseopts(['search', '--no-cache-dir', package_name])
-    search_object.main(cmd_args)
-    thread_queue.put(search_object.get_search_results())
+    if errors.strip() != '':
+        thread_queue.put(errors)
+
+    count = 0
+    installed_packages = []
+    for x in search_result.split("\n"):
+        try:
+            if ('INSTALLED:' not in x) and (
+                ('(' in x) and (')' in x) and (
+                    not x.startswith('-'))):
+                open_bracket_index = x.index('(')
+                close_bracket_index = x.index(')')
+                pkg_name = x[:open_bracket_index-1].strip()
+                latest_version = x[open_bracket_index+1:close_bracket_index]
+                installed_packages.append([pkg_name,'Not installed',latest_version])
+                count = count + 1
+            elif 'INSTALLED:' in x:
+                st_index = x.index(':')
+                end_index = x.index('(')
+                installed_packages[-1][1] = x[st_index+1:end_index].strip()
+        except:
+            pass
+    thread_queue.put([tuple(x) for x in installed_packages])
 
 def pip_list_command():
     """
@@ -211,13 +231,11 @@ def pip_list_command():
 
     list_output, error = runpip_using_subprocess('pip3 list')
     installed_pkg_list = list_output.splitlines()
-    print (installed_pkg_list)
     for i in range(len(installed_pkg_list)):
         pkg_name, pkg_version = installed_pkg_list[i].split('(')
         pkg_version = pkg_version[:len(pkg_version)-1]
         latest_version = '  '
         installed_pkg_list[i] = (pkg_name, pkg_version)
-    print (installed_pkg_list)
     return installed_pkg_list
 
 def pip_list_outdated_command():
@@ -225,8 +243,7 @@ def pip_list_outdated_command():
     Lists all outdated installed packages
     """
 
-    list_output, error = runpip_using_subprocess(
-        'pip3 list --outdated --no-cache-dir')
+    list_output, error = runpip_using_subprocess('pip3 list --outdated')
     installed_pkg_list = list_output.splitlines()
     for i in range(len(installed_pkg_list)):
         open_bracket_index = installed_pkg_list[i].index('(')

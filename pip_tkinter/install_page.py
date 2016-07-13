@@ -323,10 +323,10 @@ class InstallFromPyPI(ttk.Frame):
 
     def check_search_queue(self):
         try:
-            self.search_results = self.search_queue.get(0)
-            results_tuple = []
+            results_tuple = self.search_queue.get(0)
 
             try:
+                '''
                 for item in self.search_results:
                     if self.search_term in item['name']:
                         if 'installed' in item.keys():
@@ -339,6 +339,7 @@ class InstallFromPyPI(ttk.Frame):
                                 item['name'],
                                 'not installed',
                                 item['latest']))
+                '''
                 self.multi_items_list.populate_rows(results_tuple)
                 self.controller.debug_bar.config(text='Fetched search results')
 

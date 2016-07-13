@@ -204,7 +204,7 @@ class UpdatePackage(ttk.Frame):
         self.package_details.delete(1.0, 'end')
         self.package_details.insert(1.0, selected_package_details)
         self.package_details.configure(state='disabled')
-        
+
 
     def refresh_installed_packages(self):
         """
@@ -335,7 +335,7 @@ class UninstallPackage(ttk.Frame):
             column=0,
             columnspan=3,
             sticky='nswe')
-        self.refresh_installed_packages()
+        #self.refresh_installed_packages()
         self.package_subwindow = tk.LabelFrame(
             self,
             text="Package Details",
