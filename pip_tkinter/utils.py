@@ -185,11 +185,13 @@ class RunpipSubprocess():
         while True:
             for file_descrp in io_iterator[0]:
                 if file_descrp == self.pip_process.stdout.fileno():
-                    self.output_queue.put(
-                        (1,self.pip_process.stdout.readline(),))
+                    pipout = self.pip_process.stdout.readline()
+                    print (pipout)
+                    self.output_queue.put((1,pipout))
                 elif file_descrp == self.pip_process.stderr.fileno():
-                    self.output_queue.put(
-                        (2,self.pip_process.stderr.readline(),))
+                    piperr = self.pip_process.stderr.readline()
+                    print (piperr)
+                    self.output_queue.put((2,piperr))
 
             if self.pip_process.poll() != None:
                 self.output_queue.put((3,self.pip_process.poll()))

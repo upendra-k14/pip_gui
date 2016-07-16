@@ -48,7 +48,7 @@ class InstallPage(ttk.Frame):
 
     def create_install_log_frame(self):
 
-        self.task_frame = ttk.Frame(self)
+        self.task_frame = ttk.Frame(self, relief='ridge', padding=0.5)
         self.task_frame.grid(row=0, column=0, sticky='nsew')
         self.task_frame.rowconfigure(0, weight=1)
         self.task_frame.columnconfigure(0, weight=1)
@@ -57,11 +57,16 @@ class InstallPage(ttk.Frame):
             self.task_frame,
             wrap='word',
             height=5,
-            padx=5,
-            pady=5)
+            padx=5)
         self.process_details.insert(1.0, 'No process started')
         self.process_details.configure(state='disabled')
-        self.process_details.grid(row=0, column=0, sticky='nsew', padx=5, pady=5)
+        self.process_details.grid(
+            row=0,
+            column=0,
+            columnspan=2,
+            sticky='nsew',
+            padx=5,
+            pady=5)
         yscrollbar=ttk.Scrollbar(
             self.task_frame,
             orient='vertical',
@@ -74,13 +79,23 @@ class InstallPage(ttk.Frame):
             self.task_frame,
             text='Back',
             command=lambda: self.navigate_back())
-        self.go_back_button.grid(row=1, column=0, sticky='w')
+        self.go_back_button.grid(
+            row=1,
+            column=0,
+            sticky='w',
+            padx=5,
+            pady=5)
         self.go_back_button.config(state='disabled')
         self.abort_install_button = ttk.Button(
             self.task_frame,
             text='Abort',
             command=lambda: self.abort_installation())
-        self.abort_install_button.grid(row=1, column=1, sticky='e')
+        self.abort_install_button.grid(
+            row=1,
+            column=1,
+            sticky='e',
+            padx=5,
+            pady=5)
         self.abort_install_button.config(state='disabled')
 
     def navigate_back(self):
@@ -457,8 +472,7 @@ class InstallFromPyPI(ttk.Frame):
         self.after(100, self.log_from_error_queue)
 
         self.update_thread.start()
-        self.update_thread.join()
-        self.controller.go_back_button.config(state='normal')
+
         self.navigate_back.config(state='normal')
         self.navigate_next.config(state='normal')
         self.search_button.config(state='normal')
