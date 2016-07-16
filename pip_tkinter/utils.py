@@ -2,11 +2,13 @@ from __future__ import absolute_import
 
 import sys
 import threading
+import multiprocessing
 import http.client
 import asyncio
 import logging
 import os
 import subprocess
+import select
 
 from pip.commands.search import highest_version
 from pip import parseopts
@@ -16,7 +18,6 @@ import tkinter as tk
 from tkinter import ttk
 
 search_hits = {}
-
 
 class MultiItemsList(object):
 
@@ -160,24 +161,51 @@ class RunpipSubprocess():
         self.pip_process = subprocess.Popen(
             argstring.split(),
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            bufsize=1)
+            stderr=subprocess.PIPE)
         self.output_queue = output_queue
-        self.error_queue = error_queue
+        #self.error_queue = error_queue
 
-        outputstream_thread = threading.Thread(target=self.getoutput)
-        errorstream_thread = threading.Thread(target=self.geterror)
+        #self.outputstream_thread = multiprocessing.Process(target=self.getoutput)
+        #self.errorstream_thread = multiprocessing.Process(target=self.geterror)
 
-        outputstream_thread.start()
-        errorstream_thread.start()
+    def start_logging_threads(self):
+        """
+        Starts logging to output and error queue
+        """
+
+        #self.outputstream_thread.start()
+        #self.errorstream_thread.start()
+        fileio_streams = [
+            self.pip_process.stdout.fileno(),
+            self.pip_process.stderr.fileno(),]
+        io_iterator = select.select(fileio_streams, [], [])
+
+        self.output_queue.put((0,'process_started'))
+
+        while True:
+            for file_descrp in io_iterator[0]:
+                if file_descrp == self.pip_process.stdout.fileno():
+                    self.output_queue.put(
+                        (1,self.pip_process.stdout.readline(),))
+                elif file_descrp == self.pip_process.stderr.fileno():
+                    self.output_queue.put(
+                        (2,self.pip_process.stderr.readline(),))
+
+            if self.pip_process.poll() != None:
+                self.output_queue.put((3,self.pip_process.poll()))
+                break
+
 
     def getoutput(self):
         """
-        Iterate over output line by line
+        Iterate over output line by line : multiplexing output and error stream
         """
 
+        self.output_queue.put('start_logging_installation')
         for line in iter(self.pip_process.stdout.readline, b''):
+            print ('utils',line)
             self.output_queue.put(line)
+        self.output_queue.put('end_logging_installation')
         self.pip_process.stdout.close()
         self.pip_process.wait()
 
@@ -186,11 +214,13 @@ class RunpipSubprocess():
         Iterate over error line by line
         """
 
+        self.error_queue.put('start_logging_error')
         for line in iter(self.pip_process.stderr.readline, b''):
+            print ('error',line)
             self.error_queue.put(line)
+        self.error_queue.put('end_logging_error')
         self.pip_process.stderr.close()
         self.pip_process.wait()
-
 
 def pip_search_command(package_name=None, thread_queue=None):
     """
@@ -266,11 +296,14 @@ def pip_show_command(package_args):
     """
     return runpip('show --no-cache-dir {}'.format(package_args))
 
-def pip_install_from_PyPI(package_args):
+def pip_install_from_PyPI(package_args=None,error_queue=None,install_queue=None):
     """
     Wrapper for installing pip package from PyPI
     """
-    return (runpip('install -U {}'.format(package_args)))
+    package_args = 'pip3 install --no-cache-dir {}'.format(package_args)
+    install_process = RunpipSubprocess(package_args, install_queue, error_queue)
+    install_process.start_logging_threads()
+    #return (runpip('install -U {}'.format(package_args)))
 
 def pip_install_from_local_archive(package_args):
     """

@@ -120,7 +120,7 @@ class ManageInstalledPage(ttk.Frame):
         self.debug_text = tk.StringVar()
         self.debug_text.set("No message")
         self.debug_bar = ttk.Label(
-            self.container,
+            self,
             textvariable=self.debug_text,
             padding=0.5,
             relief='ridge')
