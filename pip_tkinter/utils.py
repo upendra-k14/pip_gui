@@ -149,7 +149,7 @@ class RunpipSubprocess():
     output queue and error queue.
     """
 
-    def __init__(self, argstring, output_queue, error_queue):
+    def __init__(self, argstring, output_queue):
         """
         Initialize subprocess for running pip commands.
         :param output_queue: queue for buffering line by line output
@@ -163,18 +163,12 @@ class RunpipSubprocess():
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         self.output_queue = output_queue
-        #self.error_queue = error_queue
-
-        #self.outputstream_thread = multiprocessing.Process(target=self.getoutput)
-        #self.errorstream_thread = multiprocessing.Process(target=self.geterror)
 
     def start_logging_threads(self):
         """
         Starts logging to output and error queue
         """
 
-        #self.outputstream_thread.start()
-        #self.errorstream_thread.start()
         fileio_streams = [
             self.pip_process.stdout.fileno(),
             self.pip_process.stderr.fileno(),]
@@ -195,6 +189,7 @@ class RunpipSubprocess():
 
             if self.pip_process.poll() != None:
                 self.output_queue.put((3,self.pip_process.poll()))
+                print (self.pip_process.poll())
                 break
 
 
@@ -298,26 +293,29 @@ def pip_show_command(package_args):
     """
     return runpip('show --no-cache-dir {}'.format(package_args))
 
-def pip_install_from_PyPI(package_args=None,error_queue=None,install_queue=None):
+def pip_install_from_PyPI(package_args=None, install_queue=None):
     """
     Wrapper for installing pip package from PyPI
     """
-    package_args = 'pip3 install --no-cache-dir {}'.format(package_args)
-    install_process = RunpipSubprocess(package_args, install_queue, error_queue)
+    package_args = 'gksudo -- pip3 install -U --no-cache-dir {}'.format(package_args)
+    install_process = RunpipSubprocess(package_args, install_queue)
     install_process.start_logging_threads()
-    #return (runpip('install -U {}'.format(package_args)))
 
-def pip_install_from_local_archive(package_args):
+def pip_install_from_local_archive(package_args, install_queue=None):
     """
     Wrapper for installing pip package from local Archive
     """
-    return (runpip('install {}'.format(package_args)))
+    package_args = 'gksudo -- pip3 install {}'.format(package_args)
+    install_process = RunpipSubprocess(package_args, install_queue)
+    install_process.start_logging_threads()
 
-def pip_install_from_requirements(package_args):
+def pip_install_from_requirements(package_args, install_queue=None):
     """
     Wrapper for installing pip package from requirements file
     """
-    return (runpip('install -r {}'.format(package_args)))
+    package_args = 'gksudo -- pip3 install -r {}'.format(package_args)
+    install_process = RunpipSubprocess(package_args, install_queue)
+    install_process.start_logging_threads()
 
 def pip_install_from_alternate_repo(package_args):
     """
@@ -325,11 +323,13 @@ def pip_install_from_alternate_repo(package_args):
     """
     return (runpip('install --index-url{}'.format(package_args)))
 
-def pip_uninstall(package_args):
+def pip_uninstall(package_args, uninstall_queue=None):
     """
     Uninstall packages
     """
-    return (runpip('uninstall --yes {}'.format(package_args)))
+    package_args = 'gksudo -- pip3 uninstall --yes {}'.format(package_args)
+    uninstall_process = RunpipSubprocess(package_args, uninstall_queue)
+    uninstall_process.start_logging_threads()
 
 def verify_pypi_url():
     """

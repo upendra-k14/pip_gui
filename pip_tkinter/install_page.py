@@ -64,14 +64,12 @@ class InstallPage(ttk.Frame):
             row=0,
             column=0,
             columnspan=2,
-            sticky='nsew',
-            padx=5,
-            pady=5)
+            sticky='nsew')
         yscrollbar=ttk.Scrollbar(
             self.task_frame,
             orient='vertical',
             command=self.process_details.yview)
-        yscrollbar.grid(row=0, column=1, sticky='nse')
+        yscrollbar.grid(row=0, column=1, sticky='nse', in_=self.task_frame)
         self.process_details['yscrollcommand']=yscrollbar.set
 
         #Create control buttons
@@ -99,11 +97,13 @@ class InstallPage(ttk.Frame):
         self.abort_install_button.config(state='disabled')
 
     def navigate_back(self):
+        self.debug_bar.config(text='No message')
         self.container.tkraise()
 
     def abort_installation(self):
         self.abort_install_button.config(state='disabled')
         self.frames_dict[self.current_frame].abort_installation()
+        self.debug_bar.config(text='Installation aborted')
         self.go_back_button.config(state='normal')
 
     def create_side_navbar(self):
@@ -206,11 +206,13 @@ class InstallPage(ttk.Frame):
         self.show_frame('InstallFromPyPI')
 
     def show_frame(self, frame_name):
+        self.debug_bar.config(text='No message')
         self.current_frame = frame_name
         frame = self.frames_dict[frame_name]
         frame.tkraise()
 
     def show_task_frame(self):
+        self.debug_bar.config(text='No message')
         self.task_frame.tkraise()
         self.go_back_button.config(state='disabled')
         self.abort_install_button.config(state='normal')
@@ -304,6 +306,8 @@ class InstallFromPyPI(ttk.Frame):
         self.headers = ['Python Module','Installed Version','Available Versions']
         from pip_tkinter.utils import MultiItemsList
         self.multi_items_list = MultiItemsList(self, self.headers)
+        self.multi_items_list.scroll_tree.bind(
+            '<<TreeviewSelect>>', lambda x : self.scroll_tree_select())
 
         self.package_subwindow = tk.LabelFrame(
             self,
@@ -327,6 +331,12 @@ class InstallFromPyPI(ttk.Frame):
         self.multi_items_list.scroll_tree.bind(
             "<Double-Button-1>",
             lambda x: self.show_summary())
+
+    def scroll_tree_select(self):
+        """
+        If treeview is selected, enable update buttons
+        """
+        self.navigate_next.config(state='normal')
 
     def show_summary(self):
         """
@@ -403,7 +413,8 @@ class InstallFromPyPI(ttk.Frame):
 
             except TypeError:
                 self.controller.debug_bar.config(
-                    text='Unable to fetch results. Please verify your internet connection')
+                    text='Unable to fetch results. Please verify your internet\
+                     connection')
 
             self.navigate_back.config(state='normal')
             self.navigate_next.config(state='normal')
@@ -450,32 +461,32 @@ class InstallFromPyPI(ttk.Frame):
 
         from pip_tkinter.utils import pip_install_from_PyPI
 
-        curr_item = self.multi_items_list.scroll_tree.focus()
-        item_dict = self.multi_items_list.scroll_tree.item(curr_item)
-        selected_module = item_dict['values'][0]
+        try:
+            curr_item = self.multi_items_list.scroll_tree.focus()
+            item_dict = self.multi_items_list.scroll_tree.item(curr_item)
+            selected_module = item_dict['values'][0]
 
-        self.controller.show_task_frame()
+            self.controller.show_task_frame()
+            self.install_queue = multiprocessing.Queue()
 
-        self.error_queue = multiprocessing.Queue()
-        self.install_queue = multiprocessing.Queue()
+            self.update_thread = multiprocessing.Process(
+                target=pip_install_from_PyPI,
+                kwargs={
+                    'package_args':selected_module,
+                    'install_queue':self.install_queue})
 
-        self.update_thread = multiprocessing.Process(
-            target=pip_install_from_PyPI,
-            kwargs={
-                'package_args':selected_module,
-                'error_queue':self.error_queue,
-                'install_queue':self.install_queue})
+            self.install_log_started = False
+            self.error_log_started = False
+            self.after(100, self.log_from_install_queue)
 
-        self.install_log_started = False
-        self.error_log_started = False
-        self.after(100, self.log_from_install_queue)
-        self.after(100, self.log_from_error_queue)
+            self.update_thread.start()
 
-        self.update_thread.start()
+            self.navigate_back.config(state='normal')
+            self.navigate_next.config(state='normal')
+            self.search_button.config(state='normal')
 
-        self.navigate_back.config(state='normal')
-        self.navigate_next.config(state='normal')
-        self.search_button.config(state='normal')
+        except IndexError:
+            self.controller.debug_bar.config(text='Select correct package')
 
 
     def log_from_install_queue(self):
@@ -493,10 +504,16 @@ class InstallFromPyPI(ttk.Frame):
             elif (self.install_log_started==True):
 
                 if self.install_message[0]==3:
-                    self.controller.debug_bar.config(text='Done')
+                    if self.install_message[1]=='0':
+                        self.controller.debug_bar.config(text='Done')
+                    else:
+                        self.controller.debug_bar.config(
+                            text='Error in installing package')
                     self.install_log_started = False
                     self.controller.go_back_button.config(state='normal')
+                    self.controller.abort_install_button.config(state='disabled')
                     return
+
                 else:
                     self.controller.process_details.config(state='normal')
                     self.controller.process_details.insert(
@@ -509,37 +526,6 @@ class InstallFromPyPI(ttk.Frame):
         except queue.Empty:
             self.after(100, self.log_from_install_queue)
 
-
-    def log_from_error_queue(self):
-        try:
-            self.error_log = self.install_queue.get(0)
-
-            if ((self.error_log=='start_logging_error') and
-                (self.error_log_started==False)):
-
-                self.error_log_started = True
-                self.controller.debug_bar.config(
-                    text='Installing package. Please wait ...')
-
-            elif self.error_log_started==True:
-
-                if self.error_message == 'end_logging_error':
-                    self.error_log_started = False
-                    self.controller.go_back_button.config(state='normal')
-                    return
-                else:
-                    self.controller.process_details.config(state='normal')
-                    self.controller.process_details.insert(
-                        'end',
-                        self.error_message.decode('utf-8'))
-                    self.controller.debug_bar.config(
-                        text='Error in installing package')
-                    self.controller.process_details.config(state='disabled')
-
-            self.after(100, self.log_from_error_queue)
-
-        except queue.Empty:
-            self.after(100, self.log_from_error_queue)
 
     def abort_search_command(self):
         """
@@ -621,7 +607,7 @@ class InstallFromLocalArchive(ttk.Frame):
 
         if self.req_file_name:
             self.path_to_requirement.delete(0, 'end')
-            self.path_to_requirement.insert('end', req_file_name)
+            self.path_to_requirement.insert('end', self.req_file_name)
 
 
     def create_nav_buttons(self):
@@ -650,41 +636,88 @@ class InstallFromLocalArchive(ttk.Frame):
         """
         Execute pip commands
         """
-
-        logger.info('Invoked install button')
-
         self.navigate_back.config(state='disabled')
         self.navigate_next.config(state='disabled')
-        #self.search_button.config(state='disabled')
+        self.browse_button.config(state='disabled')
 
-        self.after(0, self.controller.debug_bar.config(
+        self.after(100, self.controller.debug_bar.config(
             text='Installing package from archive. Please wait ...'))
-        self.after(100, self.update_install_text)
+        self.after(100, self.update_installation_log)
 
-        self.navigate_back.config(state='normal')
-        self.navigate_next.config(state='normal')
-        #self.search_button.config(state='normal')
+    def update_installation_log(self):
 
-    def update_install_text(self):
-        """
-        Update install text
-        """
         from pip_tkinter.utils import pip_install_from_local_archive
 
         try:
             selected_module = self.req_file_name
-            status, output, err = pip_install_from_local_archive(selected_module)
+            self.controller.show_task_frame()
+            self.install_queue = multiprocessing.Queue()
 
-            if str(status) == '0':
-                self.controller.debug_bar.config(text='Successfully installed')
-                logger.info('Successfully installed {}'.format(selected_module))
-            else:
-                self.controller.debug_bar.config(text='Error in installing package')
-                logger.error('{}'.format(err))
+            self.update_thread = multiprocessing.Process(
+                target=pip_install_from_local_archive,
+                kwargs={
+                    'package_args':selected_module,
+                    'install_queue':self.install_queue})
+
+            self.install_log_started = False
+            self.after(100, self.log_from_install_queue)
+
+            self.update_thread.start()
+            self.navigate_back.config(state='normal')
+            self.navigate_next.config(state='normal')
+            self.search_button.config(state='normal')
 
         except AttributeError:
             self.controller.debug_bar.config(text='Please enter correct path')
-            logger.exception('Entered incorrect path')
+
+
+    def log_from_install_queue(self):
+        try:
+            self.install_message = self.install_queue.get(0)
+
+            if ((self.install_message[1]=='process_started') and
+                (self.install_log_started==False)):
+
+                self.install_log_started = True
+                self.controller.process_details.config(state='normal')
+                self.controller.process_details.delete(1.0,'end')
+                self.controller.process_details.config(state='disabled')
+
+            elif (self.install_log_started==True):
+
+                if self.install_message[0]==3:
+                    if self.install_message[1]=='0':
+                        self.controller.debug_bar.config(text='Done')
+                    else:
+                        self.controller.debug_bar.config(
+                            text='Error in installing package')
+                    self.install_log_started = False
+                    self.controller.go_back_button.config(state='normal')
+                    self.controller.abort_install_button.config(state='disabled')
+                    return
+
+                else:
+                    self.controller.process_details.config(state='normal')
+                    self.controller.process_details.insert(
+                        'end',
+                        self.install_message[1])
+                    self.controller.process_details.config(state='disabled')
+
+            self.after(100, self.log_from_install_queue)
+
+        except queue.Empty:
+            self.after(100, self.log_from_install_queue)
+
+
+    def abort_installation(self):
+        """
+        Stop pip installation : Currently not sure to provide option for
+        aborting installation in between
+        """
+        self.navigate_back.config(state='normal')
+        self.navigate_next.config(state='normal')
+        self.browse_button.config(state='normal')
+        self.update_thread.terminate()
 
 
 class InstallFromRequirements(ttk.Frame):
@@ -710,7 +743,7 @@ class InstallFromRequirements(ttk.Frame):
 
         self.labelled_entry_frame = tk.LabelFrame(
             self,
-            text="Enter path to requirement file",
+            text='Enter path to requirement file',
             padx=5,
             pady=30)
 
@@ -795,38 +828,88 @@ will be installed."
         """
         Execute pip commands
         """
-        logger.info('Invoked install button')
-
         self.navigate_back.config(state='disabled')
         self.navigate_next.config(state='disabled')
+        self.browse_button.config(state='disabled')
 
-        self.after(0, self.controller.debug_bar.config(
+        self.after(100, self.controller.debug_bar.config(
             text='Installing package(s) from requirement file. Please wait ...'))
-        self.after(100, self.update_install_text)
+        self.after(100, self.update_installation_log)
 
-        self.navigate_back.config(state='normal')
-        self.navigate_next.config(state='normal')
+    def update_installation_log(self):
 
-    def update_install_text(self):
-        """
-        Update install text
-        """
         from pip_tkinter.utils import pip_install_from_requirements
 
         try:
             selected_module = self.req_file_name
-            status, output, err = pip_install_from_requirements(selected_module)
+            self.controller.show_task_frame()
+            self.install_queue = multiprocessing.Queue()
 
-            if str(status) == '0':
-                self.controller.debug_bar.config(text='Successfully installed')
-                logger.info('Successfully installed {}'.format(selected_module))
-            else:
-                self.controller.debug_bar.config(text='Error in installing package')
-                logger.error(err)
+            self.update_thread = multiprocessing.Process(
+                target=pip_install_from_local_archive,
+                kwargs={
+                    'package_args':selected_module,
+                    'install_queue':self.install_queue})
+
+            self.install_log_started = False
+            self.after(100, self.log_from_install_queue)
+
+            self.update_thread.start()
+
+            self.navigate_back.config(state='normal')
+            self.navigate_next.config(state='normal')
+            self.search_button.config(state='normal')
 
         except AttributeError:
-            self.controller.debug_bar.config(text='Enter path to requirement file')
-            logger.exception('Entered incorrect path to requirement file')
+            self.controller.debug_bar.config(text='Please enter correct path')
+
+
+    def log_from_install_queue(self):
+        try:
+            self.install_message = self.install_queue.get(0)
+
+            if ((self.install_message[1]=='process_started') and
+                (self.install_log_started==False)):
+
+                self.install_log_started = True
+                self.controller.process_details.config(state='normal')
+                self.controller.process_details.delete(1.0,'end')
+                self.controller.process_details.config(state='disabled')
+
+            elif (self.install_log_started==True):
+
+                if self.install_message[0]==3:
+                    if self.install_message[1]=='0':
+                        self.controller.debug_bar.config(text='Done')
+                    else:
+                        self.controller.debug_bar.config(
+                            text='Error in installing package')
+                    self.install_log_started = False
+                    self.controller.go_back_button.config(state='normal')
+                    self.controller.abort_install_button.config(state='disabled')
+                    return
+                else:
+                    self.controller.process_details.config(state='normal')
+                    self.controller.process_details.insert(
+                        'end',
+                        self.install_message[1])
+                    self.controller.process_details.config(state='disabled')
+
+            self.after(100, self.log_from_install_queue)
+
+        except queue.Empty:
+            self.after(100, self.log_from_install_queue)
+
+
+    def abort_installation(self):
+        """
+        Stop pip installation : Currently not sure to provide option for
+        aborting installation in between
+        """
+        self.navigate_back.config(state='normal')
+        self.navigate_next.config(state='normal')
+        self.browse_button.config(state='normal')
+        self.update_thread.terminate()
 
 
 class InstallFromPythonlibs(ttk.Frame):
@@ -840,7 +923,7 @@ class InstallFromPythonlibs(ttk.Frame):
                         relief='ridge')
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
         self.controller = controller
-        label = tk.Label(self, text="Install From Python libs")
+        label = tk.Label(self, text="Install From Pythonlibs")
         label.pack(pady=10, padx=10)
 
 
