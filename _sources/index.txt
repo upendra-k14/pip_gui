@@ -7,12 +7,6 @@ Welcome to pip_tkinter!
 =======================================
 `Github <https://github.com/upendra-k14/pip_gui>`_
 
-    .. toctree::
-        :maxdepth: 2
-
-        installation
-        user_guide
-        developer_guide
 
     Motivation
     ----------
@@ -60,3 +54,12 @@ Welcome to pip_tkinter!
         *   .whl files
         *   From local archives
         *   From Pythonlibs
+
+    Documentation
+    -------------
+    .. toctree::
+        :maxdepth: 2
+
+        installation
+        user_guide
+        developer_guide
