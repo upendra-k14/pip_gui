@@ -8,8 +8,8 @@ Welcome to pip_tkinter!
 `Github <https://github.com/upendra-k14/pip_gui>`_
 
 
-    Motivation
-    ----------
+Motivation
+----------
     This project is intended to provide a GUI version for "pip".
     It is currently a command line based package manager used to install
     and manage software packages written in Python.
@@ -37,14 +37,14 @@ Welcome to pip_tkinter!
         Python packages rather than getting in unavoidable trouble of
         configuring various paths, versions and configurations
 
-    Target Users
-    ------------
+Target Users
+------------
 
     -   Windows Users ( who have difficulty using command prompt )
     -   Novice Python users ( on MacOS or Linux )
 
-    Targeted Tasks
-    --------------
+Targeted Tasks
+--------------
 
     -   Search, select version and install package
     -   Check for new updates and install them
@@ -55,8 +55,8 @@ Welcome to pip_tkinter!
         *   From local archives
         *   From Pythonlibs
 
-    Documentation
-    -------------
+Documentation
+-------------
     .. toctree::
         :maxdepth: 2
 
