@@ -50,10 +50,10 @@ Targeted Tasks
     -   Check for new updates and install them
     -   Uninstall a package
     -   Support different installation methods :
-        *   Requirements.txt files
-        *   .whl files
-        *   From local archives
-        *   From Pythonlibs
+        -   Requirements.txt files
+        -   .whl files
+        -   From local archives
+        -   From Pythonlibs
 
 Documentation
 -------------
