@@ -10,6 +10,7 @@ Welcome to pip_tkinter!
 
 Motivation
 ----------
+
     This project is intended to provide a GUI version for "pip".
     It is currently a command line based package manager used to install
     and manage software packages written in Python.
@@ -63,3 +64,4 @@ Documentation
         installation
         user_guide
         developer_guide
+        modules
