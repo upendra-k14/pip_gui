@@ -4,8 +4,8 @@ Installation
 .. toctree::
     :maxdepth: 4
 
-How to run the pip_tkinter GUI ?
---------------------------------
+How to install the pip_tkinter GUI ?
+------------------------------------
 
 Three easy steps to run the GUI :
 
