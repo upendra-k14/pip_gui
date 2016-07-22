@@ -20,6 +20,13 @@ class ManageInstalledPage(ttk.Frame):
     """
 
     def __init__(self, root, controller=None):
+        """
+        Initiate ManageInstalledPage
+
+        :param self.parent: parent frame for ManageInstalledPage
+        :param self.controller: parent page for ManageInstalledPage
+        :param self.container: a tkinter frame to enclose contents of page
+        """
         ttk.Frame.__init__(self, root)
         self.parent = root
         self.controller = controller
@@ -39,6 +46,12 @@ class ManageInstalledPage(ttk.Frame):
         self.container.tkraise()
 
     def create_process_log_frame(self):
+        """
+        Method to create last logging frame to keep the user updated with
+        process. Logs real time output of pip process to tkinter text widget
+
+        :param self.task_frame: a tkinter frame to enclose contents
+        """
 
         self.task_frame = ttk.Frame(self, relief='ridge', padding=0.5)
         self.task_frame.grid(row=0, column=0, sticky='nsew')
