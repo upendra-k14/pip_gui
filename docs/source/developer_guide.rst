@@ -11,5 +11,5 @@ issues and suggestions `here <https://github.com/upendra-k14/pip_gui/issues>`_
     design_philosophy
     page_hierarchy
     page_descriptions
-    app_structure
     app_navigation
+    app_utils
