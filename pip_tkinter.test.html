@@ -84,7 +84,7 @@
                 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer_guide.html">Developer&#8217;s Guide</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">pip_tkinter</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="pip_tkinter.html">pip_tkinter package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="pip_tkinter.html#subpackages">Subpackages</a><ul class="current">
@@ -92,13 +92,13 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pip_tkinter.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pip_tkinter.html#pip-tkinter-config-module">pip_tkinter.config module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pip_tkinter.html#pip-tkinter-install-page-module">pip_tkinter.install_page module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pip_tkinter.html#pip-tkinter-manage-installed-modules-page-module">pip_tkinter.manage_installed_modules_page module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pip_tkinter.html#pip-tkinter-pip-extensions-module">pip_tkinter.pip_extensions module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pip_tkinter.html#pip-tkinter-utils-module">pip_tkinter.utils module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pip_tkinter.html#pip-tkinter-welcome-page-module">pip_tkinter.welcome_page module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pip_tkinter.html#module-contents">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pip_tkinter.html#module-pip_tkinter.config">pip_tkinter.config module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pip_tkinter.html#module-pip_tkinter.install_page">pip_tkinter.install_page module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pip_tkinter.html#module-pip_tkinter.manage_installed_modules_page">pip_tkinter.manage_installed_modules_page module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pip_tkinter.html#module-pip_tkinter.pip_extensions">pip_tkinter.pip_extensions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pip_tkinter.html#module-pip_tkinter.utils">pip_tkinter.utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pip_tkinter.html#module-pip_tkinter.welcome_page">pip_tkinter.welcome_page module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pip_tkinter.html#module-pip_tkinter">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -156,23 +156,193 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="pip-tkinter-test-test-gui-app-module">
-<h2>pip_tkinter.test.test_gui_app module<a class="headerlink" href="#pip-tkinter-test-test-gui-app-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pip_tkinter.test.test_gui_app">
+<span id="pip-tkinter-test-test-gui-app-module"></span><h2>pip_tkinter.test.test_gui_app module<a class="headerlink" href="#module-pip_tkinter.test.test_gui_app" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pip_tkinter.test.test_gui_app.EventGenerator">
+<em class="property">class </em><code class="descclassname">pip_tkinter.test.test_gui_app.</code><code class="descname">EventGenerator</code><span class="sig-paren">(</span><em>target_widget</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_gui_app.html#EventGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_gui_app.EventGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">threading.Thread</span></code></p>
+<p>Event Generator class :
+Inject events from different thread into tkinter mainloop()</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pip_tkinter.test.test_gui_app.TestGUIApp">
+<em class="property">class </em><code class="descclassname">pip_tkinter.test.test_gui_app.</code><code class="descname">TestGUIApp</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_gui_app.html#TestGUIApp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_gui_app.TestGUIApp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Test the GUI application and it&#8217;s different GUI events</p>
+<p>Order of testing :</p>
+<ol class="arabic simple">
+<li>Welcome page</li>
+<li>Install page</li>
+<li>Install From PyPI</li>
+<li>Install From Local archive</li>
+<li>Install From Requirements</li>
+<li>Manage Installed Modules page</li>
+<li>Uninstall Package</li>
+<li>Update Package</li>
+</ol>
+<dl class="method">
+<dt id="pip_tkinter.test.test_gui_app.TestGUIApp.check_install_from_local_archive">
+<code class="descname">check_install_from_local_archive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_gui_app.html#TestGUIApp.check_install_from_local_archive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_gui_app.TestGUIApp.check_install_from_local_archive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test install from local archive</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.test.test_gui_app.TestGUIApp.check_install_from_pypi">
+<code class="descname">check_install_from_pypi</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_gui_app.html#TestGUIApp.check_install_from_pypi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_gui_app.TestGUIApp.check_install_from_pypi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test install from pypi</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.test.test_gui_app.TestGUIApp.check_install_from_requirements">
+<code class="descname">check_install_from_requirements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_gui_app.html#TestGUIApp.check_install_from_requirements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_gui_app.TestGUIApp.check_install_from_requirements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test install from requirements</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.test.test_gui_app.TestGUIApp.check_install_page">
+<code class="descname">check_install_page</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_gui_app.html#TestGUIApp.check_install_page"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_gui_app.TestGUIApp.check_install_page" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test install page</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.test.test_gui_app.TestGUIApp.check_manage_installed_modules">
+<code class="descname">check_manage_installed_modules</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_gui_app.html#TestGUIApp.check_manage_installed_modules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_gui_app.TestGUIApp.check_manage_installed_modules" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#8221;
+Test manage installed modules page</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.test.test_gui_app.TestGUIApp.check_uninstalled_modules">
+<code class="descname">check_uninstalled_modules</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_gui_app.html#TestGUIApp.check_uninstalled_modules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_gui_app.TestGUIApp.check_uninstalled_modules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test uninstalled Modules</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.test.test_gui_app.TestGUIApp.check_update_modules">
+<code class="descname">check_update_modules</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_gui_app.html#TestGUIApp.check_update_modules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_gui_app.TestGUIApp.check_update_modules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test update package page</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.test.test_gui_app.TestGUIApp.check_welcome_page">
+<code class="descname">check_welcome_page</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_gui_app.html#TestGUIApp.check_welcome_page"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_gui_app.TestGUIApp.check_welcome_page" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test welcome page</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pip_tkinter.test.test_gui_app.TestGUIApp.setUpClass">
+<em class="property">classmethod </em><code class="descname">setUpClass</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_gui_app.html#TestGUIApp.setUpClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_gui_app.TestGUIApp.setUpClass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pip_tkinter.test.test_gui_app.TestGUIApp.tearDownClass">
+<em class="property">classmethod </em><code class="descname">tearDownClass</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_gui_app.html#TestGUIApp.tearDownClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_gui_app.TestGUIApp.tearDownClass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.test.test_gui_app.TestGUIApp.test_application">
+<code class="descname">test_application</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_gui_app.html#TestGUIApp.test_application"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_gui_app.TestGUIApp.test_application" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="pip-tkinter-test-test-init-module">
-<h2>pip_tkinter.test.test_init module<a class="headerlink" href="#pip-tkinter-test-test-init-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pip_tkinter.test.test_init">
+<span id="pip-tkinter-test-test-init-module"></span><h2>pip_tkinter.test.test_init module<a class="headerlink" href="#module-pip_tkinter.test.test_init" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pip_tkinter.test.test_init.InitTest">
+<em class="property">class </em><code class="descclassname">pip_tkinter.test.test_init.</code><code class="descname">InitTest</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_init.html#InitTest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_init.InitTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="method">
+<dt id="pip_tkinter.test.test_init.InitTest.setUp">
+<code class="descname">setUp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_init.html#InitTest.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_init.InitTest.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.test.test_init.InitTest.tearDown">
+<code class="descname">tearDown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_init.html#InitTest.tearDown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_init.InitTest.tearDown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.test.test_init.InitTest.test_something">
+<code class="descname">test_something</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_init.html#InitTest.test_something"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_init.InitTest.test_something" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="pip-tkinter-test-test-multi-items-list-module">
-<h2>pip_tkinter.test.test_multi_items_list module<a class="headerlink" href="#pip-tkinter-test-test-multi-items-list-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pip_tkinter.test.test_multi_items_list">
+<span id="pip-tkinter-test-test-multi-items-list-module"></span><h2>pip_tkinter.test.test_multi_items_list module<a class="headerlink" href="#module-pip_tkinter.test.test_multi_items_list" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pip_tkinter.test.test_multi_items_list.TestMultiItemsList">
+<em class="property">class </em><code class="descclassname">pip_tkinter.test.test_multi_items_list.</code><code class="descname">TestMultiItemsList</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_multi_items_list.html#TestMultiItemsList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_multi_items_list.TestMultiItemsList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Test the GUI application and it&#8217;s different GUI events</p>
+<dl class="method">
+<dt id="pip_tkinter.test.test_multi_items_list.TestMultiItemsList.setUp">
+<code class="descname">setUp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_multi_items_list.html#TestMultiItemsList.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_multi_items_list.TestMultiItemsList.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.test.test_multi_items_list.TestMultiItemsList.tearDown">
+<code class="descname">tearDown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_multi_items_list.html#TestMultiItemsList.tearDown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_multi_items_list.TestMultiItemsList.tearDown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.test.test_multi_items_list.TestMultiItemsList.test_number_of_elements_in_tree_view">
+<code class="descname">test_number_of_elements_in_tree_view</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_multi_items_list.html#TestMultiItemsList.test_number_of_elements_in_tree_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_multi_items_list.TestMultiItemsList.test_number_of_elements_in_tree_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.test.test_multi_items_list.TestMultiItemsList.test_number_of_headers_in_tree_view">
+<code class="descname">test_number_of_headers_in_tree_view</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_multi_items_list.html#TestMultiItemsList.test_number_of_headers_in_tree_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_multi_items_list.TestMultiItemsList.test_number_of_headers_in_tree_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.test.test_multi_items_list.TestMultiItemsList.test_only_single_selection_is_allowed">
+<code class="descname">test_only_single_selection_is_allowed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_multi_items_list.html#TestMultiItemsList.test_only_single_selection_is_allowed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_multi_items_list.TestMultiItemsList.test_only_single_selection_is_allowed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="pip-tkinter-test-test-pip-extensions-module">
 <h2>pip_tkinter.test.test_pip_extensions module<a class="headerlink" href="#pip-tkinter-test-test-pip-extensions-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="pip-tkinter-test-test-utils-module">
-<h2>pip_tkinter.test.test_utils module<a class="headerlink" href="#pip-tkinter-test-test-utils-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pip_tkinter.test.test_utils">
+<span id="pip-tkinter-test-test-utils-module"></span><h2>pip_tkinter.test.test_utils module<a class="headerlink" href="#module-pip_tkinter.test.test_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pip_tkinter.test.test_utils.UtilsTest">
+<em class="property">class </em><code class="descclassname">pip_tkinter.test.test_utils.</code><code class="descname">UtilsTest</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_utils.html#UtilsTest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_utils.UtilsTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="method">
+<dt id="pip_tkinter.test.test_utils.UtilsTest.setUp">
+<code class="descname">setUp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_utils.html#UtilsTest.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_utils.UtilsTest.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.test.test_utils.UtilsTest.tearDown">
+<code class="descname">tearDown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_utils.html#UtilsTest.tearDown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_utils.UtilsTest.tearDown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.test.test_utils.UtilsTest.test_something">
+<code class="descname">test_something</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test/test_utils.html#UtilsTest.test_something"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.test_utils.UtilsTest.test_something" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pip_tkinter.test">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pip_tkinter.test" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pip_tkinter.test.load_tests">
+<code class="descclassname">pip_tkinter.test.</code><code class="descname">load_tests</code><span class="sig-paren">(</span><em>loader</em>, <em>standard_tests</em>, <em>test_pattern</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/test.html#load_tests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.test.load_tests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load tests</p>
+</dd></dl>
+
 </div>
 </div>
 

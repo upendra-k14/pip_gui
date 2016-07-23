@@ -1,0 +1,365 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pip_tkinter.pip_extensions &mdash; pip_tkinter 0.0.1alpha documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="pip_tkinter 0.0.1alpha documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pip_tkinter
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide.html">Developer&#8217;s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">pip_tkinter</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">pip_tkinter</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>pip_tkinter.pip_extensions</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pip_tkinter.pip_extensions</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">StringIO</span>
+
+<span class="kn">from</span> <span class="nn">pip.commands.search</span> <span class="k">import</span> <span class="n">SearchCommand</span><span class="p">,</span> <span class="n">transform_hits</span><span class="p">,</span> <span class="n">highest_version</span>
+<span class="kn">from</span> <span class="nn">pip.commands.list</span> <span class="k">import</span> <span class="n">ListCommand</span>
+<span class="kn">from</span> <span class="nn">pip.commands.show</span> <span class="k">import</span> <span class="n">ShowCommand</span>
+<span class="kn">from</span> <span class="nn">pip.exceptions</span> <span class="k">import</span> <span class="n">CommandError</span>
+<span class="kn">from</span> <span class="nn">pip.status_codes</span> <span class="k">import</span> <span class="n">SUCCESS</span><span class="p">,</span> <span class="n">ERROR</span><span class="p">,</span> <span class="n">NO_MATCHES_FOUND</span>
+<span class="kn">from</span> <span class="nn">pip</span> <span class="k">import</span> <span class="n">main</span>
+
+<span class="kn">from</span> <span class="nn">pip_tkinter.utils</span> <span class="k">import</span> <span class="n">Redirect</span>
+
+<span class="c1"># For GUI version, redirects would be here, done once.</span>
+<span class="c1"># Put in runpip for prototype testing in text mode, so can print.</span>
+<div class="viewcode-block" id="runpip"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.pip_extensions.runpip">[docs]</a><span class="k">def</span> <span class="nf">runpip</span><span class="p">(</span><span class="n">argstring</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run pip with argument string containing command and options.</span>
+
+<span class="sd">    :param argstring: is quoted version of what would follow &#39;pip&#39;</span>
+<span class="sd">      on command line.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">Redirect</span><span class="p">(</span><span class="s1">&#39;stdout&#39;</span><span class="p">,</span> <span class="n">sysout</span><span class="p">)</span> <span class="k">as</span> <span class="n">f1</span><span class="p">,</span> <span class="n">Redirect</span><span class="p">(</span><span class="s1">&#39;stderr&#39;</span><span class="p">,</span> <span class="n">syserr</span><span class="p">)</span> <span class="k">as</span> <span class="n">f2</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">main</span><span class="p">(</span><span class="n">argstring</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">sysout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="n">syserr</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+
+    <span class="n">sysout</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="n">sysout</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">syserr</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="n">syserr</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span></div>
+
+
+<div class="viewcode-block" id="GUISearchCommand"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.pip_extensions.GUISearchCommand">[docs]</a><span class="k">class</span> <span class="nc">GUISearchCommand</span><span class="p">(</span><span class="n">SearchCommand</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Inherited the class : pip.commands.search.SearchCommand to override</span>
+<span class="sd">    run method</span>
+
+<span class="sd">    Advantage of inheriting the class is that we can have better control of</span>
+<span class="sd">    pip. For example, currently pip search gives output for latest version.</span>
+<span class="sd">    But, we can retrieve output for all available versions.</span>
+
+<span class="sd">    Another advantage is that search can now be done with less time lag as</span>
+<span class="sd">    compared to pip.main().</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GUISearchCommand.run"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.pip_extensions.GUISearchCommand.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CommandError</span><span class="p">(</span><span class="s1">&#39;Missing required argument (search query).&#39;</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># The developer version of pip uses options as argument</span>
+            <span class="n">pypi_hits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">,</span><span class="n">options</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hits</span> <span class="o">=</span> <span class="n">transform_hits</span><span class="p">(</span><span class="n">pypi_hits</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pypi_hits</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">SUCCESS</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">NO_MATCHES_FOUND</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="c1"># But, the stable version of pip uses options.index as argument</span>
+            <span class="n">pypi_hits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">,</span><span class="n">options</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hits</span> <span class="o">=</span> <span class="n">transform_hits</span><span class="p">(</span><span class="n">pypi_hits</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pypi_hits</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">SUCCESS</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">NO_MATCHES_FOUND</span></div>
+
+<div class="viewcode-block" id="GUISearchCommand.get_search_results"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.pip_extensions.GUISearchCommand.get_search_results">[docs]</a>    <span class="k">def</span> <span class="nf">get_search_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This code is taken from pip.commands.search.print_results(). It is modified</span>
+<span class="sd">        to return results in dictionary format instead of printing results</span>
+<span class="sd">        For all the search results obtained, we can check if a package is already</span>
+<span class="sd">        installed or not. If installed then the version of installed package is</span>
+<span class="sd">        found and stored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;hits&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># Here pkg_resources is a module of pip._vendor. It has been included</span>
+        <span class="c1"># in pip gui because as mentioned by pip, this module is considered to</span>
+        <span class="c1"># be &#39;immutable&#39;. There are very less chances that it will changed in future</span>
+        <span class="kn">from</span> <span class="nn">pip_tkinter._vendor</span> <span class="k">import</span> <span class="n">pkg_resources</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">installed_packages</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">project_name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">working_set</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">hit</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hits</span><span class="p">:</span>
+            <span class="n">hit</span><span class="p">[</span><span class="s1">&#39;latest&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">highest_version</span><span class="p">(</span><span class="n">hit</span><span class="p">[</span><span class="s1">&#39;versions&#39;</span><span class="p">])</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">hit</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">installed_packages</span><span class="p">:</span>
+                <span class="n">dist</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">get_distribution</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">hit</span><span class="p">[</span><span class="s1">&#39;installed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">version</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hits</span></div></div>
+
+<div class="viewcode-block" id="GUIListCommand"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.pip_extensions.GUIListCommand">[docs]</a><span class="k">class</span> <span class="nc">GUIListCommand</span><span class="p">(</span><span class="n">ListCommand</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extending the pip ListCommand to show list of packages :</span>
+
+<span class="sd">    1. For uninstall : retrieves list of installed packages with their versions</span>
+<span class="sd">    2. For update : retrieved list of installed packages which are outdated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="GUIListCommand.output_package_listing"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.pip_extensions.GUIListCommand.output_package_listing">[docs]</a>    <span class="k">def</span> <span class="nf">output_package_listing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">installed_packages</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">installed_packages_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">installed_packages</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">installed_packages</span><span class="p">,</span>
+            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">dist</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">project_name</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">installed_packages</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">installed_packages_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">dist</span><span class="o">.</span><span class="n">project_name</span><span class="p">,</span> <span class="n">dist</span><span class="o">.</span><span class="n">version</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="GUIListCommand.run_outdated"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.pip_extensions.GUIListCommand.run_outdated">[docs]</a>    <span class="k">def</span> <span class="nf">run_outdated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">find_outdated</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdated_packages_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">outdated</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">find_outdated</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">for</span> <span class="n">dist</span><span class="p">,</span> <span class="n">latest_version</span><span class="p">,</span> <span class="n">typ</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">find_packages_latest_versions</span><span class="p">(</span><span class="n">options</span><span class="p">),</span>
+                <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">project_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">latest_version</span> <span class="o">&gt;</span> <span class="n">dist</span><span class="o">.</span><span class="n">parsed_version</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">outdated_packages_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+                    <span class="n">dist</span><span class="o">.</span><span class="n">project_name</span><span class="p">,</span>
+                    <span class="n">dist</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">latest_version</span><span class="p">),</span>
+                <span class="p">))</span></div>
+
+<div class="viewcode-block" id="GUIListCommand.get_installed_packages_list"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.pip_extensions.GUIListCommand.get_installed_packages_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_installed_packages_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;find_outdated&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_outdated</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">outdated_packages_list</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">installed_packages_list</span></div></div>
+
+<div class="viewcode-block" id="GUIShowCommand"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.pip_extensions.GUIShowCommand">[docs]</a><span class="k">class</span> <span class="nc">GUIShowCommand</span><span class="p">(</span><span class="n">ShowCommand</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parent class : pip.commands.show.ShowCommand</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GUIShowCommand.run"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.pip_extensions.GUIShowCommand.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;ERROR: Please provide a package name or names.&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ERROR</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">args</span>
+
+        <span class="kn">from</span> <span class="nn">pip.commands.show</span> <span class="k">import</span> <span class="n">search_packages_info</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">search_packages_info</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_results</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">files</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">ERROR</span>
+        <span class="k">return</span> <span class="n">SUCCESS</span></div>
+
+<div class="viewcode-block" id="GUIShowCommand.save_results"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.pip_extensions.GUIShowCommand.save_results">[docs]</a>    <span class="k">def</span> <span class="nf">save_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distributions</span><span class="p">,</span> <span class="n">list_all_files</span><span class="p">):</span>
+        <span class="n">results_printed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">distributions</span><span class="p">:</span>
+            <span class="n">results_printed</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">package_details</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">results_printed</span></div>
+
+<div class="viewcode-block" id="GUIShowCommand.get_package_details"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.pip_extensions.GUIShowCommand.get_package_details">[docs]</a>    <span class="k">def</span> <span class="nf">get_package_details</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;package_details&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">package_details</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Upendra Kumar.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.1alpha',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

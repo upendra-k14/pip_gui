@@ -1,0 +1,537 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pip_tkinter.utils &mdash; pip_tkinter 0.0.1alpha documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="pip_tkinter 0.0.1alpha documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pip_tkinter
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide.html">Developer&#8217;s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">pip_tkinter</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">pip_tkinter</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>pip_tkinter.utils</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pip_tkinter.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">http.client</span>
+<span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">select</span>
+
+<span class="kn">from</span> <span class="nn">pip.commands.search</span> <span class="k">import</span> <span class="n">highest_version</span>
+<span class="kn">from</span> <span class="nn">pip</span> <span class="k">import</span> <span class="n">parseopts</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">StringIO</span>
+
+<span class="kn">import</span> <span class="nn">tkinter</span> <span class="k">as</span> <span class="nn">tk</span>
+<span class="kn">from</span> <span class="nn">tkinter</span> <span class="k">import</span> <span class="n">ttk</span>
+
+<span class="n">search_hits</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="MultiItemsList"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.MultiItemsList">[docs]</a><span class="k">class</span> <span class="nc">MultiItemsList</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">headers_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize variables needed for creating Treeview</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">headers_list</span> <span class="o">=</span> <span class="n">headers_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">items_list</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_treeview</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_headers</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MultiItemsList.create_treeview"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.MultiItemsList.create_treeview">[docs]</a>    <span class="k">def</span> <span class="nf">create_treeview</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a multi items list consisting of a frame, horizontal and vertical</span>
+<span class="sd">        scroll bar and Treeview</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">myframe</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">myframe</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nswe&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Treeview</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">myframe</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">headers_list</span><span class="p">,</span>
+            <span class="n">show</span><span class="o">=</span><span class="s1">&#39;headings&#39;</span><span class="p">,</span>
+            <span class="n">selectmode</span><span class="o">=</span><span class="s1">&#39;browse&#39;</span><span class="p">)</span>
+
+        <span class="n">vrtl_scrbar</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Scrollbar</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">myframe</span><span class="p">,</span>
+            <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;vertical&quot;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">yview</span><span class="p">)</span>
+        <span class="n">hrtl_scrbar</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Scrollbar</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">myframe</span><span class="p">,</span>
+            <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;horizontal&quot;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">xview</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span>
+            <span class="n">yscrollcommand</span><span class="o">=</span><span class="n">vrtl_scrbar</span><span class="o">.</span><span class="n">set</span><span class="p">,</span>
+            <span class="n">xscrollcommand</span><span class="o">=</span><span class="n">hrtl_scrbar</span><span class="o">.</span><span class="n">set</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nswe&#39;</span><span class="p">,</span> <span class="n">in_</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">myframe</span><span class="p">)</span>
+        <span class="n">vrtl_scrbar</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;ns&#39;</span><span class="p">,</span> <span class="n">in_</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">myframe</span><span class="p">)</span>
+        <span class="n">hrtl_scrbar</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;ew&#39;</span><span class="p">,</span> <span class="n">in_</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">myframe</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">myframe</span><span class="o">.</span><span class="n">grid_columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">myframe</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MultiItemsList.create_headers"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.MultiItemsList.create_headers">[docs]</a>    <span class="k">def</span> <span class="nf">create_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">headers_list</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">heading</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">header</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MultiItemsList.populate_rows"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.MultiItemsList.populate_rows">[docs]</a>    <span class="k">def</span> <span class="nf">populate_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">get_children</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">items_list</span> <span class="o">=</span> <span class="n">items_list</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items_list</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">item</span><span class="p">)</span></div></div>
+
+
+
+<div class="viewcode-block" id="Redirect"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.Redirect">[docs]</a><span class="k">class</span> <span class="nc">Redirect</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Context manager for temporarily redirecting stdout/err.</span>
+<span class="sd">    Simplified and generalize from contextlib.redirect_stdout.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stdfile</span><span class="p">,</span> <span class="n">new_target</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stdfile</span> <span class="o">=</span> <span class="n">stdfile</span>  <span class="c1"># &#39;stdout&#39; or &#39;stderr&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_new_target</span> <span class="o">=</span> <span class="n">new_target</span>
+
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_old</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stdfile</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stdfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_target</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_target</span>
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exctype</span><span class="p">,</span> <span class="n">excinst</span><span class="p">,</span> <span class="n">exctb</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stdfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_old</span><span class="p">)</span></div>
+
+
+<span class="c1"># For GUI version, redirects would be here, done once.</span>
+<span class="c1"># Put in runpip for prototype testing in text mode, so can print.</span>
+<div class="viewcode-block" id="runpip"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.runpip">[docs]</a><span class="k">def</span> <span class="nf">runpip</span><span class="p">(</span><span class="n">argstring</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run pip with argument string containing command and options.</span>
+<span class="sd">    :param argstring: is quoted version of what would follow &#39;pip&#39; on command</span>
+<span class="sd">     line.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sysout</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
+    <span class="n">syserr</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
+
+    <span class="kn">import</span> <span class="nn">pip</span>
+
+    <span class="k">with</span> <span class="n">Redirect</span><span class="p">(</span><span class="s1">&#39;stdout&#39;</span><span class="p">,</span> <span class="n">sysout</span><span class="p">)</span> <span class="k">as</span> <span class="n">f1</span><span class="p">,</span> <span class="n">Redirect</span><span class="p">(</span><span class="s1">&#39;stderr&#39;</span><span class="p">,</span> <span class="n">syserr</span><span class="p">)</span> <span class="k">as</span> <span class="n">f2</span><span class="p">:</span>
+        <span class="c1">#Clear all loggers</span>
+        <span class="n">pip</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">consumers</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">status</span> <span class="o">=</span> <span class="n">pip</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">argstring</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">sysout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="n">syserr</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+        <span class="c1">#print(&#39;{}\n{}\n{}&#39;.format(status, out, err))</span>
+
+    <span class="n">sysout</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="n">sysout</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">syserr</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="n">syserr</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span></div>
+
+<div class="viewcode-block" id="runpip_using_subprocess"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.runpip_using_subprocess">[docs]</a><span class="k">def</span> <span class="nf">runpip_using_subprocess</span><span class="p">(</span><span class="n">argstring</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run pip with argument string containing command and options. Uses</span>
+<span class="sd">    subprocess module for executing pip commands. Returns output and error</span>
+<span class="sd">    once execution of process teriminates</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">pip_process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+        <span class="n">argstring</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span>
+        <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+        <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">pip_output</span><span class="p">,</span> <span class="n">pip_error</span> <span class="o">=</span> <span class="n">pip_process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">pip_output</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">),</span> <span class="n">pip_error</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="RunpipSubprocess"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.RunpipSubprocess">[docs]</a><span class="k">class</span> <span class="nc">RunpipSubprocess</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run pip with argument string containing command and options. Uses</span>
+<span class="sd">    subprocess module for executing pip commands. Logs real time output in</span>
+<span class="sd">    output queue and error queue.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argstring</span><span class="p">,</span> <span class="n">output_queue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize subprocess for running pip commands.</span>
+<span class="sd">        :param output_queue: queue for buffering line by line output</span>
+<span class="sd">        :param error_queue: queue for buffering line by line error</span>
+<span class="sd">        :param argstring: is quoted version of what would follow &#39;pip&#39; on</span>
+<span class="sd">         command line.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+            <span class="n">argstring</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span>
+            <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+            <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span> <span class="o">=</span> <span class="n">output_queue</span>
+
+<div class="viewcode-block" id="RunpipSubprocess.start_logging_threads"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.RunpipSubprocess.start_logging_threads">[docs]</a>    <span class="k">def</span> <span class="nf">start_logging_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Starts logging to output and error queue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">fileio_streams</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),]</span>
+        <span class="n">io_iterator</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">fileio_streams</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;process_started&#39;</span><span class="p">))</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">file_descrp</span> <span class="ow">in</span> <span class="n">io_iterator</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">file_descrp</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">fileno</span><span class="p">():</span>
+                    <span class="n">pipout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                    <span class="nb">print</span> <span class="p">(</span><span class="n">pipout</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">pipout</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">file_descrp</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">():</span>
+                    <span class="n">piperr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                    <span class="nb">print</span> <span class="p">(</span><span class="n">piperr</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="n">piperr</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">poll</span><span class="p">()))</span>
+                <span class="nb">print</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">poll</span><span class="p">())</span>
+                <span class="k">break</span></div>
+
+
+<div class="viewcode-block" id="RunpipSubprocess.getoutput"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.RunpipSubprocess.getoutput">[docs]</a>    <span class="k">def</span> <span class="nf">getoutput</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate over output line by line : multiplexing output and error stream</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;start_logging_installation&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">readline</span><span class="p">,</span> <span class="n">b</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;utils&#39;</span><span class="p">,</span><span class="n">line</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;end_logging_installation&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="RunpipSubprocess.geterror"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.RunpipSubprocess.geterror">[docs]</a>    <span class="k">def</span> <span class="nf">geterror</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate over error line by line</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;start_logging_error&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">readline</span><span class="p">,</span> <span class="n">b</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span><span class="n">line</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;end_logging_error&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span></div></div>
+
+<div class="viewcode-block" id="pip_search_command"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.pip_search_command">[docs]</a><span class="k">def</span> <span class="nf">pip_search_command</span><span class="p">(</span><span class="n">package_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">thread_queue</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Uses subprocess to retrieve results of &#39;pip search&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">re</span>
+
+    <span class="n">search_result</span><span class="p">,</span> <span class="n">errors</span> <span class="o">=</span> <span class="n">runpip_using_subprocess</span><span class="p">(</span>
+        <span class="s1">&#39;pip3 search </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package_name</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">errors</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="n">thread_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">installed_packages</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">search_result</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;INSTALLED:&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">x</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="p">(</span><span class="s1">&#39;(&#39;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s1">&#39;)&#39;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                    <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">))):</span>
+                <span class="n">open_bracket_index</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)</span>
+                <span class="n">close_bracket_index</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">)</span>
+                <span class="n">pkg_name</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="n">open_bracket_index</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="n">latest_version</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">open_bracket_index</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">close_bracket_index</span><span class="p">]</span>
+                <span class="n">summary</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">r&#39;\)\s+- &#39;</span><span class="p">,</span><span class="n">x</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="n">installed_packages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">pkg_name</span><span class="p">,</span><span class="s1">&#39;Not installed&#39;</span><span class="p">,</span><span class="n">latest_version</span><span class="p">,</span><span class="n">summary</span><span class="p">])</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="s1">&#39;INSTALLED:&#39;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+                <span class="n">st_index</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+                <span class="n">end_index</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)</span>
+                <span class="n">installed_packages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">st_index</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">end_index</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">installed_packages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">installed_packages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">3</span><span class="p">],</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="n">thread_queue</span><span class="o">.</span><span class="n">put</span><span class="p">([</span><span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">installed_packages</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="pip_list_command"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.pip_list_command">[docs]</a><span class="k">def</span> <span class="nf">pip_list_command</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Lists all installed packages</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">list_output</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">runpip_using_subprocess</span><span class="p">(</span><span class="s1">&#39;pip3 list&#39;</span><span class="p">)</span>
+    <span class="n">installed_pkg_list</span> <span class="o">=</span> <span class="n">list_output</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">installed_pkg_list</span><span class="p">)):</span>
+        <span class="n">pkg_name</span><span class="p">,</span> <span class="n">pkg_version</span> <span class="o">=</span> <span class="n">installed_pkg_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)</span>
+        <span class="n">pkg_version</span> <span class="o">=</span> <span class="n">pkg_version</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">pkg_version</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">latest_version</span> <span class="o">=</span> <span class="s1">&#39;  &#39;</span>
+        <span class="n">installed_pkg_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">pkg_name</span><span class="p">,</span> <span class="n">pkg_version</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">installed_pkg_list</span></div>
+
+<div class="viewcode-block" id="pip_list_outdated_command"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.pip_list_outdated_command">[docs]</a><span class="k">def</span> <span class="nf">pip_list_outdated_command</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Lists all outdated installed packages</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">list_output</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">runpip_using_subprocess</span><span class="p">(</span><span class="s1">&#39;pip3 list --outdated&#39;</span><span class="p">)</span>
+    <span class="n">installed_pkg_list</span> <span class="o">=</span> <span class="n">list_output</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">installed_pkg_list</span><span class="p">)):</span>
+        <span class="n">open_bracket_index</span> <span class="o">=</span> <span class="n">installed_pkg_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)</span>
+        <span class="n">close_bracket_index</span> <span class="o">=</span> <span class="n">installed_pkg_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">)</span>
+        <span class="n">pkg_name</span> <span class="o">=</span> <span class="n">installed_pkg_list</span><span class="p">[</span><span class="n">i</span><span class="p">][:</span><span class="n">open_bracket_index</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">pkg_version</span> <span class="o">=</span> <span class="n">installed_pkg_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">open_bracket_index</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">close_bracket_index</span><span class="p">]</span>
+        <span class="n">latest_version</span> <span class="o">=</span> <span class="n">installed_pkg_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - Latest: &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; [&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">installed_pkg_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">pkg_name</span><span class="p">,</span> <span class="n">pkg_version</span><span class="p">,</span> <span class="n">latest_version</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">installed_pkg_list</span></div>
+
+<div class="viewcode-block" id="pip_show_command"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.pip_show_command">[docs]</a><span class="k">def</span> <span class="nf">pip_show_command</span><span class="p">(</span><span class="n">package_args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Show details of a installed package</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">runpip</span><span class="p">(</span><span class="s1">&#39;show --no-cache-dir </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package_args</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="pip_install_from_PyPI"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.pip_install_from_PyPI">[docs]</a><span class="k">def</span> <span class="nf">pip_install_from_PyPI</span><span class="p">(</span><span class="n">package_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">install_queue</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper for installing pip package from PyPI</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">package_args</span> <span class="o">=</span> <span class="s1">&#39;gksudo -- pip3 install -U --no-cache-dir </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package_args</span><span class="p">)</span>
+    <span class="n">install_process</span> <span class="o">=</span> <span class="n">RunpipSubprocess</span><span class="p">(</span><span class="n">package_args</span><span class="p">,</span> <span class="n">install_queue</span><span class="p">)</span>
+    <span class="n">install_process</span><span class="o">.</span><span class="n">start_logging_threads</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="pip_install_from_local_archive"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.pip_install_from_local_archive">[docs]</a><span class="k">def</span> <span class="nf">pip_install_from_local_archive</span><span class="p">(</span><span class="n">package_args</span><span class="p">,</span> <span class="n">install_queue</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper for installing pip package from local Archive</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">package_args</span> <span class="o">=</span> <span class="s1">&#39;gksudo -- pip3 install </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package_args</span><span class="p">)</span>
+    <span class="n">install_process</span> <span class="o">=</span> <span class="n">RunpipSubprocess</span><span class="p">(</span><span class="n">package_args</span><span class="p">,</span> <span class="n">install_queue</span><span class="p">)</span>
+    <span class="n">install_process</span><span class="o">.</span><span class="n">start_logging_threads</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="pip_install_from_requirements"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.pip_install_from_requirements">[docs]</a><span class="k">def</span> <span class="nf">pip_install_from_requirements</span><span class="p">(</span><span class="n">package_args</span><span class="p">,</span> <span class="n">install_queue</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper for installing pip package from requirements file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">package_args</span> <span class="o">=</span> <span class="s1">&#39;gksudo -- pip3 install -r </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package_args</span><span class="p">)</span>
+    <span class="n">install_process</span> <span class="o">=</span> <span class="n">RunpipSubprocess</span><span class="p">(</span><span class="n">package_args</span><span class="p">,</span> <span class="n">install_queue</span><span class="p">)</span>
+    <span class="n">install_process</span><span class="o">.</span><span class="n">start_logging_threads</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="pip_install_from_alternate_repo"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.pip_install_from_alternate_repo">[docs]</a><span class="k">def</span> <span class="nf">pip_install_from_alternate_repo</span><span class="p">(</span><span class="n">package_args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper for installing pip package from Pythonlibs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">runpip</span><span class="p">(</span><span class="s1">&#39;install --index-url</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package_args</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="pip_uninstall"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.pip_uninstall">[docs]</a><span class="k">def</span> <span class="nf">pip_uninstall</span><span class="p">(</span><span class="n">package_args</span><span class="p">,</span> <span class="n">uninstall_queue</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Uninstall packages</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">package_args</span> <span class="o">=</span> <span class="s1">&#39;gksudo -- pip3 uninstall --yes </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package_args</span><span class="p">)</span>
+    <span class="n">uninstall_process</span> <span class="o">=</span> <span class="n">RunpipSubprocess</span><span class="p">(</span><span class="n">package_args</span><span class="p">,</span> <span class="n">uninstall_queue</span><span class="p">)</span>
+    <span class="n">uninstall_process</span><span class="o">.</span><span class="n">start_logging_threads</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="verify_pypi_url"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.verify_pypi_url">[docs]</a><span class="k">def</span> <span class="nf">verify_pypi_url</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if URL can be accessed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">http_conn</span> <span class="o">=</span> <span class="n">http</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">HTTPConnection</span><span class="p">(</span><span class="s1">&#39;https://pypi.python.org/pypi&#39;</span><span class="p">)</span>
+        <span class="n">http_conn</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="n">http</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">HTTPException</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Upendra Kumar.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.1alpha',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

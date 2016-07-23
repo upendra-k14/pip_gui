@@ -1,0 +1,253 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pip_tkinter.test.test_multi_items_list &mdash; pip_tkinter 0.0.1alpha documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="pip_tkinter 0.0.1alpha documentation" href="../../../index.html"/>
+        <link rel="up" title="pip_tkinter.test" href="../test.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pip_tkinter
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide.html">Developer&#8217;s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pip_tkinter</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">pip_tkinter</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+          <li><a href="../test.html">pip_tkinter.test</a> &raquo;</li>
+      
+    <li>pip_tkinter.test.test_multi_items_list</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pip_tkinter.test.test_multi_items_list</h1><div class="highlight"><pre>
+<span></span><span class="c1">#coding=utf-8</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">tkinter</span> <span class="k">as</span> <span class="nn">tk</span>
+
+<span class="kn">from</span> <span class="nn">pip_tkinter.utils</span> <span class="k">import</span> <span class="n">MultiItemsList</span>
+
+<div class="viewcode-block" id="TestMultiItemsList"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_multi_items_list.TestMultiItemsList">[docs]</a><span class="k">class</span> <span class="nc">TestMultiItemsList</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test the GUI application and it&#39;s different GUI events</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestMultiItemsList.setUp"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_multi_items_list.TestMultiItemsList.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Tk</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">withdraw</span><span class="p">()</span>
+
+        <span class="c1">#Create list of headers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span> <span class="o">=</span> <span class="n">MultiItemsList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_of_elements</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+
+        <span class="c1">#Create a result tuple for testing multi_items_list</span>
+        <span class="n">results_tuple</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_elements</span><span class="p">):</span>
+            <span class="n">results_tuple</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;X&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="s1">&#39;Y&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="s1">&#39;Z&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">populate_rows</span><span class="p">(</span><span class="n">results_tuple</span><span class="p">)</span>
+
+        <span class="c1">#Get Id of all elements in treeview</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iid_tuple</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">get_children</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="TestMultiItemsList.test_only_single_selection_is_allowed"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_multi_items_list.TestMultiItemsList.test_only_single_selection_is_allowed">[docs]</a>    <span class="k">def</span> <span class="nf">test_only_single_selection_is_allowed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">check_browse_option</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="p">[</span><span class="s1">&#39;selectmode&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">check_browse_option</span><span class="p">),</span><span class="s1">&#39;browse&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestMultiItemsList.test_number_of_elements_in_tree_view"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_multi_items_list.TestMultiItemsList.test_number_of_elements_in_tree_view">[docs]</a>    <span class="k">def</span> <span class="nf">test_number_of_elements_in_tree_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_elements</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iid_tuple</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="TestMultiItemsList.test_number_of_headers_in_tree_view"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_multi_items_list.TestMultiItemsList.test_number_of_headers_in_tree_view">[docs]</a>    <span class="k">def</span> <span class="nf">test_number_of_headers_in_tree_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">count_headers</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">headers_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">headers_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">heading</span><span class="p">(</span>
+                        <span class="n">column</span><span class="o">=</span><span class="n">count_headers</span><span class="p">,</span>
+                        <span class="n">option</span><span class="o">=</span><span class="s1">&#39;text&#39;</span><span class="p">))</span>
+            <span class="k">except</span> <span class="n">tk</span><span class="o">.</span><span class="n">TclError</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">count_headers</span> <span class="o">=</span> <span class="n">count_headers</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">count_headers</span><span class="o">&lt;=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="TestMultiItemsList.tearDown"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_multi_items_list.TestMultiItemsList.tearDown">[docs]</a>    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Upendra Kumar.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.0.1alpha',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

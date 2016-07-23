@@ -1,0 +1,1148 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pip_tkinter.install_page &mdash; pip_tkinter 0.0.1alpha documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="pip_tkinter 0.0.1alpha documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pip_tkinter
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide.html">Developer&#8217;s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">pip_tkinter</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">pip_tkinter</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>pip_tkinter.install_page</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pip_tkinter.install_page</h1><div class="highlight"><pre>
+<span></span> <span class="c1"># coding=utf-8</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">queue</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">tkinter</span> <span class="k">as</span> <span class="nn">tk</span>
+<span class="kn">from</span> <span class="nn">tkinter</span> <span class="k">import</span> <span class="n">ttk</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">StringIO</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="InstallPage"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallPage">[docs]</a><span class="k">class</span> <span class="nc">InstallPage</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manage search and install. Implements GUI for</span>
+
+<span class="sd">    1. Search and Install from PyPI</span>
+<span class="sd">    2. Install from local archive</span>
+<span class="sd">    3. Install from requirements file</span>
+<span class="sd">    4. Install from PythonLibs</span>
+<span class="sd">    5. Install from alternate repository</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">controller</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">root</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span> <span class="o">=</span> <span class="n">controller</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">container</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nsew&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">columnconfigure</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_message_bar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manage_frames</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_side_navbar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_install_log_frame</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">tkraise</span><span class="p">()</span>
+
+<div class="viewcode-block" id="InstallPage.create_install_log_frame"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallPage.create_install_log_frame">[docs]</a>    <span class="k">def</span> <span class="nf">create_install_log_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_frame</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relief</span><span class="o">=</span><span class="s1">&#39;ridge&#39;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_frame</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nsew&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_frame</span><span class="o">.</span><span class="n">rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_frame</span><span class="o">.</span><span class="n">columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_details</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">task_frame</span><span class="p">,</span>
+            <span class="n">wrap</span><span class="o">=</span><span class="s1">&#39;word&#39;</span><span class="p">,</span>
+            <span class="n">height</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;No process started&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+            <span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">columnspan</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nsew&#39;</span><span class="p">)</span>
+        <span class="n">yscrollbar</span><span class="o">=</span><span class="n">ttk</span><span class="o">.</span><span class="n">Scrollbar</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">task_frame</span><span class="p">,</span>
+            <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">yview</span><span class="p">)</span>
+        <span class="n">yscrollbar</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nse&#39;</span><span class="p">,</span> <span class="n">in_</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task_frame</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_details</span><span class="p">[</span><span class="s1">&#39;yscrollcommand&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">yscrollbar</span><span class="o">.</span><span class="n">set</span>
+
+        <span class="c1">#Create control buttons</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">go_back_button</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">task_frame</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Back&#39;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">go_back_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+            <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span>
+            <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">go_back_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abort_install_button</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">task_frame</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Abort&#39;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abort_installation</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abort_install_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+            <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;e&#39;</span><span class="p">,</span>
+            <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abort_install_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallPage.navigate_back"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallPage.navigate_back">[docs]</a>    <span class="k">def</span> <span class="nf">navigate_back</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;No message&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">tkraise</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InstallPage.abort_installation"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallPage.abort_installation">[docs]</a>    <span class="k">def</span> <span class="nf">abort_installation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abort_install_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_frame</span><span class="p">]</span><span class="o">.</span><span class="n">abort_installation</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Installation aborted&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">go_back_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallPage.create_side_navbar"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallPage.create_side_navbar">[docs]</a>    <span class="k">def</span> <span class="nf">create_side_navbar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create side navigation bar for providing user with options for</span>
+<span class="sd">        selecting different ways of installation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Create a navbar frame in which all navbar buttons will lie</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navbar_frame</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="p">,</span>
+            <span class="n">borderwidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">padding</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">relief</span><span class="o">=</span><span class="s1">&#39;ridge&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navbar_frame</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+            <span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nsw&#39;</span><span class="p">,</span>
+            <span class="n">pady</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">padx</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        <span class="c1"># Configure style for navbar frame</span>
+
+        <span class="c1"># Button text</span>
+        <span class="n">pypi_text</span> <span class="o">=</span> <span class="s2">&quot;Install From PyPI&quot;</span>
+        <span class="n">local_archive_text</span> <span class="o">=</span> <span class="s2">&quot;Install From Local Archive&quot;</span>
+        <span class="n">requirements_text</span> <span class="o">=</span> <span class="s2">&quot;Install From Requirements File&quot;</span>
+        <span class="n">pythonlibs_text</span> <span class="o">=</span> <span class="s2">&quot;Install From PythonLibs&quot;</span>
+        <span class="n">alternate_repo_text</span> <span class="o">=</span> <span class="s2">&quot;Install From Alternate Repository&quot;</span>
+
+        <span class="c1"># Button style</span>
+        <span class="n">navbar_button_style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">()</span>
+        <span class="n">navbar_button_style</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span>
+            <span class="s1">&#39;navbar.TButton&#39;</span><span class="p">,</span>
+            <span class="n">padding</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">button_pypi</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">navbar_frame</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="n">pypi_text</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="s1">&#39;active&#39;</span><span class="p">,</span>
+            <span class="n">style</span><span class="o">=</span><span class="s1">&#39;navbar.TButton&#39;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="k">lambda</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_frame</span><span class="p">(</span><span class="s1">&#39;InstallFromPyPI&#39;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">button_pypi</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nwe&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">button_local_archive</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">navbar_frame</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="n">local_archive_text</span><span class="p">,</span>
+            <span class="n">style</span><span class="o">=</span><span class="s1">&#39;navbar.TButton&#39;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="k">lambda</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_frame</span><span class="p">(</span><span class="s1">&#39;InstallFromLocalArchive&#39;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">button_local_archive</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nwe&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">button_requirements</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">navbar_frame</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="n">requirements_text</span><span class="p">,</span>
+            <span class="n">style</span><span class="o">=</span><span class="s1">&#39;navbar.TButton&#39;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="k">lambda</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_frame</span><span class="p">(</span><span class="s1">&#39;InstallFromRequirements&#39;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">button_requirements</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nwe&#39;</span><span class="p">)</span>
+
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        self.button_pythonlibs = ttk.Button(</span>
+<span class="sd">            self.navbar_frame,</span>
+<span class="sd">            text=pythonlibs_text,</span>
+<span class="sd">            style=&#39;navbar.TButton&#39;,</span>
+<span class="sd">            command=lambda : self.show_frame(&#39;InstallFromPythonlibs&#39;)</span>
+<span class="sd">        )</span>
+<span class="sd">        self.button_pythonlibs.grid(row=3, column=0, sticky=&#39;nwe&#39;)</span>
+
+<span class="sd">        self.button_alternate_repo = ttk.Button(</span>
+<span class="sd">            self.navbar_frame,</span>
+<span class="sd">            text=alternate_repo_text,</span>
+<span class="sd">            style=&#39;navbar.TButton&#39;,</span>
+<span class="sd">            command=lambda : self.show_frame(&#39;InstallFromAlternateRepo&#39;)</span>
+<span class="sd">        )</span>
+<span class="sd">        self.button_alternate_repo.grid(row=4, column=0, sticky=&#39;nwe&#39;)</span>
+<span class="sd">        &#39;&#39;&#39;</span></div>
+
+<div class="viewcode-block" id="InstallPage.manage_frames"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallPage.manage_frames">[docs]</a>    <span class="k">def</span> <span class="nf">manage_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Manage multiple frames. Creates dictionary of multiple frames to</span>
+<span class="sd">        be used for showing user different GUI frames for different ways of</span>
+<span class="sd">        installation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">frames_tuple</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">InstallFromPyPI</span><span class="p">,</span>
+            <span class="n">InstallFromLocalArchive</span><span class="p">,</span>
+            <span class="n">InstallFromRequirements</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">F</span> <span class="ow">in</span> <span class="n">frames_tuple</span><span class="p">:</span>
+            <span class="n">frame_name</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">__name__</span>
+            <span class="n">new_frame</span> <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="n">new_frame</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nsew&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="n">frame_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_frame</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_frame</span><span class="p">(</span><span class="s1">&#39;InstallFromPyPI&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallPage.show_frame"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallPage.show_frame">[docs]</a>    <span class="k">def</span> <span class="nf">show_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;No message&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_frame</span> <span class="o">=</span> <span class="n">frame_name</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="n">frame_name</span><span class="p">]</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">tkraise</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InstallPage.show_task_frame"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallPage.show_task_frame">[docs]</a>    <span class="k">def</span> <span class="nf">show_task_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;No message&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_frame</span><span class="o">.</span><span class="n">tkraise</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">go_back_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abort_install_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallPage.create_message_bar"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallPage.create_message_bar">[docs]</a>    <span class="k">def</span> <span class="nf">create_message_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create message bar for printing debug messages for user</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug_bar</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">padding</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">relief</span><span class="o">=</span><span class="s1">&#39;ridge&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+            <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">columnspan</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;swe&#39;</span><span class="p">,</span>
+            <span class="n">padx</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">pady</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;No message&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="InstallFromPyPI"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromPyPI">[docs]</a><span class="k">class</span> <span class="nc">InstallFromPyPI</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">controller</span><span class="p">):</span>
+
+        <span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">parent</span><span class="p">,</span>
+            <span class="n">borderwidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">padding</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">relief</span><span class="o">=</span><span class="s1">&#39;ridge&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nse&#39;</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">padx</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span> <span class="o">=</span> <span class="n">controller</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rowconfigure</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_nav_buttons</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_search_bar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_multitem_treeview</span><span class="p">()</span>
+
+<div class="viewcode-block" id="InstallFromPyPI.create_search_bar"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromPyPI.create_search_bar">[docs]</a>    <span class="k">def</span> <span class="nf">create_search_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="kn">import</span> <span class="nn">pkg_resources</span><span class="o">,</span> <span class="nn">os</span>
+
+        <span class="c1">#Configure style for search bar</span>
+        <span class="n">data</span><span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_string</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s1">&#39;pic.dat&#39;</span><span class="p">)</span>
+        <span class="k">global</span> <span class="n">s1</span><span class="p">,</span><span class="n">s2</span>
+        <span class="n">s1</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">PhotoImage</span><span class="p">(</span><span class="s1">&#39;search1&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;gif -index 0&#39;</span><span class="p">)</span>
+        <span class="n">s2</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">PhotoImage</span><span class="p">(</span><span class="s1">&#39;search2&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;gif -index 1&#39;</span><span class="p">)</span>
+        <span class="n">style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">()</span>
+        <span class="n">style</span><span class="o">.</span><span class="n">element_create</span><span class="p">(</span><span class="s1">&#39;Search.field1&#39;</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">,</span> <span class="s1">&#39;search1&#39;</span><span class="p">,</span>
+            <span class="p">(</span><span class="s1">&#39;focus&#39;</span><span class="p">,</span> <span class="s1">&#39;search2&#39;</span><span class="p">),</span> <span class="n">border</span><span class="o">=</span><span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;ew&#39;</span><span class="p">)</span>
+        <span class="n">style</span><span class="o">.</span><span class="n">layout</span><span class="p">(</span><span class="s1">&#39;Search.entry&#39;</span><span class="p">,</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">&#39;Search.field1&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;sticky&#39;</span><span class="p">:</span> <span class="s1">&#39;nswe&#39;</span><span class="p">,</span> <span class="s1">&#39;border&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;children&#39;</span><span class="p">:</span>
+                <span class="p">[(</span><span class="s1">&#39;Entry.padding&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;sticky&#39;</span><span class="p">:</span> <span class="s1">&#39;nswe&#39;</span><span class="p">,</span> <span class="s1">&#39;children&#39;</span><span class="p">:</span>
+                    <span class="p">[(</span><span class="s1">&#39;Entry.textarea&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;sticky&#39;</span><span class="p">:</span> <span class="s1">&#39;nswe&#39;</span><span class="p">})]</span>
+                <span class="p">})]</span>
+            <span class="p">})]</span>
+        <span class="p">)</span>
+        <span class="n">style</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="s1">&#39;Search.entry&#39;</span><span class="p">)</span>
+
+        <span class="c1">#Create search bar and button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_var</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">StringVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Entry</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">style</span><span class="o">=</span><span class="s1">&#39;Search.entry&#39;</span><span class="p">,</span>
+            <span class="n">textvariable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search_var</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s1">&#39;&lt;Return&gt;&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">event</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_search_results</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_button</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Search&#39;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="k">lambda</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_search_results</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nwe&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">pady</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nw&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallFromPyPI.create_multitem_treeview"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromPyPI.create_multitem_treeview">[docs]</a>    <span class="k">def</span> <span class="nf">create_multitem_treeview</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create multitem treeview to show search results with headers :</span>
+<span class="sd">        1. Python Module</span>
+<span class="sd">        2. Installed version</span>
+<span class="sd">        3. Available versions</span>
+
+<span class="sd">        List of buttons :</span>
+<span class="sd">        1. navigate_back</span>
+<span class="sd">        2. navigate_next</span>
+<span class="sd">        3. search_button</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Python Module&#39;</span><span class="p">,</span><span class="s1">&#39;Installed Version&#39;</span><span class="p">,</span><span class="s1">&#39;Available Versions&#39;</span><span class="p">]</span>
+        <span class="kn">from</span> <span class="nn">pip_tkinter.utils</span> <span class="k">import</span> <span class="n">MultiItemsList</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span> <span class="o">=</span> <span class="n">MultiItemsList</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span>
+            <span class="s1">&#39;&lt;&lt;TreeviewSelect&gt;&gt;&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree_select</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">package_subwindow</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">LabelFrame</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Package Details&quot;</span><span class="p">,</span>
+            <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">package_subwindow</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nswe&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">package_details</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">package_subwindow</span><span class="p">,</span>
+            <span class="n">wrap</span><span class="o">=</span><span class="s1">&#39;word&#39;</span><span class="p">,</span>
+            <span class="n">height</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">package_details</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;No module selected&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">package_details</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">package_details</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="s1">&#39;yes&#39;</span><span class="p">)</span>
+        <span class="n">yscrollbar</span><span class="o">=</span><span class="n">ttk</span><span class="o">.</span><span class="n">Scrollbar</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">package_subwindow</span><span class="p">,</span>
+            <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">package_details</span><span class="o">.</span><span class="n">yview</span><span class="p">)</span>
+        <span class="n">yscrollbar</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">package_details</span><span class="p">[</span><span class="s2">&quot;yscrollcommand&quot;</span><span class="p">]</span><span class="o">=</span><span class="n">yscrollbar</span><span class="o">.</span><span class="n">set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span>
+            <span class="s2">&quot;&lt;Double-Button-1&gt;&quot;</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_summary</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="InstallFromPyPI.scroll_tree_select"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromPyPI.scroll_tree_select">[docs]</a>    <span class="k">def</span> <span class="nf">scroll_tree_select</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If treeview is selected, enable update buttons</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallFromPyPI.show_summary"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromPyPI.show_summary">[docs]</a>    <span class="k">def</span> <span class="nf">show_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Show the details of the selected package</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">curr_item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">focus</span><span class="p">()</span>
+            <span class="n">item_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">curr_item</span><span class="p">)</span>
+
+            <span class="n">selected_module</span> <span class="o">=</span> <span class="s1">&#39;Module Name : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item_dict</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">installed_version</span> <span class="o">=</span> <span class="s1">&#39;Installed : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item_dict</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">latest_version</span> <span class="o">=</span> <span class="s1">&#39;Latest : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item_dict</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+
+            <span class="n">module_summary</span> <span class="o">=</span> <span class="s2">&quot;Not available&quot;</span>
+            <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_results</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">module</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">item_dict</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">module_summary</span> <span class="o">=</span> <span class="n">module</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                    <span class="k">break</span>
+            <span class="n">module_summary</span> <span class="o">=</span> <span class="s1">&#39;Summary : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">module_summary</span><span class="p">)</span>
+
+            <span class="n">selected_package_details</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="se">\n</span><span class="si">{}</span><span class="se">\n</span><span class="si">{}</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">selected_module</span><span class="p">,</span>
+                <span class="n">module_summary</span><span class="p">,</span>
+                <span class="n">installed_version</span><span class="p">,</span>
+                <span class="n">latest_version</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">package_details</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">package_details</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">package_details</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">selected_package_details</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">package_details</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">package_details</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">package_details</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">package_details</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;No module selected&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">package_details</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallFromPyPI.update_search_results"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromPyPI.update_search_results">[docs]</a>    <span class="k">def</span> <span class="nf">update_search_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Show search results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_var</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="c1">#Update the bottom message bar to inform user that the program</span>
+        <span class="c1">#is fetching search results</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Fetching search results ...&#39;</span><span class="p">)</span>
+
+        <span class="c1">#Disable buttons like :</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+
+        <span class="c1">#Spawn a new thread for searching packages,</span>
+        <span class="c1">#Search results will be returned in the @param : self.thread_queue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_queue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+
+        <span class="kn">from</span> <span class="nn">pip_tkinter.utils</span> <span class="k">import</span> <span class="n">pip_search_command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span>
+            <span class="n">target</span><span class="o">=</span><span class="n">pip_search_command</span><span class="p">,</span>
+            <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">&#39;package_name&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">search_term</span><span class="p">,</span>
+                <span class="s1">&#39;thread_queue&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">search_queue</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_search_queue</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallFromPyPI.check_search_queue"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromPyPI.check_search_queue">[docs]</a>    <span class="k">def</span> <span class="nf">check_search_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">results_tuple</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">search_results</span> <span class="o">=</span> <span class="n">results_tuple</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">populate_rows</span><span class="p">(</span><span class="n">results_tuple</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Fetched search results&#39;</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span>
+                    <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Unable to fetch results. Please verify your internet</span><span class="se">\</span>
+<span class="s1">                     connection&#39;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">search_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_search_queue</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallFromPyPI.create_nav_buttons"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromPyPI.create_nav_buttons">[docs]</a>    <span class="k">def</span> <span class="nf">create_nav_buttons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create back and next buttons</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Back&quot;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">navigate_previous_frame</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Install&quot;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_pip_commands</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;e&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallFromPyPI.navigate_previous_frame"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromPyPI.navigate_previous_frame">[docs]</a>    <span class="k">def</span> <span class="nf">navigate_previous_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Navigate to previous frame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">show_frame</span><span class="p">(</span><span class="s1">&#39;WelcomePage&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallFromPyPI.execute_pip_commands"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromPyPI.execute_pip_commands">[docs]</a>    <span class="k">def</span> <span class="nf">execute_pip_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute pip commands</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span>
+            <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Installing package. Please wait ...&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_installation_log</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallFromPyPI.update_installation_log"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromPyPI.update_installation_log">[docs]</a>    <span class="k">def</span> <span class="nf">update_installation_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="kn">from</span> <span class="nn">pip_tkinter.utils</span> <span class="k">import</span> <span class="n">pip_install_from_PyPI</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">curr_item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">focus</span><span class="p">()</span>
+            <span class="n">item_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">curr_item</span><span class="p">)</span>
+            <span class="n">selected_module</span> <span class="o">=</span> <span class="n">item_dict</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">show_task_frame</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">install_queue</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_thread</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span>
+                <span class="n">target</span><span class="o">=</span><span class="n">pip_install_from_PyPI</span><span class="p">,</span>
+                <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s1">&#39;package_args&#39;</span><span class="p">:</span><span class="n">selected_module</span><span class="p">,</span>
+                    <span class="s1">&#39;install_queue&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">install_queue</span><span class="p">})</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error_log_started</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_from_install_queue</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">search_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Select correct package&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InstallFromPyPI.log_from_install_queue"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromPyPI.log_from_install_queue">[docs]</a>    <span class="k">def</span> <span class="nf">log_from_install_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">install_message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">install_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">install_message</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;process_started&#39;</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span><span class="o">==</span><span class="kc">False</span><span class="p">)):</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="s1">&#39;end&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span><span class="o">==</span><span class="kc">True</span><span class="p">):</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">install_message</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">install_message</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;0&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Done&#39;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span>
+                            <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Error in installing package&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">go_back_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">abort_install_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+                    <span class="k">return</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+                        <span class="s1">&#39;end&#39;</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">install_message</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_from_install_queue</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_from_install_queue</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InstallFromPyPI.abort_search_command"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromPyPI.abort_search_command">[docs]</a>    <span class="k">def</span> <span class="nf">abort_search_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stop searching for packages</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_thread</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InstallFromPyPI.abort_installation"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromPyPI.abort_installation">[docs]</a>    <span class="k">def</span> <span class="nf">abort_installation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stop pip installation : Currently not sure to provide option for</span>
+<span class="sd">        aborting installation in between</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_thread</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span></div></div>
+
+
+
+<div class="viewcode-block" id="InstallFromLocalArchive"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromLocalArchive">[docs]</a><span class="k">class</span> <span class="nc">InstallFromLocalArchive</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">controller</span><span class="p">):</span>
+        <span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="p">,</span>
+                        <span class="n">parent</span><span class="p">,</span>
+                        <span class="n">borderwidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                        <span class="n">padding</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                        <span class="n">relief</span><span class="o">=</span><span class="s1">&#39;ridge&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nse&#39;</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">padx</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span> <span class="o">=</span> <span class="n">controller</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_entry_form</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_nav_buttons</span><span class="p">()</span>
+
+<div class="viewcode-block" id="InstallFromLocalArchive.create_entry_form"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromLocalArchive.create_entry_form">[docs]</a>    <span class="k">def</span> <span class="nf">create_entry_form</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make a labelled frame for entry widget with browse option</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">labelled_entry_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">LabelFrame</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Enter path to local or remote archive file&quot;</span><span class="p">,</span>
+            <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">pady</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+
+        <span class="c1">#Create labelled entry frame</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labelled_entry_frame</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nswe&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labelled_entry_frame</span><span class="o">.</span><span class="n">columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1">#Create a entry widget for taking input for requirement file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_to_requirement</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Entry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labelled_entry_frame</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_to_requirement</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nswe&#39;</span><span class="p">)</span>
+
+        <span class="c1">#Create a tk browse dialog button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">browse_button</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">labelled_entry_frame</span><span class="p">,</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Browse&quot;</span><span class="p">,</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_file_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">browse_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">column</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sticky</span> <span class="o">=</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InstallFromLocalArchive.get_file_name"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromLocalArchive.get_file_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_file_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="kn">from</span> <span class="nn">tkinter.filedialog</span> <span class="k">import</span> <span class="n">askopenfilename</span>
+        <span class="kn">from</span> <span class="nn">tkinter.messagebox</span> <span class="k">import</span> <span class="n">showerror</span>
+        <span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">expanduser</span>
+
+        <span class="n">home_directory</span> <span class="o">=</span> <span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">req_file_name</span> <span class="o">=</span> <span class="n">askopenfilename</span><span class="p">(</span>
+            <span class="n">filetypes</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">(</span><span class="s2">&quot;Archive file&quot;</span><span class="p">,</span> <span class="s2">&quot;*.zip *.tar *tar.gz *.whl&quot;</span><span class="p">)</span>
+                <span class="p">,(</span><span class="s2">&quot;All files&quot;</span><span class="p">,</span> <span class="s2">&quot;*.*&quot;</span><span class="p">)),</span>
+            <span class="n">initialdir</span> <span class="o">=</span> <span class="n">home_directory</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">req_file_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path_to_requirement</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path_to_requirement</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">req_file_name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InstallFromLocalArchive.create_nav_buttons"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromLocalArchive.create_nav_buttons">[docs]</a>    <span class="k">def</span> <span class="nf">create_nav_buttons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create back and next buttons</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Back&quot;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">navigate_previous_frame</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Install&quot;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_pip_commands</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;e&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallFromLocalArchive.navigate_previous_frame"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromLocalArchive.navigate_previous_frame">[docs]</a>    <span class="k">def</span> <span class="nf">navigate_previous_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Navigate to previous frame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">show_frame</span><span class="p">(</span><span class="s1">&#39;WelcomePage&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallFromLocalArchive.execute_pip_commands"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromLocalArchive.execute_pip_commands">[docs]</a>    <span class="k">def</span> <span class="nf">execute_pip_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute pip commands</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">browse_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span>
+            <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Installing package from archive. Please wait ...&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_installation_log</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallFromLocalArchive.update_installation_log"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromLocalArchive.update_installation_log">[docs]</a>    <span class="k">def</span> <span class="nf">update_installation_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="kn">from</span> <span class="nn">pip_tkinter.utils</span> <span class="k">import</span> <span class="n">pip_install_from_local_archive</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">selected_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">req_file_name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">show_task_frame</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">install_queue</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_thread</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span>
+                <span class="n">target</span><span class="o">=</span><span class="n">pip_install_from_local_archive</span><span class="p">,</span>
+                <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s1">&#39;package_args&#39;</span><span class="p">:</span><span class="n">selected_module</span><span class="p">,</span>
+                    <span class="s1">&#39;install_queue&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">install_queue</span><span class="p">})</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_from_install_queue</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">search_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Please enter correct path&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InstallFromLocalArchive.log_from_install_queue"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromLocalArchive.log_from_install_queue">[docs]</a>    <span class="k">def</span> <span class="nf">log_from_install_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">install_message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">install_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">install_message</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;process_started&#39;</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span><span class="o">==</span><span class="kc">False</span><span class="p">)):</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="s1">&#39;end&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span><span class="o">==</span><span class="kc">True</span><span class="p">):</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">install_message</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">install_message</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;0&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Done&#39;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span>
+                            <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Error in installing package&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">go_back_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">abort_install_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+                    <span class="k">return</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+                        <span class="s1">&#39;end&#39;</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">install_message</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_from_install_queue</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_from_install_queue</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InstallFromLocalArchive.abort_installation"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromLocalArchive.abort_installation">[docs]</a>    <span class="k">def</span> <span class="nf">abort_installation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stop pip installation : Currently not sure to provide option for</span>
+<span class="sd">        aborting installation in between</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">browse_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_thread</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="InstallFromRequirements"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromRequirements">[docs]</a><span class="k">class</span> <span class="nc">InstallFromRequirements</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">controller</span><span class="p">):</span>
+        <span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">parent</span><span class="p">,</span>
+            <span class="n">borderwidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">padding</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">relief</span><span class="o">=</span><span class="s1">&#39;ridge&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nse&#39;</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">padx</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span> <span class="o">=</span> <span class="n">controller</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_entry_form</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_nav_buttons</span><span class="p">()</span>
+
+<div class="viewcode-block" id="InstallFromRequirements.create_entry_form"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromRequirements.create_entry_form">[docs]</a>    <span class="k">def</span> <span class="nf">create_entry_form</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make a labelled frame for entry widget with browse option</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">labelled_entry_frame</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">LabelFrame</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Enter path to requirement file&#39;</span><span class="p">,</span>
+            <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">pady</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+
+        <span class="c1">#Create labelled entry frame</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labelled_entry_frame</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nswe&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labelled_entry_frame</span><span class="o">.</span><span class="n">columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1">#Create a entry widget for taking input for requirement file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_to_requirement</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Entry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labelled_entry_frame</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_to_requirement</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nswe&#39;</span><span class="p">)</span>
+
+        <span class="c1">#Create a tk browse dialog button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">browse_button</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">labelled_entry_frame</span><span class="p">,</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Browse&quot;</span><span class="p">,</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_file_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">browse_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">column</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sticky</span> <span class="o">=</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+
+        <span class="c1">#Create a note informing about the execution of requirement file</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">note_text</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">labelled_entry_frame</span><span class="p">,</span>
+            <span class="n">wrap</span><span class="o">=</span><span class="s1">&#39;word&#39;</span><span class="p">,</span>
+            <span class="n">bg</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="s1">&#39;TFrame&#39;</span><span class="p">,</span> <span class="s1">&#39;background&#39;</span><span class="p">),</span>
+            <span class="n">height</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">note_text</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+            <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">columnspan</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nwse&#39;</span><span class="p">,</span>
+            <span class="n">pady</span><span class="o">=</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="mi">20</span><span class="p">),</span>
+            <span class="n">padx</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
+        <span class="n">note_content</span> <span class="o">=</span> <span class="s2">&quot;Note :</span><span class="se">\n\n\n\</span>
+<span class="s2">1. &#39;pip&#39; doesn&#39;t offer any guarantee of the order of installation of packages </span><span class="se">\</span>
+<span class="s2">specified in requirements file.</span><span class="se">\n\n\</span>
+<span class="s2">2. In case a particular version is not found, the closest matching version </span><span class="se">\</span>
+<span class="s2">will be installed.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">note_text</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="n">note_content</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">note_text</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallFromRequirements.get_file_name"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromRequirements.get_file_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_file_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="kn">from</span> <span class="nn">tkinter.filedialog</span> <span class="k">import</span> <span class="n">askopenfilename</span>
+        <span class="kn">from</span> <span class="nn">tkinter.messagebox</span> <span class="k">import</span> <span class="n">showerror</span>
+        <span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">expanduser</span>
+
+        <span class="n">home_directory</span> <span class="o">=</span> <span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">req_file_name</span> <span class="o">=</span> <span class="n">askopenfilename</span><span class="p">(</span>
+            <span class="n">filetypes</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">(</span><span class="s2">&quot;Requirement file&quot;</span><span class="p">,</span> <span class="s2">&quot;*.txt&quot;</span><span class="p">)</span>
+                <span class="p">,(</span><span class="s2">&quot;All files&quot;</span><span class="p">,</span> <span class="s2">&quot;*.*&quot;</span><span class="p">)),</span>
+            <span class="n">initialdir</span> <span class="o">=</span> <span class="n">home_directory</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">req_file_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path_to_requirement</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path_to_requirement</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="n">req_file_name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InstallFromRequirements.create_nav_buttons"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromRequirements.create_nav_buttons">[docs]</a>    <span class="k">def</span> <span class="nf">create_nav_buttons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create &#39;back&#39; and &#39;next&#39; buttons</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Back&quot;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">navigate_previous_frame</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Install&quot;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_pip_commands</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;e&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallFromRequirements.navigate_previous_frame"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromRequirements.navigate_previous_frame">[docs]</a>    <span class="k">def</span> <span class="nf">navigate_previous_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Navigate to previous frame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">show_frame</span><span class="p">(</span><span class="s1">&#39;WelcomePage&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallFromRequirements.execute_pip_commands"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromRequirements.execute_pip_commands">[docs]</a>    <span class="k">def</span> <span class="nf">execute_pip_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute pip commands</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">browse_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span>
+            <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Installing package(s) from requirement file. Please wait ...&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_installation_log</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InstallFromRequirements.update_installation_log"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromRequirements.update_installation_log">[docs]</a>    <span class="k">def</span> <span class="nf">update_installation_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="kn">from</span> <span class="nn">pip_tkinter.utils</span> <span class="k">import</span> <span class="n">pip_install_from_requirements</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">selected_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">req_file_name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">show_task_frame</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">install_queue</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_thread</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span>
+                <span class="n">target</span><span class="o">=</span><span class="n">pip_install_from_local_archive</span><span class="p">,</span>
+                <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s1">&#39;package_args&#39;</span><span class="p">:</span><span class="n">selected_module</span><span class="p">,</span>
+                    <span class="s1">&#39;install_queue&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">install_queue</span><span class="p">})</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_from_install_queue</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">search_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Please enter correct path&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InstallFromRequirements.log_from_install_queue"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromRequirements.log_from_install_queue">[docs]</a>    <span class="k">def</span> <span class="nf">log_from_install_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">install_message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">install_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">install_message</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;process_started&#39;</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span><span class="o">==</span><span class="kc">False</span><span class="p">)):</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="s1">&#39;end&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span><span class="o">==</span><span class="kc">True</span><span class="p">):</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">install_message</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">install_message</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;0&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Done&#39;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span>
+                            <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Error in installing package&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">go_back_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">abort_install_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+                    <span class="k">return</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+                        <span class="s1">&#39;end&#39;</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">install_message</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_from_install_queue</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_from_install_queue</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InstallFromRequirements.abort_installation"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromRequirements.abort_installation">[docs]</a>    <span class="k">def</span> <span class="nf">abort_installation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stop pip installation : Currently not sure to provide option for</span>
+<span class="sd">        aborting installation in between</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">browse_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_thread</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="InstallFromPythonlibs"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromPythonlibs">[docs]</a><span class="k">class</span> <span class="nc">InstallFromPythonlibs</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">controller</span><span class="p">):</span>
+        <span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="p">,</span>
+                        <span class="n">parent</span><span class="p">,</span>
+                        <span class="n">borderwidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                        <span class="n">padding</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                        <span class="n">relief</span><span class="o">=</span><span class="s1">&#39;ridge&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nse&#39;</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">padx</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span> <span class="o">=</span> <span class="n">controller</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Install From Pythonlibs&quot;</span><span class="p">)</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InstallFromAlternateRepo"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.install_page.InstallFromAlternateRepo">[docs]</a><span class="k">class</span> <span class="nc">InstallFromAlternateRepo</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">controller</span><span class="p">):</span>
+        <span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="p">,</span>
+                        <span class="n">parent</span><span class="p">,</span>
+                        <span class="n">borderwidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                        <span class="n">padding</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                        <span class="n">relief</span><span class="o">=</span><span class="s1">&#39;ridge&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nse&#39;</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">padx</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span> <span class="o">=</span> <span class="n">controller</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Install From an alternate respository&quot;</span><span class="p">)</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># If you want to check GUI</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Tk</span><span class="p">()</span>
+    <span class="c1"># root.resizable(width=&#39;false&#39;, height=&#39;false&#39;)</span>
+    <span class="n">install_app</span> <span class="o">=</span> <span class="n">InstallPage</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+    <span class="n">root</span><span class="o">.</span><span class="n">mainloop</span><span class="p">()</span>
+
+    <span class="c1"># If you want to check search command</span>
+    <span class="c1"># print (pip_search_command(package_name))</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Upendra Kumar.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.1alpha',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

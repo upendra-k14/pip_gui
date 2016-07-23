@@ -1,0 +1,402 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pip_tkinter.test.test_gui_app &mdash; pip_tkinter 0.0.1alpha documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="pip_tkinter 0.0.1alpha documentation" href="../../../index.html"/>
+        <link rel="up" title="pip_tkinter.test" href="../test.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pip_tkinter
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide.html">Developer&#8217;s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pip_tkinter</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">pip_tkinter</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+          <li><a href="../test.html">pip_tkinter.test</a> &raquo;</li>
+      
+    <li>pip_tkinter.test.test_gui_app</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pip_tkinter.test.test_gui_app</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">tkinter</span> <span class="k">as</span> <span class="nn">tk</span>
+
+<span class="kn">from</span> <span class="nn">pip_tkinter.__main__</span> <span class="k">import</span> <span class="n">MainApp</span>
+
+
+<div class="viewcode-block" id="EventGenerator"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.EventGenerator">[docs]</a><span class="k">class</span> <span class="nc">EventGenerator</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Event Generator class :</span>
+<span class="sd">    Inject events from different thread into tkinter mainloop()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_widget</span><span class="p">):</span>
+        <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target_widget</span></div>
+
+<div class="viewcode-block" id="TestGUIApp"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp">[docs]</a><span class="k">class</span> <span class="nc">TestGUIApp</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test the GUI application and it&#39;s different GUI events</span>
+
+<span class="sd">    Order of testing :</span>
+
+<span class="sd">    1. Welcome page</span>
+<span class="sd">    2. Install page</span>
+<span class="sd">    3. Install From PyPI</span>
+<span class="sd">    4. Install From Local archive</span>
+<span class="sd">    5. Install From Requirements</span>
+<span class="sd">    6. Manage Installed Modules page</span>
+<span class="sd">    7. Uninstall Package</span>
+<span class="sd">    8. Update Package</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="TestGUIApp.setUpClass"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.setUpClass">[docs]</a>    <span class="k">def</span> <span class="nf">setUpClass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Tk</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span> <span class="o">=</span> <span class="n">MainApp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">withdraw</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="TestGUIApp.test_application"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.test_application">[docs]</a>    <span class="k">def</span> <span class="nf">test_application</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">check_pages</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_welcome_page</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_install_page</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_install_from_pypi</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_install_from_local_archive</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_install_from_requirements</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_manage_installed_modules</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_uninstalled_modules</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_update_modules</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">test_page</span> <span class="ow">in</span> <span class="n">check_pages</span><span class="p">:</span>
+            <span class="n">test_page</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="TestGUIApp.check_welcome_page"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.check_welcome_page">[docs]</a>    <span class="k">def</span> <span class="nf">check_welcome_page</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test welcome page</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="s1">&#39;WelcomePage&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">welcome_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s1">&#39;WelcomePage&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">welcome_page</span><span class="o">.</span><span class="n">tkraise</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">welcome_page</span><span class="o">.</span><span class="n">focus_set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="c1">#Select first radio button and check if it is selected</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">welcome_page</span><span class="o">.</span><span class="n">first_button</span><span class="o">.</span><span class="n">invoke</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">welcome_page</span><span class="o">.</span><span class="n">radio_var</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1">#Select second radio button and check if it is selected</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">welcome_page</span><span class="o">.</span><span class="n">second_button</span><span class="o">.</span><span class="n">invoke</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">welcome_page</span><span class="o">.</span><span class="n">radio_var</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1">#Invoke next button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">welcome_page</span><span class="o">.</span><span class="n">first_button</span><span class="o">.</span><span class="n">invoke</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">welcome_page</span><span class="o">.</span><span class="n">next_button</span><span class="o">.</span><span class="n">invoke</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        FIX IT : make tests for checking which window is at top</span>
+<span class="sd">        x = self.root.tk.eval(&#39;wm stackorder &#39;+</span>
+<span class="sd">            str(self.main_app.frames_dict[&#39;InstallPage&#39;])+</span>
+<span class="sd">            &#39; isabove &#39;+str(self.welcome_page))</span>
+<span class="sd">        print (x)</span>
+<span class="sd">        &#39;&#39;&#39;</span></div>
+
+<div class="viewcode-block" id="TestGUIApp.check_install_page"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.check_install_page">[docs]</a>    <span class="k">def</span> <span class="nf">check_install_page</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test install page</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">install_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s1">&#39;InstallPage&#39;</span><span class="p">]</span></div>
+        <span class="c1">#Test switching between different tabs.frames in install page</span>
+
+<div class="viewcode-block" id="TestGUIApp.check_install_from_pypi"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.check_install_from_pypi">[docs]</a>    <span class="k">def</span> <span class="nf">check_install_from_pypi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test install from pypi</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">install_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s1">&#39;InstallPage&#39;</span><span class="p">]</span>
+        <span class="n">install_from_pypi</span> <span class="o">=</span> <span class="n">install_page</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s1">&#39;InstallFromPyPI&#39;</span><span class="p">]</span>
+
+        <span class="c1">#Set focus to search entry widget</span>
+        <span class="n">install_from_pypi</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">focus_force</span><span class="p">()</span>
+        <span class="n">install_from_pypi</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="n">install_from_pypi</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Hello&#39;</span><span class="p">)</span>
+
+        <span class="c1">#Check if entry widget has text &#39;Hello&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">install_from_pypi</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span><span class="s1">&#39;Hello&#39;</span><span class="p">)</span>
+
+        <span class="c1">#Delete contents of entry widget</span>
+        <span class="n">install_from_pypi</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">focus_force</span><span class="p">()</span>
+        <span class="n">install_from_pypi</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">install_from_pypi</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="c1">#Search for pip using search</span>
+        <span class="n">install_from_pypi</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">focus_force</span><span class="p">()</span>
+        <span class="n">install_from_pypi</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;pip&#39;</span><span class="p">)</span>
+        <span class="n">install_from_pypi</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="n">install_from_pypi</span><span class="o">.</span><span class="n">search_button</span><span class="o">.</span><span class="n">invoke</span><span class="p">()</span>
+
+        <span class="c1">#Wait for the search thread to end</span>
+        <span class="n">install_from_pypi</span><span class="o">.</span><span class="n">search_thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="c1">#Update the GUI with retrieved multi_items_list</span>
+        <span class="n">install_from_pypi</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="c1">#Check if there are some elements in treeview</span>
+        <span class="n">treeview</span> <span class="o">=</span> <span class="n">install_from_pypi</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span>
+        <span class="n">tree_children</span> <span class="o">=</span> <span class="n">treeview</span><span class="o">.</span><span class="n">get_children</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tree_children</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1">#Select first item and set the focus to first item</span>
+        <span class="n">treeview</span><span class="o">.</span><span class="n">selection_set</span><span class="p">(</span><span class="n">tree_children</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">treeview</span><span class="o">.</span><span class="n">focus</span><span class="p">(</span><span class="n">tree_children</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">install_from_pypi</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="c1">#get iid of currently focused/selected item</span>
+        <span class="n">curr_item</span> <span class="o">=</span> <span class="n">treeview</span><span class="o">.</span><span class="n">focus</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">curr_item</span><span class="p">,</span> <span class="n">tree_children</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="TestGUIApp.check_install_from_local_archive"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.check_install_from_local_archive">[docs]</a>    <span class="k">def</span> <span class="nf">check_install_from_local_archive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test install from local archive</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">install_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;InstallPage&quot;</span><span class="p">]</span>
+        <span class="n">install_from_arch</span> <span class="o">=</span> <span class="n">install_page</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;InstallFromLocalArchive&quot;</span><span class="p">]</span>
+
+        <span class="c1">#Set focus to search entry widget</span>
+        <span class="n">install_from_arch</span><span class="o">.</span><span class="n">path_to_requirement</span><span class="o">.</span><span class="n">focus_force</span><span class="p">()</span>
+        <span class="n">install_from_arch</span><span class="o">.</span><span class="n">path_to_requirement</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="n">install_from_arch</span><span class="o">.</span><span class="n">path_to_requirement</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Hello&#39;</span><span class="p">)</span>
+
+        <span class="c1">#Check if entry widget has text &#39;Hello&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">install_from_arch</span><span class="o">.</span><span class="n">path_to_requirement</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span><span class="s1">&#39;Hello&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestGUIApp.check_install_from_requirements"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.check_install_from_requirements">[docs]</a>    <span class="k">def</span> <span class="nf">check_install_from_requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test install from requirements</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">install_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;InstallPage&quot;</span><span class="p">]</span>
+        <span class="n">install_from_req</span> <span class="o">=</span> <span class="n">install_page</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;InstallFromRequirements&quot;</span><span class="p">]</span>
+
+        <span class="c1">#Set focus to search entry widget</span>
+        <span class="n">install_from_req</span><span class="o">.</span><span class="n">path_to_requirement</span><span class="o">.</span><span class="n">focus_force</span><span class="p">()</span>
+        <span class="n">install_from_req</span><span class="o">.</span><span class="n">path_to_requirement</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="n">install_from_req</span><span class="o">.</span><span class="n">path_to_requirement</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Hello&#39;</span><span class="p">)</span>
+
+        <span class="c1">#Check if entry widget has text &#39;Hello&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">install_from_req</span><span class="o">.</span><span class="n">path_to_requirement</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span><span class="s1">&#39;Hello&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestGUIApp.check_manage_installed_modules"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.check_manage_installed_modules">[docs]</a>    <span class="k">def</span> <span class="nf">check_manage_installed_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;</span>
+<span class="sd">        Test manage installed modules page</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">install_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;InstallPage&quot;</span><span class="p">]</span>
+        <span class="n">install_from_pypi</span> <span class="o">=</span> <span class="n">install_page</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;InstallFromPyPI&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="TestGUIApp.check_uninstalled_modules"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.check_uninstalled_modules">[docs]</a>    <span class="k">def</span> <span class="nf">check_uninstalled_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test uninstalled Modules</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">install_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;ManageInstalledPage&quot;</span><span class="p">]</span>
+        <span class="n">install_from_pypi</span> <span class="o">=</span> <span class="n">install_page</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;UninstallPackage&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="TestGUIApp.check_update_modules"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.check_update_modules">[docs]</a>    <span class="k">def</span> <span class="nf">check_update_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test update package page</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">install_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;ManageInstalledPage&quot;</span><span class="p">]</span>
+        <span class="n">install_from_pypi</span> <span class="o">=</span> <span class="n">install_page</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;UpdatePackage&quot;</span><span class="p">]</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="TestGUIApp.tearDownClass"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.tearDownClass">[docs]</a>    <span class="k">def</span> <span class="nf">tearDownClass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Upendra Kumar.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.0.1alpha',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
