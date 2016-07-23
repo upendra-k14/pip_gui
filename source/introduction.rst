@@ -19,7 +19,7 @@ philosophies is a good practice.
     design resources available :
 
     1. Don't design like a Programmer series : `[Part1] <http://www.uxdesignedge.com/2010/03/dont-design-like-a-programmer>`_,`[Part2] <http://www.uxdesignedge.com/2011/06/don%E2%80%99t-design-like-a-programmer-part-2>`_,`[Part3] <http://www.uxdesignedge.com/2011/11/don%E2%80%99t-design-like-a-programmer-part-3>`_
-        This series of posts describes UI design concisely with a lot of
+        This series of posts describe UI design concisely with a lot of
         summarized points about UI design.
 
     2. `User Interface Design for Programmers ( by Joel Spolsky) <http://dbmanagement.info/Books/Others/User_Interface_Design_For_Programmers_(Joel_Spolsky,_2001).pdf>`_
