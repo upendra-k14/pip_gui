@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Page Descriptions &mdash; pip_tkinter 0.0.1alpha documentation</title>
+  <title>Manage Installed Packages Page &mdash; pip_tkinter 0.0.1alpha documentation</title>
   
 
   
@@ -31,9 +31,9 @@
 
   
     <link rel="top" title="pip_tkinter 0.0.1alpha documentation" href="index.html"/>
-        <link rel="up" title="Developer’s Guide" href="developer_guide.html"/>
-        <link rel="next" title="Welcome Page" href="welcome_page.html"/>
-        <link rel="prev" title="Page Layout Hierarchy" href="page_hierarchy.html"/> 
+        <link rel="up" title="Page Descriptions" href="page_descriptions.html"/>
+        <link rel="next" title="App Navigation" href="app_navigation.html"/>
+        <link rel="prev" title="Install Page" href="install_page.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -89,10 +89,14 @@
 <li class="toctree-l2"><a class="reference internal" href="introduction.html">A short intro of pip_tkinter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="design_philosophy.html">Design Philosophies</a></li>
 <li class="toctree-l2"><a class="reference internal" href="page_hierarchy.html">Page Layout Hierarchy</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Page Descriptions</a><ul>
+<li class="toctree-l2 current"><a class="reference internal" href="page_descriptions.html">Page Descriptions</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="welcome_page.html">Welcome Page</a></li>
 <li class="toctree-l3"><a class="reference internal" href="install_page.html">Install Page</a></li>
-<li class="toctree-l3"><a class="reference internal" href="manage_installed_page.html">Manage Installed Packages Page</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Manage Installed Packages Page</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#update-installed-packages-page">Update Installed Packages Page</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uninstall-package-page">Uninstall Package Page</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="app_navigation.html">App Navigation</a></li>
@@ -132,11 +136,13 @@
       
           <li><a href="developer_guide.html">Developer&#8217;s Guide</a> &raquo;</li>
       
-    <li>Page Descriptions</li>
+          <li><a href="page_descriptions.html">Page Descriptions</a> &raquo;</li>
+      
+    <li>Manage Installed Packages Page</li>
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="_sources/page_descriptions.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/manage_installed_page.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -146,30 +152,25 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="page-descriptions">
-<h1>Page Descriptions<a class="headerlink" href="#page-descriptions" title="Permalink to this headline">¶</a></h1>
-<p>This section explains GUI and design choices in detail for each page layout.</p>
+  <div class="section" id="manage-installed-packages-page">
+<h1>Manage Installed Packages Page<a class="headerlink" href="#manage-installed-packages-page" title="Permalink to this headline">¶</a></h1>
+<p>It provided options for dealing with already installed packages. Most common
+ways in which user wants to deal with already installed packages is ei:ther to
+uninstall or update it. Therefore, currently two options are implemented:</p>
+<ol class="loweralpha simple">
+<li>Update Installed Packages Page</li>
+<li>Uninstall Package Page</li>
+</ol>
+<p>The page layout is similar to Install Page layout.</p>
+<div class="section" id="update-installed-packages-page">
+<h2>Update Installed Packages Page<a class="headerlink" href="#update-installed-packages-page" title="Permalink to this headline">¶</a></h2>
+<img alt="_images/UserWorkFlow.png" src="_images/UserWorkFlow.png" />
+</div>
+<div class="section" id="uninstall-package-page">
+<h2>Uninstall Package Page<a class="headerlink" href="#uninstall-package-page" title="Permalink to this headline">¶</a></h2>
+<img alt="_images/UserWorkFlow.png" src="_images/UserWorkFlow.png" />
 <div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="welcome_page.html">Welcome Page</a><ul class="simple">
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="install_page.html">Install Page</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="install_page.html#install-from-pypi-page">Install From PyPI Page</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install_page.html#install-from-local-archive">Install From Local Archive</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install_page.html#install-from-requirements-file">Install From Requirements File</a><ul class="simple">
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="manage_installed_page.html">Manage Installed Packages Page</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="manage_installed_page.html#update-installed-packages-page">Update Installed Packages Page</a></li>
-<li class="toctree-l2"><a class="reference internal" href="manage_installed_page.html#uninstall-package-page">Uninstall Package Page</a><ul class="simple">
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+</div>
 </div>
 </div>
 
@@ -180,10 +181,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="welcome_page.html" class="btn btn-neutral float-right" title="Welcome Page" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="app_navigation.html" class="btn btn-neutral float-right" title="App Navigation" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="page_hierarchy.html" class="btn btn-neutral" title="Page Layout Hierarchy" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="install_page.html" class="btn btn-neutral" title="Install Page" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

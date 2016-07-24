@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Page Descriptions &mdash; pip_tkinter 0.0.1alpha documentation</title>
+  <title>Install Page &mdash; pip_tkinter 0.0.1alpha documentation</title>
   
 
   
@@ -31,9 +31,9 @@
 
   
     <link rel="top" title="pip_tkinter 0.0.1alpha documentation" href="index.html"/>
-        <link rel="up" title="Developer’s Guide" href="developer_guide.html"/>
-        <link rel="next" title="Welcome Page" href="welcome_page.html"/>
-        <link rel="prev" title="Page Layout Hierarchy" href="page_hierarchy.html"/> 
+        <link rel="up" title="Page Descriptions" href="page_descriptions.html"/>
+        <link rel="next" title="Manage Installed Packages Page" href="manage_installed_page.html"/>
+        <link rel="prev" title="Welcome Page" href="welcome_page.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -89,9 +89,14 @@
 <li class="toctree-l2"><a class="reference internal" href="introduction.html">A short intro of pip_tkinter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="design_philosophy.html">Design Philosophies</a></li>
 <li class="toctree-l2"><a class="reference internal" href="page_hierarchy.html">Page Layout Hierarchy</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Page Descriptions</a><ul>
+<li class="toctree-l2 current"><a class="reference internal" href="page_descriptions.html">Page Descriptions</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="welcome_page.html">Welcome Page</a></li>
-<li class="toctree-l3"><a class="reference internal" href="install_page.html">Install Page</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Install Page</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#install-from-pypi-page">Install From PyPI Page</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#install-from-local-archive">Install From Local Archive</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#install-from-requirements-file">Install From Requirements File</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="manage_installed_page.html">Manage Installed Packages Page</a></li>
 </ul>
 </li>
@@ -132,11 +137,13 @@
       
           <li><a href="developer_guide.html">Developer&#8217;s Guide</a> &raquo;</li>
       
-    <li>Page Descriptions</li>
+          <li><a href="page_descriptions.html">Page Descriptions</a> &raquo;</li>
+      
+    <li>Install Page</li>
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="_sources/page_descriptions.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/install_page.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -146,30 +153,72 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="page-descriptions">
-<h1>Page Descriptions<a class="headerlink" href="#page-descriptions" title="Permalink to this headline">¶</a></h1>
-<p>This section explains GUI and design choices in detail for each page layout.</p>
-<div class="toctree-wrapper compound">
+  <div class="section" id="install-page">
+<h1>Install Page<a class="headerlink" href="#install-page" title="Permalink to this headline">¶</a></h1>
+<p>It provides user options to install <cite>pip</cite> packages using different methods.
+Therefore, three most useful user tasks are implemented :</p>
+<ol class="loweralpha simple">
+<li>Install From PyPI</li>
+<li>Install From Local Archive</li>
+<li>Install From Requirements File</li>
+</ol>
+<p>The GUI options for switching betweeb these pages are provided as a set of
+buttons stacked vertically in a tkinter frame. Further options can be added
+easily by modifying manage_frame() method.</p>
+<div class="section" id="install-from-pypi-page">
+<h2>Install From PyPI Page<a class="headerlink" href="#install-from-pypi-page" title="Permalink to this headline">¶</a></h2>
+<img alt="_images/UserWorkFlow.png" src="_images/UserWorkFlow.png" />
+<p>Main components of this page are :</p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="welcome_page.html">Welcome Page</a><ul class="simple">
-</ul>
+<li><dl class="first docutils">
+<dt>Search Bar</dt>
+<dd><p class="first last">In order to maintain consistency in UI design the search bar is placed
+at top with a search button to it&#8217;s left. It has been ensured that the
+search bar functions in deafult way i.e. both actions clicking search
+button and pressing &lt;Return&gt; key with focus on tkinter Entry widget
+invoke the <cite>pip</cite> search command.</p>
+</dd>
+</dl>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="install_page.html">Install Page</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="install_page.html#install-from-pypi-page">Install From PyPI Page</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install_page.html#install-from-local-archive">Install From Local Archive</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install_page.html#install-from-requirements-file">Install From Requirements File</a><ul class="simple">
-</ul>
+<li><dl class="first docutils">
+<dt>Tree View</dt>
+<dd><p class="first">The treeview widget is used to show search results with four fields:
+-   Module Name
+-   Installed Version
+-   Available Versions
+-   Module Summary</p>
+<p class="last">Out of four fields, three fields are shown as row elements of treeview
+widget. On &lt;Double Click&gt;, detailed summary is shown in the below text
+widget. Here, again consistency is mainatined as most other package
+managers or installation wizards with GUI function in similar way.</p>
+</dd>
+</dl>
 </li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="manage_installed_page.html">Manage Installed Packages Page</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="manage_installed_page.html#update-installed-packages-page">Update Installed Packages Page</a></li>
-<li class="toctree-l2"><a class="reference internal" href="manage_installed_page.html#uninstall-package-page">Uninstall Package Page</a><ul class="simple">
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+</div>
+<div class="section" id="install-from-local-archive">
+<h2>Install From Local Archive<a class="headerlink" href="#install-from-local-archive" title="Permalink to this headline">¶</a></h2>
+<img alt="_images/UserWorkFlow.png" src="_images/UserWorkFlow.png" />
+<p>It contains an tkinter <cite>entry</cite> widget with a <cite>Browse</cite> button. The <cite>Browse</cite>
+button invokes the standard file dialog selection menu. It has been ensured
+that file dialog shows archive files so that user can easily choose from
+small number of options.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This page requires improvement as there is empty space available in frame.</p>
+</div>
+</div>
+<div class="section" id="install-from-requirements-file">
+<h2>Install From Requirements File<a class="headerlink" href="#install-from-requirements-file" title="Permalink to this headline">¶</a></h2>
+<img alt="_images/UserWorkFlow.png" src="_images/UserWorkFlow.png" />
+<p>The page layout for the Install From Requirements File page is similar to
+Install From Local Archive Files.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This page requires improvement as there is empty space available in frame.</p>
+</div>
+<div class="toctree-wrapper compound">
+</div>
 </div>
 </div>
 
@@ -180,10 +229,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="welcome_page.html" class="btn btn-neutral float-right" title="Welcome Page" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="manage_installed_page.html" class="btn btn-neutral float-right" title="Manage Installed Packages Page" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="page_hierarchy.html" class="btn btn-neutral" title="Page Layout Hierarchy" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="welcome_page.html" class="btn btn-neutral" title="Welcome Page" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
