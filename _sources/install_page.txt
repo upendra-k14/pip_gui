@@ -15,7 +15,7 @@ easily by modifying manage_frame() method.
 Install From PyPI Page
 ----------------------
 
-.. image:: UserWorkFlow.png
+.. image:: installfrompypi.png
 
 Main components of this page are :
 
@@ -35,13 +35,13 @@ Main components of this page are :
 
         Out of four fields, three fields are shown as row elements of treeview
         widget. On <Double Click>, detailed summary is shown in the below text
-        widget. Here, again consistency is mainatined as most other package
+        widget. Here, again consistency is maintained as most other package
         managers or installation wizards with GUI function in similar way.
 
 Install From Local Archive
 --------------------------
 
-.. image:: UserWorkFlow.png
+.. image:: installfromlocalarchive.png
 
 It contains an tkinter `entry` widget with a `Browse` button. The `Browse`
 button invokes the standard file dialog selection menu. It has been ensured
@@ -53,8 +53,6 @@ small number of options.
 
 Install From Requirements File
 ------------------------------
-
-.. image:: UserWorkFlow.png
 
 The page layout for the Install From Requirements File page is similar to
 Install From Local Archive Files.

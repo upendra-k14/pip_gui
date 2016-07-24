@@ -13,12 +13,15 @@ The page layout is similar to Install Page layout.
 Update Installed Packages Page
 ------------------------------
 
-.. image:: UserWorkFlow.png
+.. image:: updatepage.png
+
+Similar to InstallPage.InstallFromPyPI page.
 
 Uninstall Package Page
 ----------------------
 
-.. image:: UserWorkFlow.png
+The page layout is very similar to Update Installed Packages Page except the
+treeview has only two headers : package name and installed version.
 
 
 .. toctree::
