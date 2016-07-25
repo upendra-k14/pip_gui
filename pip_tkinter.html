@@ -807,22 +807,68 @@ on command line.</td>
 <dt id="pip_tkinter.utils.MultiItemsList">
 <em class="property">class </em><code class="descclassname">pip_tkinter.utils.</code><code class="descname">MultiItemsList</code><span class="sig-paren">(</span><em>parent</em>, <em>headers_list=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#MultiItemsList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.MultiItemsList" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class for creating Treeview to show list of packages : provides options
+for selecting items and specifying number of headers for the treeview</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>self.scroll_tree</strong> &#8211; tkinter treeview variable</li>
+<li><strong>parent</strong> &#8211; parent frame for treeview</li>
+<li><strong>headers_list</strong> &#8211; list of headers or fields in treeview</li>
+<li><strong>self.items_list</strong> &#8211; list of items for treeview</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="pip_tkinter.utils.MultiItemsList.create_headers">
 <code class="descname">create_headers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#MultiItemsList.create_headers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.MultiItemsList.create_headers" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Specifies headers and width of header columns for the treeview</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pip_tkinter.utils.MultiItemsList.create_treeview">
 <code class="descname">create_treeview</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#MultiItemsList.create_treeview"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.MultiItemsList.create_treeview" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a multi items list consisting of a frame, horizontal and vertical
 scroll bar and Treeview</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>self.myframe</strong> &#8211; a tkinter frame for encapsulating treeview
+contents with parent frame as self.parent</li>
+<li><strong>vrtl_scrbar</strong> &#8211; vertical scrollbar for treeview</li>
+<li><strong>hrtl_scrbar</strong> &#8211; horizontal scrollbar for treeview</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pip_tkinter.utils.MultiItemsList.populate_rows">
 <code class="descname">populate_rows</code><span class="sig-paren">(</span><em>items_list=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#MultiItemsList.populate_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.MultiItemsList.populate_rows" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Populate treeview with list of items</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>items_list</strong> &#8211; list of items by which treeview is populated</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pip_tkinter.utils.MultiItemsList.scroll_tree">
+<code class="descname">scroll_tree</code><em class="property"> = None</em><a class="headerlink" href="#pip_tkinter.utils.MultiItemsList.scroll_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialized with None, will store reference to tkinter treeview</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -831,7 +877,8 @@ scroll bar and Treeview</p>
 <em class="property">class </em><code class="descclassname">pip_tkinter.utils.</code><code class="descname">Redirect</code><span class="sig-paren">(</span><em>stdfile</em>, <em>new_target</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#Redirect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.Redirect" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Context manager for temporarily redirecting stdout/err.
-Simplified and generalize from contextlib.redirect_stdout.</p>
+Simplified and generalize from contextlib.redirect_stdout.
+(DEPRECATED)</p>
 </dd></dl>
 
 <dl class="class">
@@ -844,13 +891,14 @@ output queue and error queue.</p>
 <dl class="method">
 <dt id="pip_tkinter.utils.RunpipSubprocess.geterror">
 <code class="descname">geterror</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#RunpipSubprocess.geterror"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.RunpipSubprocess.geterror" title="Permalink to this definition">¶</a></dt>
-<dd><p>Iterate over error line by line</p>
+<dd><p>Iterate over error line by line (DEPRECATED)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pip_tkinter.utils.RunpipSubprocess.getoutput">
 <code class="descname">getoutput</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#RunpipSubprocess.getoutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.RunpipSubprocess.getoutput" title="Permalink to this definition">¶</a></dt>
-<dd><p>Iterate over output line by line : multiplexing output and error stream</p>
+<dd><p>Iterate over output line by line : multiplexing output and error
+stream</p>
 </dd></dl>
 
 <dl class="method">
@@ -918,10 +966,16 @@ output queue and error queue.</p>
 <dl class="function">
 <dt id="pip_tkinter.utils.runpip">
 <code class="descclassname">pip_tkinter.utils.</code><code class="descname">runpip</code><span class="sig-paren">(</span><em>argstring</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#runpip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.runpip" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run pip with argument string containing command and options.
-:param argstring: is quoted version of what would follow &#8216;pip&#8217; on command</p>
-<blockquote>
-<div>line.</div></blockquote>
+<dd><p>Run pip with argument string containing command and options.(DEPRECATED and
+replaced with runpip_using_subprocess method)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>argstring</strong> &#8211; is quoted version of what would follow &#8216;pip&#8217; on command     line.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -930,6 +984,14 @@ output queue and error queue.</p>
 <dd><p>Run pip with argument string containing command and options. Uses
 subprocess module for executing pip commands. Returns output and error
 once execution of process teriminates</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>argstring</strong> &#8211; is quoted version of what would follow &#8216;pip&#8217; on command     line.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">

@@ -153,11 +153,22 @@
 
 <div class="viewcode-block" id="MultiItemsList"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.MultiItemsList">[docs]</a><span class="k">class</span> <span class="nc">MultiItemsList</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for creating Treeview to show list of packages : provides options</span>
+<span class="sd">    for selecting items and specifying number of headers for the treeview</span>
+
+<span class="sd">    :param self.scroll_tree: tkinter treeview variable</span>
+<span class="sd">    :param parent: parent frame for treeview</span>
+<span class="sd">    :param headers_list: list of headers or fields in treeview</span>
+<span class="sd">    :param self.items_list: list of items for treeview</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">headers_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize variables needed for creating Treeview</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="c1">#: Initialized with None, will store reference to tkinter treeview</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">headers_list</span> <span class="o">=</span> <span class="n">headers_list</span>
@@ -169,6 +180,11 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a multi items list consisting of a frame, horizontal and vertical</span>
 <span class="sd">        scroll bar and Treeview</span>
+
+<span class="sd">        :param self.myframe: a tkinter frame for encapsulating treeview</span>
+<span class="sd">            contents with parent frame as self.parent</span>
+<span class="sd">        :param vrtl_scrbar: vertical scrollbar for treeview</span>
+<span class="sd">        :param hrtl_scrbar: horizontal scrollbar for treeview</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">myframe</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
@@ -201,13 +217,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">myframe</span><span class="o">.</span><span class="n">grid_rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MultiItemsList.create_headers"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.MultiItemsList.create_headers">[docs]</a>    <span class="k">def</span> <span class="nf">create_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Specifies headers and width of header columns for the treeview</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">headers_list</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">heading</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">header</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MultiItemsList.populate_rows"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.MultiItemsList.populate_rows">[docs]</a>    <span class="k">def</span> <span class="nf">populate_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Populate treeview with list of items</span>
 
+<span class="sd">        :param items_list: list of items by which treeview is populated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">get_children</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">items_list</span> <span class="o">=</span> <span class="n">items_list</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items_list</span><span class="p">:</span>
@@ -218,6 +241,7 @@
 <div class="viewcode-block" id="Redirect"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.Redirect">[docs]</a><span class="k">class</span> <span class="nc">Redirect</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Context manager for temporarily redirecting stdout/err.</span>
 <span class="sd">    Simplified and generalize from contextlib.redirect_stdout.</span>
+<span class="sd">    (DEPRECATED)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stdfile</span><span class="p">,</span> <span class="n">new_target</span><span class="p">):</span>
@@ -237,9 +261,11 @@
 <span class="c1"># Put in runpip for prototype testing in text mode, so can print.</span>
 <div class="viewcode-block" id="runpip"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.runpip">[docs]</a><span class="k">def</span> <span class="nf">runpip</span><span class="p">(</span><span class="n">argstring</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Run pip with argument string containing command and options.</span>
-<span class="sd">    :param argstring: is quoted version of what would follow &#39;pip&#39; on command</span>
-<span class="sd">     line.</span>
+<span class="sd">    Run pip with argument string containing command and options.(DEPRECATED and</span>
+<span class="sd">    replaced with runpip_using_subprocess method)</span>
+
+<span class="sd">    :param argstring: is quoted version of what would follow &#39;pip&#39; on command \</span>
+<span class="sd">    line.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sysout</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
     <span class="n">syserr</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
@@ -264,6 +290,9 @@
 <span class="sd">    Run pip with argument string containing command and options. Uses</span>
 <span class="sd">    subprocess module for executing pip commands. Returns output and error</span>
 <span class="sd">    once execution of process teriminates</span>
+
+<span class="sd">    :param argstring: is quoted version of what would follow &#39;pip&#39; on command \</span>
+<span class="sd">    line.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">pip_process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
@@ -284,8 +313,8 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argstring</span><span class="p">,</span> <span class="n">output_queue</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize subprocess for running pip commands.</span>
+
 <span class="sd">        :param output_queue: queue for buffering line by line output</span>
-<span class="sd">        :param error_queue: queue for buffering line by line error</span>
 <span class="sd">        :param argstring: is quoted version of what would follow &#39;pip&#39; on</span>
 <span class="sd">         command line.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -327,7 +356,8 @@
 
 <div class="viewcode-block" id="RunpipSubprocess.getoutput"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.RunpipSubprocess.getoutput">[docs]</a>    <span class="k">def</span> <span class="nf">getoutput</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Iterate over output line by line : multiplexing output and error stream</span>
+<span class="sd">        Iterate over output line by line : multiplexing output and error</span>
+<span class="sd">        stream</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;start_logging_installation&#39;</span><span class="p">)</span>
@@ -340,7 +370,7 @@
 
 <div class="viewcode-block" id="RunpipSubprocess.geterror"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.utils.RunpipSubprocess.geterror">[docs]</a>    <span class="k">def</span> <span class="nf">geterror</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Iterate over error line by line</span>
+<span class="sd">        Iterate over error line by line (DEPRECATED)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">error_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;start_logging_error&#39;</span><span class="p">)</span>

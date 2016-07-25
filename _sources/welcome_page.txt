@@ -1,7 +1,7 @@
 Welcome Page
 ============
 
-.. image:: UserWorkFlow.png
+.. image:: welcomepage.png
 
 The welcome page serves as a staring point for the user to interact with the
 GUI. In order to help user to easily decide between different choices, all user

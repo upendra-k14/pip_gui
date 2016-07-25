@@ -9,7 +9,5 @@ issues and suggestions `here <https://github.com/upendra-k14/pip_gui/issues>`_
 
     introduction
     design_philosophy
-    page_hierarchy
     page_descriptions
-    app_navigation
     app_utils

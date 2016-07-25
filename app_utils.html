@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>App Utility Methods &mdash; pip_tkinter 0.0.1alpha documentation</title>
+  <title>GUI extensions of pip &mdash; pip_tkinter 0.0.1alpha documentation</title>
   
 
   
@@ -33,7 +33,7 @@
     <link rel="top" title="pip_tkinter 0.0.1alpha documentation" href="index.html"/>
         <link rel="up" title="Developer’s Guide" href="developer_guide.html"/>
         <link rel="next" title="pip_tkinter" href="modules.html"/>
-        <link rel="prev" title="App Navigation" href="app_navigation.html"/> 
+        <link rel="prev" title="Manage Installed Packages Page" href="manage_installed_page.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -88,10 +88,12 @@
 <li class="toctree-l1 current"><a class="reference internal" href="developer_guide.html">Developer&#8217;s Guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="introduction.html">A short intro of pip_tkinter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="design_philosophy.html">Design Philosophies</a></li>
-<li class="toctree-l2"><a class="reference internal" href="page_hierarchy.html">Page Layout Hierarchy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="page_descriptions.html">Page Descriptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="app_navigation.html">App Navigation</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">App Utility Methods</a><ul class="simple">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">GUI extensions of pip</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pip-tkinter-utils-runpip-using-subprocess">pip_tkinter.utils.runpip_using_subprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pip-tkinter-utils-runpipsubprocess">pip_tkinter.utils.RunpipSubprocess</a><ul class="simple">
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -129,7 +131,7 @@
       
           <li><a href="developer_guide.html">Developer&#8217;s Guide</a> &raquo;</li>
       
-    <li>App Utility Methods</li>
+    <li>GUI extensions of pip</li>
       <li class="wy-breadcrumbs-aside">
         
           
@@ -143,9 +145,124 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="app-utility-methods">
-<h1>App Utility Methods<a class="headerlink" href="#app-utility-methods" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="gui-extensions-of-pip">
+<h1>GUI extensions of pip<a class="headerlink" href="#gui-extensions-of-pip" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="pip-tkinter-utils-runpip-using-subprocess">
+<h2>pip_tkinter.utils.runpip_using_subprocess<a class="headerlink" href="#pip-tkinter-utils-runpip-using-subprocess" title="Permalink to this headline">¶</a></h2>
+<p>A utility method to run <cite>pip</cite> console commands and return output. This method
+uses subprocess module to run a console command and when the process execution
+terminates, it returns the console output and errors.</p>
+</div>
+<div class="section" id="pip-tkinter-utils-runpipsubprocess">
+<h2>pip_tkinter.utils.RunpipSubprocess<a class="headerlink" href="#pip-tkinter-utils-runpipsubprocess" title="Permalink to this headline">¶</a></h2>
+<p>A utility class to run <cite>pip</cite> commands and return <em>real-time</em> output. Since,
+tkinter is not thread safe, in order to get real time output from a process
+either multithreading or multiprocessing ( basically asynchronous I/O) is
+needed. In both cases, output of process can be sent through a shared queue
+which may be shared between multiple threads or multiple processes. However,
+for this application multiprocessing turns out be a better option than
+multithreading, due to following reasons :</p>
+<ol class="arabic simple">
+<li>Python <cite>multithreading</cite> module doesn&#8217;t take advantage of multiple CPU cores
+available which can degrade user expereince in case of GUI applications.
+Whereas <cite>multiprocessing</cite> takes advantage of multiple available cores.</li>
+<li><cite>multithreading</cite> module was found to have issues with pip.main(). For more
+information about the issue click <a class="reference external" href="https://github.com/pypa/pip/issues/2553">here</a></li>
+</ol>
+<p>But, tkinter widgets can&#8217;t be updated from another thread or process
+except the main thread or process. Therefore, possible solutions to this
+problem are :</p>
+<ol class="arabic">
+<li><p class="first">Re-implement <cite>mainloop()</cite> method of tkinter in a thread-safe way. The
+<cite>mainloop()</cite> method is basically an endless loop responsible for
+periodically checking for runtime updates made to GUI and rendering them
+on the screen. A few thread-safe implementations are available like:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://tkinter.unpythonic.net/wiki/mtTkinter">mtTkinter</a></li>
+</ul>
+</li>
+<li><p class="first">Tkinter is designed to run from the main thread, only. See the docs:</p>
+<blockquote>
+<div><p>Just run all UI code in the main thread, and let the writers write to a
+Queue object.</p>
+</div></blockquote>
+<p>The reason for tkinter to not be thread safe is that many objects and
+subsystems don&#8217;t like receiving requests from multiple various threads,
+and in the case of GUI toolkit it&#8217;s not rare to need specfically to use
+the main thread only.</p>
+</li>
+</ol>
+<p>Generally, the right Python architecture for this problem is to devote a
+process (the main one, if one must) to serving the finicky object or
+subsystem; every other process requiring interaction with said subsystem or
+object must then obtain it by queueing requests to the dedicated process
+(and possibly waiting on a &#8220;return queue&#8221; for results, if results are required as a
+consequence of some request).</p>
+<p>Therefore, <cite>multiprocessing</cite> module was chosen to log real time output from
+running process to tkinter text widget.:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">RunpipSubprocess</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run pip with argument string containing command and options. Uses</span>
+<span class="sd">    subprocess module for executing pip commands. Logs real time output in</span>
+<span class="sd">    output queue and error queue.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argstring</span><span class="p">,</span> <span class="n">output_queue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize subprocess for running pip commands.</span>
+
+<span class="sd">        :param output_queue: queue for buffering line by line output</span>
+<span class="sd">        :param argstring: is quoted version of what would follow &#39;pip&#39; on</span>
+<span class="sd">         command line.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+            <span class="n">argstring</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span>
+            <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+            <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span> <span class="o">=</span> <span class="n">output_queue</span>
+
+    <span class="k">def</span> <span class="nf">start_logging_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Starts logging to output and error queue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1">#multiplexing between stderr and stdout streams</span>
+        <span class="n">fileio_streams</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),]</span>
+        <span class="n">io_iterator</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">fileio_streams</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[])</span>
+
+        <span class="c1">#send start string : &#39;process_started&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;process_started&#39;</span><span class="p">))</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+
+            <span class="c1">#iterate over available file descriptors in io_iterator</span>
+            <span class="k">for</span> <span class="n">file_descrp</span> <span class="ow">in</span> <span class="n">io_iterator</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+
+                <span class="c1">#if something is there in stdout stream</span>
+                <span class="k">if</span> <span class="n">file_descrp</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">fileno</span><span class="p">():</span>
+                    <span class="n">pipout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                    <span class="nb">print</span> <span class="p">(</span><span class="n">pipout</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">pipout</span><span class="p">))</span>
+
+                <span class="c1">#else check in stderr stream</span>
+                <span class="k">elif</span> <span class="n">file_descrp</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">():</span>
+                    <span class="n">piperr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                    <span class="nb">print</span> <span class="p">(</span><span class="n">piperr</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="n">piperr</span><span class="p">))</span>
+
+            <span class="c1">#Check if process has ended, if process is not completed</span>
+            <span class="c1">#then self.pip_process.poll() returns None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">poll</span><span class="p">()))</span>
+                <span class="nb">print</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">poll</span><span class="p">())</span>
+                <span class="k">break</span>
+</pre></div>
+</div>
 <div class="toctree-wrapper compound">
+</div>
 </div>
 </div>
 
@@ -159,7 +276,7 @@
         <a href="modules.html" class="btn btn-neutral float-right" title="pip_tkinter" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="app_navigation.html" class="btn btn-neutral" title="App Navigation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="manage_installed_page.html" class="btn btn-neutral" title="Manage Installed Packages Page" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
