@@ -39,12 +39,12 @@ problem are :
 
 2.  Tkinter is designed to run from the main thread, only. See the docs:
 
-        Just run all UI code in the main thread, and let the writers write to a
-        Queue object.
+        ``Just run all UI code in the main thread, and let the writers write to a
+        Queue object.``
 
     The reason for tkinter to not be thread safe is that many objects and
     subsystems don't like receiving requests from multiple various threads,
-    and in the case of GUI toolkit it's not rare to need specfically to use
+    and in the case of GUI toolkit it's not rare to need specifically to use
     the main thread only.
 
 Generally, the right Python architecture for this problem is to devote a
@@ -61,7 +61,21 @@ running process to tkinter text widget.::
         """
         Run pip with argument string containing command and options. Uses
         subprocess module for executing pip commands. Logs real time output in
-        output queue and error queue.
+        output queue.
+
+        In output queue a tuple object is sent consisting of two elements:
+
+        -   Output code : For identification of purpose of message
+
+            Code    Purpose
+            0       Start marker for logging output to tkinter text widget
+            1       Output message
+            2       Error message
+            3       End marker for logging output to tkinter text widget
+
+        -   Message : a string variable containing the string collected from
+            stdout and stderr streams
+
         """
 
         def __init__(self, argstring, output_queue):

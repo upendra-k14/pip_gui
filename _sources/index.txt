@@ -62,6 +62,5 @@ Documentation
         :maxdepth: 2
 
         installation
-        user_guide
         developer_guide
         modules
