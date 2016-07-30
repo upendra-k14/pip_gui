@@ -53,8 +53,9 @@ A very simple navigation based minimalistic GUI is intended to be designed. The 
 * write tests
 * fix issues
 * create docs
-* switch to subprocess module
-* implement new features
+* implement new features :
+   * Install from Pythonlibs
+   * Generate requirements file (pip freeze)
 
 # Bug Tracker
 
