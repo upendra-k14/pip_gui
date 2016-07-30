@@ -308,14 +308,22 @@ def pip_list_outdated_command():
 
     list_output, error = runpip_using_subprocess('pip3 list --outdated')
     installed_pkg_list = list_output.splitlines()
+    formatted_list = []
     for i in range(len(installed_pkg_list)):
-        open_bracket_index = installed_pkg_list[i].index('(')
-        close_bracket_index = installed_pkg_list[i].index(')')
-        pkg_name = installed_pkg_list[i][:open_bracket_index-1]
-        pkg_version = installed_pkg_list[i][open_bracket_index+1:close_bracket_index]
-        latest_version = installed_pkg_list[i].split(' - Latest: ')[1].split(' [')[0]
-        installed_pkg_list[i] = (pkg_name, pkg_version, latest_version)
-    return installed_pkg_list
+        try:
+            open_bracket_index = installed_pkg_list[i].index('(')
+            close_bracket_index = installed_pkg_list[i].index(')')
+            pkg_name = installed_pkg_list[i][:open_bracket_index-1]
+            pkg_version = installed_pkg_list[i][
+                open_bracket_index+1:close_bracket_index]
+            latest_version = installed_pkg_list[i].split(
+                ' - Latest: ')[1].split(' [')[0]
+            formatted_list.append((pkg_name, pkg_version, latest_version))
+        except IndexError:
+            pass
+        except ValueError:
+            pass
+    return formatted_list
 
 def pip_show_command(package_args):
     """
