@@ -504,7 +504,7 @@ class InstallFromPyPI(ttk.Frame):
             elif (self.install_log_started==True):
 
                 if self.install_message[0]==3:
-                    if self.install_message[1]=='0':
+                    if self.install_message[1]==0:
                         self.controller.debug_bar.config(text='Done')
                     else:
                         self.controller.debug_bar.config(
@@ -521,7 +521,7 @@ class InstallFromPyPI(ttk.Frame):
                         self.install_message[1])
                     self.controller.process_details.config(state='disabled')
 
-            self.after(100, self.log_from_install_queue)
+            self.after(20, self.log_from_install_queue)
 
         except queue.Empty:
             self.after(100, self.log_from_install_queue)
@@ -703,7 +703,7 @@ class InstallFromLocalArchive(ttk.Frame):
                         self.install_message[1])
                     self.controller.process_details.config(state='disabled')
 
-            self.after(100, self.log_from_install_queue)
+            self.after(20, self.log_from_install_queue)
 
         except queue.Empty:
             self.after(100, self.log_from_install_queue)
@@ -895,7 +895,7 @@ will be installed."
                         self.install_message[1])
                     self.controller.process_details.config(state='disabled')
 
-            self.after(100, self.log_from_install_queue)
+            self.after(20, self.log_from_install_queue)
 
         except queue.Empty:
             self.after(100, self.log_from_install_queue)

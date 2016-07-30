@@ -5,6 +5,7 @@ import queue
 import threading
 import asyncio
 import logging
+import multiprocessing
 import tkinter as tk
 from tkinter import ttk
 from io import StringIO
@@ -107,7 +108,7 @@ class ManageInstalledPage(ttk.Frame):
 
     def abort_process(self):
         self.abort_process_button.config(state='disabled')
-        self.frames_dict[self.current_frame].abort_installation()
+        self.frames_dict[self.current_frame].abort_process()
         self.debug_bar.config(text='Installation aborted')
         self.go_back_button.config(state='normal')
 
@@ -399,7 +400,7 @@ class UpdatePackage(ttk.Frame):
 
             self.navigate_back.config(state='normal')
             self.navigate_next.config(state='normal')
-            self.search_button.config(state='normal')
+            self.refresh_button.config(state='normal')
 
         except IndexError:
             self.controller.debug_bar.config(text='Select correct package')
@@ -411,13 +412,17 @@ class UpdatePackage(ttk.Frame):
 
             if ((self.install_message[1]=='process_started') and
                 (self.install_log_started==False)):
+
                 self.install_log_started = True
+                self.controller.process_details.config(state='normal')
+                self.controller.process_details.delete(1.0,'end')
+                self.controller.process_details.config(state='disabled')
 
 
             elif (self.install_log_started==True):
 
                 if self.install_message[0]==3:
-                    if self.install_message[1]=='0':
+                    if self.install_message[1]==0:
                         self.controller.debug_bar.config(text='Done')
                     else:
                         self.controller.debug_bar.config(
@@ -433,7 +438,7 @@ class UpdatePackage(ttk.Frame):
                         self.install_message[1])
                     self.controller.process_details.config(state='disabled')
 
-            self.after(100, self.log_from_install_queue)
+            self.after(20, self.log_from_install_queue)
 
         except queue.Empty:
             self.after(100, self.log_from_install_queue)
@@ -615,7 +620,7 @@ class UninstallPackage(ttk.Frame):
             self.controller.process_details.delete(1.0,'end')
             self.controller.process_details.config(state='disabled')
 
-            self.install_log_started = False
+            self.uninstall_log_started = False
             self.error_log_started = False
             self.after(100, self.log_from_uninstall_queue)
 
@@ -623,7 +628,7 @@ class UninstallPackage(ttk.Frame):
 
             self.navigate_back.config(state='normal')
             self.navigate_next.config(state='normal')
-            self.search_button.config(state='normal')
+            self.refresh_button.config(state='normal')
 
         except IndexError:
             self.controller.debug_bar.config(text='Select correct package')
@@ -635,12 +640,16 @@ class UninstallPackage(ttk.Frame):
 
             if ((self.uninstall_message[1]=='process_started') and
                 (self.uninstall_log_started==False)):
+
                 self.uninstall_log_started = True
+                self.controller.process_details.config(state='normal')
+                self.controller.process_details.delete(1.0,'end')
+                self.controller.process_details.config(state='disabled')
 
             elif (self.uninstall_log_started==True):
 
                 if self.uninstall_message[0]==3:
-                    if self.uninstall_message[1]=='0':
+                    if self.uninstall_message[1]==0:
                         self.controller.debug_bar.config(text='Done')
                     else:
                         self.controller.debug_bar.config(
@@ -656,7 +665,7 @@ class UninstallPackage(ttk.Frame):
                         self.uninstall_message[1])
                     self.controller.process_details.config(state='disabled')
 
-            self.after(100, self.log_from_uninstall_queue)
+            self.after(20, self.log_from_uninstall_queue)
 
         except queue.Empty:
             self.after(100, self.log_from_uninstall_queue)
