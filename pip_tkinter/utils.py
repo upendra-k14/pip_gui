@@ -21,11 +21,22 @@ search_hits = {}
 
 class MultiItemsList(object):
 
+    """
+    Class for creating Treeview to show list of packages : provides options
+    for selecting items and specifying number of headers for the treeview
+
+    :param self.scroll_tree: tkinter treeview variable
+    :param parent: parent frame for treeview
+    :param headers_list: list of headers or fields in treeview
+    :param self.items_list: list of items for treeview
+    """
+
     def __init__(self, parent, headers_list=None):
         """
         Initialize variables needed for creating Treeview
         """
 
+        #: Initialized with None, will store reference to tkinter treeview
         self.scroll_tree = None
         self.parent = parent
         self.headers_list = headers_list
@@ -37,6 +48,11 @@ class MultiItemsList(object):
         """
         Create a multi items list consisting of a frame, horizontal and vertical
         scroll bar and Treeview
+
+        :param self.myframe: a tkinter frame for encapsulating treeview
+            contents with parent frame as self.parent
+        :param vrtl_scrbar: vertical scrollbar for treeview
+        :param hrtl_scrbar: horizontal scrollbar for treeview
         """
 
         self.myframe = ttk.Frame(self.parent)
@@ -69,13 +85,20 @@ class MultiItemsList(object):
         self.myframe.grid_rowconfigure(0, weight=1)
 
     def create_headers(self):
+        """
+        Specifies headers and width of header columns for the treeview
+        """
 
         for header in self.headers_list:
             self.scroll_tree.heading(header, text=header)
             self.scroll_tree.column(header, width=30)
 
     def populate_rows(self, items_list=None):
+        """
+        Populate treeview with list of items
 
+        :param items_list: list of items by which treeview is populated
+        """
         self.scroll_tree.delete(*self.scroll_tree.get_children())
         self.items_list = items_list
         for item in self.items_list:
@@ -86,6 +109,7 @@ class MultiItemsList(object):
 class Redirect:
     """Context manager for temporarily redirecting stdout/err.
     Simplified and generalize from contextlib.redirect_stdout.
+    (DEPRECATED)
     """
 
     def __init__(self, stdfile, new_target):
@@ -105,9 +129,11 @@ class Redirect:
 # Put in runpip for prototype testing in text mode, so can print.
 def runpip(argstring):
     """
-    Run pip with argument string containing command and options.
-    :param argstring: is quoted version of what would follow 'pip' on command
-     line.
+    Run pip with argument string containing command and options.(DEPRECATED and
+    replaced with runpip_using_subprocess method)
+
+    :param argstring: is quoted version of what would follow 'pip' on command \
+    line.
     """
     sysout = StringIO()
     syserr = StringIO()
@@ -132,6 +158,9 @@ def runpip_using_subprocess(argstring):
     Run pip with argument string containing command and options. Uses
     subprocess module for executing pip commands. Returns output and error
     once execution of process teriminates
+
+    :param argstring: is quoted version of what would follow 'pip' on command \
+    line.
     """
 
     pip_process = subprocess.Popen(
@@ -152,8 +181,8 @@ class RunpipSubprocess():
     def __init__(self, argstring, output_queue):
         """
         Initialize subprocess for running pip commands.
+
         :param output_queue: queue for buffering line by line output
-        :param error_queue: queue for buffering line by line error
         :param argstring: is quoted version of what would follow 'pip' on
          command line.
         """
@@ -195,7 +224,8 @@ class RunpipSubprocess():
 
     def getoutput(self):
         """
-        Iterate over output line by line : multiplexing output and error stream
+        Iterate over output line by line : multiplexing output and error
+        stream
         """
 
         self.output_queue.put('start_logging_installation')
@@ -208,7 +238,7 @@ class RunpipSubprocess():
 
     def geterror(self):
         """
-        Iterate over error line by line
+        Iterate over error line by line (DEPRECATED)
         """
 
         self.error_queue.put('start_logging_error')
