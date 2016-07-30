@@ -10,6 +10,7 @@ import os
 import subprocess
 import select
 
+from pip_tkinter.config import get_build_platform
 from pip.commands.search import highest_version
 from pip import parseopts
 from io import StringIO
@@ -102,6 +103,7 @@ class MultiItemsList(object):
         self.scroll_tree.delete(*self.scroll_tree.get_children())
         self.items_list = items_list
         for item in self.items_list:
+            print (item)
             self.scroll_tree.insert('', 'end', values=item)
 
 
@@ -263,6 +265,7 @@ def pip_search_command(package_name=None, thread_queue=None):
 
     count = 0
     installed_packages = []
+    
     for x in search_result.split("\n"):
         try:
             if ('INSTALLED:' not in x) and (
@@ -273,6 +276,7 @@ def pip_search_command(package_name=None, thread_queue=None):
                 pkg_name = x[:open_bracket_index-1].strip()
                 latest_version = x[open_bracket_index+1:close_bracket_index]
                 summary = re.split(r'\)\s+- ',x)[1].strip()
+                print (pkg_name, latest_version, summary)
                 installed_packages.append(
                     [pkg_name,'Not installed',latest_version,summary])
                 count = count + 1
@@ -283,7 +287,7 @@ def pip_search_command(package_name=None, thread_queue=None):
             else:
                 installed_packages[-1][3] = '{} {}'.format(
                     installed_packages[-1][3],x.strip())
-        except:
+        except e:
             pass
     thread_queue.put([tuple(x) for x in installed_packages])
 
@@ -335,7 +339,11 @@ def pip_install_from_PyPI(package_args=None, install_queue=None):
     """
     Wrapper for installing pip package from PyPI
     """
-    package_args = 'gksudo -- pip3 install -U --no-cache-dir {}'.format(package_args)
+    if get_build_platform()=='Windows':
+        permission_prefix = ''
+    elif get_build_platform()=='Linux':
+        permission_prefix = 'gksudo -- '
+    package_args = '{}pip3 install -U --no-cache-dir {}'.format(permission_prefix, package_args)
     install_process = RunpipSubprocess(package_args, install_queue)
     install_process.start_logging_threads()
 
@@ -343,7 +351,11 @@ def pip_install_from_local_archive(package_args, install_queue=None):
     """
     Wrapper for installing pip package from local Archive
     """
-    package_args = 'gksudo -- pip3 install {}'.format(package_args)
+    if get_build_platform()=='Windows':
+        permission_prefix = ''
+    elif get_build_platform()=='Linux':
+        permission_prefix = 'gksudo -- '
+    package_args = '{}pip3 install {}'.format(permission_prefix, package_args)
     install_process = RunpipSubprocess(package_args, install_queue)
     install_process.start_logging_threads()
 
@@ -351,7 +363,11 @@ def pip_install_from_requirements(package_args, install_queue=None):
     """
     Wrapper for installing pip package from requirements file
     """
-    package_args = 'gksudo -- pip3 install -r {}'.format(package_args)
+    if get_build_platform()=='Windows':
+        permission_prefix = ''
+    elif get_build_platform()=='Linux':
+        permission_prefix = 'gksudo -- '
+    package_args = '{}pip3 install -r {}'.format(permission_prefix, package_args)
     install_process = RunpipSubprocess(package_args, install_queue)
     install_process.start_logging_threads()
 
@@ -365,7 +381,11 @@ def pip_uninstall(package_args, uninstall_queue=None):
     """
     Uninstall packages
     """
-    package_args = 'gksudo -- pip3 uninstall --yes {}'.format(package_args)
+    if get_build_platform()=='Windows':
+        permission_prefix = ''
+    elif get_build_platform()=='Linux':
+        permission_prefix = 'gksudo -- '
+    package_args = 'pip3 uninstall --yes {}'.format(permission_prefix, package_args)
     uninstall_process = RunpipSubprocess(package_args, uninstall_queue)
     uninstall_process.start_logging_threads()
 
