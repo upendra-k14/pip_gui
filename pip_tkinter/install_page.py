@@ -12,6 +12,7 @@ import os
 import tkinter as tk
 from tkinter import ttk
 from io import StringIO
+from pip_tkinter.config import get_build_platform
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +132,7 @@ class InstallPage(ttk.Frame):
         local_archive_text = "Install From Local Archive"
         requirements_text = "Install From Requirements File"
         pythonlibs_text = "Install From PythonLibs"
-        alternate_repo_text = "Install From Alternate Repository"
+        #alternate_repo_text = "Install From Alternate Repository"
 
         # Button style
         navbar_button_style = ttk.Style()
@@ -165,15 +166,17 @@ class InstallPage(ttk.Frame):
         )
         self.button_requirements.grid(row=2, column=0, sticky='nwe')
 
-        '''
-        self.button_pythonlibs = ttk.Button(
-            self.navbar_frame,
-            text=pythonlibs_text,
-            style='navbar.TButton',
-            command=lambda : self.show_frame('InstallFromPythonlibs')
-        )
-        self.button_pythonlibs.grid(row=3, column=0, sticky='nwe')
+        if get_build_platform()=='Windows':
 
+            self.button_pythonlibs = ttk.Button(
+                self.navbar_frame,
+                text=pythonlibs_text,
+                style='navbar.TButton',
+                command=lambda : self.show_frame('InstallFromPythonlibs')
+            )
+            self.button_pythonlibs.grid(row=3, column=0, sticky='nwe')
+
+        '''
         self.button_alternate_repo = ttk.Button(
             self.navbar_frame,
             text=alternate_repo_text,
@@ -190,11 +193,22 @@ class InstallPage(ttk.Frame):
         installation.
         """
 
-        frames_tuple = (
-            InstallFromPyPI,
-            InstallFromLocalArchive,
-            InstallFromRequirements,
-        )
+        if get_build_platform()!='Windows':
+            #If not windows
+            frames_tuple = (
+                InstallFromPyPI,
+                InstallFromLocalArchive,
+                InstallFromRequirements,
+            )
+
+        else:
+            #Else add InstallFromPythonlibs page
+            frames_tuple = (
+                InstallFromPyPI,
+                InstallFromLocalArchive,
+                InstallFromRequirements,
+                InstallFromPythonlibs,
+            )
 
         self.frames_dict = {}
         for F in frames_tuple:
@@ -547,7 +561,6 @@ class InstallFromPyPI(ttk.Frame):
         self.update_thread.terminate()
 
 
-
 class InstallFromLocalArchive(ttk.Frame):
 
     def __init__(self, parent, controller):
@@ -758,7 +771,7 @@ class InstallFromRequirements(ttk.Frame):
         #Create a tk browse dialog button
         self.browse_button = ttk.Button(
             self.labelled_entry_frame,
-            text = "Browse",
+            text = 'Browse',
             command = self.get_file_name)
         self.browse_button.grid(row = 0, column = 1, sticky = 'w')
 
@@ -916,16 +929,61 @@ class InstallFromPythonlibs(ttk.Frame):
 
     def __init__(self, parent, controller):
         ttk.Frame.__init__(
-                        self,
-                        parent,
-                        borderwidth=3,
-                        padding=0.5,
-                        relief='ridge')
+            self,
+            parent,
+            borderwidth=3,
+            padding=0.5,
+            relief='ridge')
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
         self.controller = controller
-        label = tk.Label(self, text="Install From Pythonlibs")
-        label.pack(pady=10, padx=10)
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+        self.create_buttons()
 
+    def create_buttons(self):
+        """
+        Create back and next buttons
+        """
+
+        self.navigate_back = ttk.Button(
+            self,
+            text="Back",
+            command=lambda: self.navigate_previous_frame())
+        self.navigate_back.grid(row=3, column=0, sticky='w')
+
+        self.sync_button = ttk.Button(
+            self,
+            text="Sync",
+            command=lambda: self.sync_pythonlibs_packages())
+        self.refresh_button.grid(row=3, column=1, sticky='e')
+
+        self.navigate_next = ttk.Button(
+            self,
+            text="Uninstall",
+            command=lambda: self.execute_pip_commands())
+        self.navigate_next.grid(row=3, column=2, sticky='e')
+
+    def navigate_previous_frame(self):
+        """
+        Navigate to previous frame
+        """
+        self.controller.controller.show_frame('WelcomePage')
+
+    def sync_pythonlibs_packages(self):
+        """
+        Sync the json file for PythonLibs at :
+        https://github.com/upendra-k14/pythonlibs_modules/blob/master/pythonlibs.json
+        """
+
+        from pip_tkinter.utils import create_resource_directory
+        resource_dir = create_resource_directory()
+        pass
+
+    def navigate_next(self):
+        """
+        Navigate to next frame
+        """
+        pass
 
 class InstallFromAlternateRepo(ttk.Frame):
 
@@ -949,6 +1007,3 @@ if __name__ == "__main__":
     # root.resizable(width='false', height='false')
     install_app = InstallPage(root)
     root.mainloop()
-
-    # If you want to check search command
-    # print (pip_search_command(package_name))

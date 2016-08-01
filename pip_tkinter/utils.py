@@ -11,6 +11,7 @@ import os
 import subprocess
 import select
 import codecs
+import urllib2
 
 from pip_tkinter.config import get_build_platform
 from pip.commands.search import highest_version
@@ -231,7 +232,6 @@ class RunpipSubprocess():
 
             #Do I/O multiplexing
             io_iterator = select.select(fileio_streams, [], [])
-
             self.output_queue.put((0, 'process_started'))
 
             while True:
@@ -426,7 +426,7 @@ def pip_uninstall(package_args, uninstall_queue=None):
         permission_prefix = ''
     elif get_build_platform()=='Linux':
         permission_prefix = 'gksudo -- '
-    package_args = 'pip3 uninstall --yes {}'.format(permission_prefix, package_args)
+    package_args = '{}pip3 uninstall --yes {}'.format(permission_prefix, package_args)
     uninstall_process = RunpipSubprocess(package_args, uninstall_queue)
     uninstall_process.start_logging_threads()
 
@@ -440,3 +440,48 @@ def verify_pypi_url():
         return True
     except http.client.HTTPException:
         return False
+
+def create_resource_directory():
+    """
+    Create resource directory if not there
+    """
+    from  pip_tkinter.config import RESOURCE_DIR
+
+    resource_dir = os.path.join(os.path.expanduser('~'), .RESOURCE_DIR)
+    if not os.path.isdir(resource_dir):
+        os.makedirs(resource_dir)
+
+    return resource_dir
+
+def downloadfile(url, update_queue, error_queue):
+    """
+    A utility function to download file in small chunks and also to return
+    download percentage
+    """
+    import math
+
+    targetfile = os.path.basename(url)
+    resource_dir = create_resource_directory()
+
+    try:
+        file_path = os.path.join(resource_dir, targetfile)
+        req = urllib2.urlopen(url)
+        total_size = int(req.info().getheader('Content-Length').strip())
+        downloaded = 0
+        chunk_size = 256 * 10240
+        with open(file_path, 'wb') as fp:
+            while True:
+                chunk = req.read(chunk_size)
+                downloaded += len(chunk)
+                update_queue.put(math.floor((downloaded/total_size)*100))
+                if not chunk:
+                    break
+                fp.write(chunk)
+    except urllib2.HTTPError, e:
+        error_queue.put("HTTP Error: {} {}".format(e.code, url))
+        return False
+    except urllib2.URLError, e:
+        error_queue.put("URL Error: {} {}".format(e.reason, url))
+        return False
+
+    return True

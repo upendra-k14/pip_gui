@@ -162,10 +162,9 @@ def configure_loggers():
 
     logger.setLevel(logging.DEBUG)
 
-    #Create a logging directory if not there
-    logging_dir = os.path.join(os.path.expanduser('~'),'.pip_tkinter')
-    if not os.path.isdir(logging_dir):
-        os.makedirs(logging_dir)
+    #Create a resource directory if not there
+    from pip_tkinter.utils import create_resource_directory
+    resource_dir = create_resource_directory()
 
     # creating logger for logging output to console
     handler1 = logging.StreamHandler()
@@ -177,7 +176,7 @@ def configure_loggers():
 
     # Log to a file
     handler2 = logging.FileHandler(
-        os.path.join(logging_dir, 'pip_error.log'),
+        os.path.join(resource_dir, 'pip_error.log'),
         'a',
         encoding='utf-8',
         delay='true')
@@ -189,7 +188,7 @@ def configure_loggers():
 
     # create debug file handler and set level to debug
     handler3 = logging.FileHandler(
-        os.path.join(logging_dir, 'pip_all.log'),
+        os.path.join(resource_dir, 'pip_all.log'),
         'a',
         encoding='utf-8')
     handler3.setLevel(logging.DEBUG)
