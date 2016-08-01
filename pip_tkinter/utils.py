@@ -1,3 +1,4 @@
+#encoding=utf-8
 from __future__ import absolute_import
 
 import sys
@@ -9,11 +10,13 @@ import logging
 import os
 import subprocess
 import select
+import codecs
 
 from pip_tkinter.config import get_build_platform
 from pip.commands.search import highest_version
 from pip import parseopts
 from io import StringIO
+from io import TextIOWrapper
 
 import tkinter as tk
 from tkinter import ttk
@@ -103,7 +106,6 @@ class MultiItemsList(object):
         self.scroll_tree.delete(*self.scroll_tree.get_children())
         self.items_list = items_list
         for item in self.items_list:
-            print (item)
             self.scroll_tree.insert('', 'end', values=item)
 
 
@@ -149,7 +151,6 @@ def runpip(argstring):
         status = pip.main(argstring.split())
         out = sysout.getvalue()
         err = syserr.getvalue()
-        #print('{}\n{}\n{}'.format(status, out, err))
 
     sysout.seek(0); sysout.truncate(0)
     syserr.seek(0); syserr.truncate(0)
@@ -165,12 +166,20 @@ def runpip_using_subprocess(argstring):
     line.
     """
 
+    #Explicitly specify encoding of environment for subprocess in order to
+    #avoid errors
+    my_env = os.environ
+    my_env['PYTHONIOENCODING'] = 'utf-8'
+    
     pip_process = subprocess.Popen(
         argstring.split(),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        env = my_env,
     )
+    
     pip_output, pip_error = pip_process.communicate()
+    
     return (pip_output.decode('utf-8'), pip_error.decode('utf-8'))
 
 class RunpipSubprocess():
@@ -211,16 +220,13 @@ class RunpipSubprocess():
             for file_descrp in io_iterator[0]:
                 if file_descrp == self.pip_process.stdout.fileno():
                     pipout = self.pip_process.stdout.readline()
-                    print (pipout)
                     self.output_queue.put((1,pipout))
                 elif file_descrp == self.pip_process.stderr.fileno():
                     piperr = self.pip_process.stderr.readline()
-                    print (piperr)
                     self.output_queue.put((2,piperr))
 
             if self.pip_process.poll() != None:
                 self.output_queue.put((3,self.pip_process.poll()))
-                print (self.pip_process.poll())
                 break
 
 
@@ -260,6 +266,8 @@ def pip_search_command(package_name=None, thread_queue=None):
     search_result, errors = runpip_using_subprocess(
         'pip3 search {}'.format(package_name))
 
+    print (errors)
+
     if errors.strip() != '':
         thread_queue.put(errors)
 
@@ -276,7 +284,6 @@ def pip_search_command(package_name=None, thread_queue=None):
                 pkg_name = x[:open_bracket_index-1].strip()
                 latest_version = x[open_bracket_index+1:close_bracket_index]
                 summary = re.split(r'\)\s+- ',x)[1].strip()
-                print (pkg_name, latest_version, summary)
                 installed_packages.append(
                     [pkg_name,'Not installed',latest_version,summary])
                 count = count + 1
