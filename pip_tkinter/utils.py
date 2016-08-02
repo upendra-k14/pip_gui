@@ -170,23 +170,36 @@ def runpip_using_subprocess(argstring):
     #avoid errors
     my_env = os.environ
     my_env['PYTHONIOENCODING'] = 'utf-8'
-    
+
     pip_process = subprocess.Popen(
         argstring.split(),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         env = my_env,
     )
-    
+
     pip_output, pip_error = pip_process.communicate()
-    
+
     return (pip_output.decode('utf-8'), pip_error.decode('utf-8'))
 
 class RunpipSubprocess():
     """
     Run pip with argument string containing command and options. Uses
     subprocess module for executing pip commands. Logs real time output in
-    output queue and error queue.
+    output queue.
+
+    In output queue a tuple object is sent consisting of two elements:
+
+    -   Output code : For identification of purpose of message
+
+        Code    Purpose
+        0       Start marker for logging output to tkinter text widget
+        1       Output message
+        2       Error message
+        3       End marker for logging output to tkinter text widget
+
+    -   Message : a string variable containing the string collected from
+        stdout and stderr streams
     """
 
     def __init__(self, argstring, output_queue):
@@ -209,26 +222,53 @@ class RunpipSubprocess():
         Starts logging to output and error queue
         """
 
-        fileio_streams = [
-            self.pip_process.stdout.fileno(),
-            self.pip_process.stderr.fileno(),]
-        io_iterator = select.select(fileio_streams, [], [])
+        # If system platform is not Windows
+        if get_build_platform()!='Windows':
 
-        self.output_queue.put((0,'process_started'))
+            fileio_streams = [
+                self.pip_process.stdout.fileno(),
+                self.pip_process.stderr.fileno(),]
 
-        while True:
-            for file_descrp in io_iterator[0]:
-                if file_descrp == self.pip_process.stdout.fileno():
-                    pipout = self.pip_process.stdout.readline()
-                    self.output_queue.put((1,pipout))
-                elif file_descrp == self.pip_process.stderr.fileno():
-                    piperr = self.pip_process.stderr.readline()
-                    self.output_queue.put((2,piperr))
+            #Do I/O multiplexing
+            io_iterator = select.select(fileio_streams, [], [])
+
+            self.output_queue.put((0, 'process_started'))
+
+            while True:
+
+                #iterate over available file descriptors in io_iterator
+                for file_descrp in io_iterator[0]:
+
+                    #if something is there in stdout stream
+                    if file_descrp == self.pip_process.stdout.fileno():
+                        pipout = self.pip_process.stdout.readline()
+                        self.output_queue.put((1,pipout))
+
+                    #else check in stderr stream
+                    elif file_descrp == self.pip_process.stderr.fileno():
+                        piperr = self.pip_process.stderr.readline()
+                        self.output_queue.put((2,piperr))
+
+                #Check if process has ended, if process is not completed
+                #then self.pip_process.poll() returns None
+                if self.pip_process.poll() != None:
+                    self.output_queue.put((3,self.pip_process.poll()))
+                    break
+
+        #Else if platform is Windows
+        else:
+            output_thread = threading.Thread(target=self.getoutput)
+            error_thread = threading.Thread(target=self.geterror)
+            self.output_queue.put((0, 'process_started'))
+
+            output_thread.start()
+            error_thread.start()
+
+            output_thread.join()
+            error_thread.join()
 
             if self.pip_process.poll() != None:
                 self.output_queue.put((3,self.pip_process.poll()))
-                break
-
 
     def getoutput(self):
         """
@@ -236,24 +276,18 @@ class RunpipSubprocess():
         stream
         """
 
-        self.output_queue.put('start_logging_installation')
         for line in iter(self.pip_process.stdout.readline, b''):
-            print ('utils',line)
-            self.output_queue.put(line)
-        self.output_queue.put('end_logging_installation')
+            self.output_queue.put((1,line))
         self.pip_process.stdout.close()
         self.pip_process.wait()
 
     def geterror(self):
         """
-        Iterate over error line by line (DEPRECATED)
+        Iterate over error line by line
         """
 
-        self.error_queue.put('start_logging_error')
         for line in iter(self.pip_process.stderr.readline, b''):
-            print ('error',line)
-            self.error_queue.put(line)
-        self.error_queue.put('end_logging_error')
+            self.output_queue.put((2,line))
         self.pip_process.stderr.close()
         self.pip_process.wait()
 
@@ -273,7 +307,7 @@ def pip_search_command(package_name=None, thread_queue=None):
 
     count = 0
     installed_packages = []
-    
+
     for x in search_result.split("\n"):
         try:
             if ('INSTALLED:' not in x) and (
@@ -294,7 +328,7 @@ def pip_search_command(package_name=None, thread_queue=None):
             else:
                 installed_packages[-1][3] = '{} {}'.format(
                     installed_packages[-1][3],x.strip())
-        except e:
+        except:
             pass
     thread_queue.put([tuple(x) for x in installed_packages])
 
