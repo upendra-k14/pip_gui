@@ -11,6 +11,7 @@ import os
 import subprocess
 import select
 import codecs
+import json
 
 from pip_tkinter.config import get_build_platform
 from pip.commands.search import highest_version
@@ -421,6 +422,7 @@ def pip_uninstall(package_args, uninstall_queue=None):
     """
     Uninstall packages
     """
+
     if get_build_platform()=='Windows':
         permission_prefix = ''
     elif get_build_platform()=='Linux':
@@ -428,6 +430,89 @@ def pip_uninstall(package_args, uninstall_queue=None):
     package_args = '{}pip3 uninstall --yes {}'.format(permission_prefix, package_args)
     uninstall_process = RunpipSubprocess(package_args, uninstall_queue)
     uninstall_process.start_logging_threads()
+
+def pythonlibs_search_command(package_name=None, thread_queue=None):
+    """
+    Search for packages in Pythonlibs packages record
+    Convention for results tuple :
+
+    Each element of tuple consists of following elements in order:
+    1. package name
+    2. version
+    3. summary
+    4. home page
+    5. last updated
+    6. This element consists of distribution specific information. For more
+    details continue below :
+
+    For each package in json format there are different possible distributions
+    depending on compatibility tags like : py2, py3, cp27, cp34 and system
+    architecture. Therefore sixth element is list of available distributions
+    with following elements in order :
+
+        a) compatibility_tag
+        b) package_size
+        c) architecture
+
+    For example :
+
+    ```
+    "ViTables": [
+        {
+          "last_updated": "Dec 25, 2014",
+          "compatibility_tag": "py2-none",
+          "summary": "ViTables , a GUI for browsing and editing files in PyTables and HDF5 formats.",
+          "package_size": "329 KB",
+          "home_page": "http://vitables.org/",
+          "version": "2.1",
+          "url": "http://www.lfd.uci.edu/~gohlke/pythonlibs/6kbpejrn/ViTables-2.1-py2-none-any.whl",
+          "architecture": "any"
+        },
+        {
+          "last_updated": "Dec 25, 2014",
+          "compatibility_tag": "py3-none",
+          "summary": "ViTables , a GUI for browsing and editing files in PyTables and HDF5 formats.",
+          "package_size": "328 KB",
+          "home_page": "http://vitables.org/",
+          "version": "2.1",
+          "url": "http://www.lfd.uci.edu/~gohlke/pythonlibs/6kbpejrn/ViTables-2.1-py3-none-any.whl",
+          "architecture": "any"
+        }
+    ]
+    ```
+    """
+
+    #Get the path to the resource file for pythonlibs.json
+    resource_path = os.path.join(create_resource_directory(), 'pythonlibs.json')
+
+    #Loads the json file
+    with open(resource_path) as pythonlibs_file:
+        pythonlibs_data = json.load(pythonlibs_file)
+        package_list = list(pythonlibs_data.keys())
+
+        #Find the similar packages
+        similar_package_list = []
+        for module in package_list:
+            #FIX IT: Currently searches for substring, use better search metric
+            if package_name in module:
+                #Get the data of the first distribution of 'module'
+                first_dist = pythonlibs_data[module][0]
+                temp = [
+                    module,
+                    first_dist['version'],
+                    first_dist['summary'],
+                    first_dist['home_page'],
+                    first_dist['last_updated']
+                    ]
+                dist_data = []
+                for dists in pythonlibs_data[module]:
+                    dist_data.append([
+                        dists['compatibility_tag'],
+                        dists['package_size'],
+                        dists['architecture']])
+                temp.append(dist_data)
+                similar_package_list.append(temp)
+        thread_queue.put(similar_package_list)
 
 def verify_pypi_url():
     """

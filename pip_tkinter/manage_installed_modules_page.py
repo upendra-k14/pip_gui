@@ -228,7 +228,6 @@ class UpdatePackage(ttk.Frame):
         self.create_multitem_treeview()
         self.create_buttons()
 
-
     def create_multitem_treeview(self):
         """
         Create multitem treeview to show search results with headers :

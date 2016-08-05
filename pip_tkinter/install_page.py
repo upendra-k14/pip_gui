@@ -202,7 +202,7 @@ class InstallPage(ttk.Frame):
             )
 
         else:
-            #Else add InstallFromPythonlibs page
+            #Else add InstallFromPythonlibs page (for Windows systems)
             frames_tuple = (
                 InstallFromPyPI,
                 InstallFromLocalArchive,
@@ -936,7 +936,7 @@ class InstallFromPythonlibs(ttk.Frame):
             relief='ridge')
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
         self.controller = controller
-        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
         self.columnconfigure(0, weight=1)
         self.create_buttons()
         self.create_multitem_treeview()
@@ -1009,23 +1009,7 @@ class InstallFromPythonlibs(ttk.Frame):
 
     def create_search_bar(self):
 
-        import pkg_resources, os
-
-        #Configure style for search bar
-        data = pkg_resources.resource_string(__name__, 'pic.dat')
-        global s1,s2
-        s1 = tk.PhotoImage('search1', data=data, format='gif -index 0')
-        s2 = tk.PhotoImage('search2', data=data, format='gif -index 1')
         style = ttk.Style()
-        style.element_create('Search.field1', 'image', 'search1',
-            ('focus', 'search2'), border=[25, 9, 14], sticky='ew')
-        style.layout('Search.entry', [
-            ('Search.field1', {'sticky': 'nswe', 'border': 1, 'children':
-                [('Entry.padding', {'sticky': 'nswe', 'children':
-                    [('Entry.textarea', {'sticky': 'nswe'})]
-                })]
-            })]
-        )
         style.configure('Search.entry')
 
         #Create search bar and button
@@ -1040,8 +1024,19 @@ class InstallFromPythonlibs(ttk.Frame):
             text='Search',
             command=lambda : self.update_search_results())
 
-        self.entry.grid(row=0, column=0, padx=3, pady=3, sticky='nwe')
-        self.search_button.grid(row=0, column=1, padx=1, pady = 0, sticky='nw')
+        self.entry.grid(
+            row=0,
+            column=0,
+            columnspan=2,
+            padx=3,
+            pady=3,
+            sticky='nwe')
+        self.search_button.grid(
+            row=0,
+            column=2,
+            padx=1,
+            pady = 0,
+            sticky='nw')
 
     def create_multitem_treeview(self):
         """
@@ -1056,18 +1051,26 @@ class InstallFromPythonlibs(ttk.Frame):
         3. search_button
         """
 
-        self.headers = ['Python Module','Installed Version','Available Version']
+        self.headers = ['Python Module', 'Available Version']
         from pip_tkinter.utils import MultiItemsList
         self.multi_items_list = MultiItemsList(self, self.headers)
         self.multi_items_list.scroll_tree.bind(
             '<<TreeviewSelect>>', lambda x : self.scroll_tree_select())
-
+        self.multi_items_list.myframe.grid(
+            row=1,
+            column=0,
+            columnspan=3,
+            sticky='nsew')
         self.package_subwindow = tk.LabelFrame(
             self,
             text="Package Details",
             padx=5,
             pady=5)
-        self.package_subwindow.grid(row=2, column=0, columnspan=2, sticky='nswe')
+        self.package_subwindow.grid(
+            row=2,
+            column=0,
+            columnspan=3,
+            sticky='nswe')
         self.package_details = tk.Text(
             self.package_subwindow,
             wrap='word',
@@ -1101,8 +1104,8 @@ class InstallFromPythonlibs(ttk.Frame):
             item_dict = self.multi_items_list.scroll_tree.item(curr_item)
 
             selected_module = 'Module Name : {}'.format(item_dict['values'][0])
-            installed_version = 'Installed : {}'.format(item_dict['values'][1])
-            latest_version = 'Latest : {}'.format(item_dict['values'][2])
+            available_version = 'Version : {}'.format(item_dict['values'][1])
+            module_summary = 'Summary : {}'.format(item_dict['values'][2])
 
             module_summary = "Not available"
             for module in self.search_results:
