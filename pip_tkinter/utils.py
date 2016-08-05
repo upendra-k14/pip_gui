@@ -11,7 +11,6 @@ import os
 import subprocess
 import select
 import codecs
-import urllib2
 
 from pip_tkinter.config import get_build_platform
 from pip.commands.search import highest_version
@@ -447,41 +446,44 @@ def create_resource_directory():
     """
     from  pip_tkinter.config import RESOURCE_DIR
 
-    resource_dir = os.path.join(os.path.expanduser('~'), .RESOURCE_DIR)
+    resource_dir = os.path.join(os.path.expanduser('~'), RESOURCE_DIR)
     if not os.path.isdir(resource_dir):
         os.makedirs(resource_dir)
 
     return resource_dir
 
-def downloadfile(url, update_queue, error_queue):
+def downloadfile(url, update_queue):
     """
     A utility function to download file in small chunks and also to return
     download percentage
     """
     import math
+    from urllib.request import urlopen
+    from urllib.error import HTTPError, URLError
 
     targetfile = os.path.basename(url)
     resource_dir = create_resource_directory()
 
     try:
         file_path = os.path.join(resource_dir, targetfile)
-        req = urllib2.urlopen(url)
-        total_size = int(req.info().getheader('Content-Length').strip())
+        req = urlopen(url)
+        total_size = int(req.info()['Content-Length'].strip())
         downloaded = 0
         chunk_size = 256 * 10240
         with open(file_path, 'wb') as fp:
             while True:
                 chunk = req.read(chunk_size)
                 downloaded += len(chunk)
-                update_queue.put(math.floor((downloaded/total_size)*100))
+                update_queue.put((1,math.floor((downloaded/total_size)*100)))
                 if not chunk:
                     break
                 fp.write(chunk)
-    except urllib2.HTTPError, e:
-        error_queue.put("HTTP Error: {} {}".format(e.code, url))
+        update_queue.put((2,'Completed Syncing'))
+    except HTTPError as e:
+        update_queue.put((0,"HTTP Error: {} {}".format(e.code, url)))
         return False
-    except urllib2.URLError, e:
-        error_queue.put("URL Error: {} {}".format(e.reason, url))
+    except URLError as e:
+        error_queue.put((0,"URL Error: {} {}".format(e.reason, url)))
         return False
 
     return True
