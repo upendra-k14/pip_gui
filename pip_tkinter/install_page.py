@@ -934,6 +934,7 @@ class InstallFromPythonlibs(ttk.Frame):
             borderwidth=3,
             padding=0.5,
             relief='ridge')
+
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
         self.controller = controller
         self.rowconfigure(1, weight=1)
@@ -944,26 +945,34 @@ class InstallFromPythonlibs(ttk.Frame):
 
     def create_buttons(self):
         """
-        Create back and next buttons
+        Create back and next buttons, Also creates option menu for selecting
+        compatibility tag
         """
 
         self.navigate_back = ttk.Button(
             self,
-            text="Back",
+            text='Back',
             command=lambda: self.navigate_previous_frame())
         self.navigate_back.grid(row=3, column=0, sticky='w')
 
+        options = ('Select compatible dist.',)
+        self.options_var = tk.StringVar(self)
+        self.options_var.set(options[0])
+        self.option_menu = tk.OptionMenu(self, self.options_var, *options)
+        self.option_menu.grid(row=3, column=1, sticky='e')
+        self.option_menu.config(state='disabled')
+
         self.sync_button = ttk.Button(
             self,
-            text="Sync",
+            text='Sync',
             command=lambda: self.sync_pythonlibs_packages())
-        self.sync_button.grid(row=3, column=1, sticky='e')
+        self.sync_button.grid(row=3, column=2, sticky='e')
 
         self.navigate_next = ttk.Button(
             self,
-            text="Install",
+            text='Install',
             command=lambda: self.execute_pip_commands())
-        self.navigate_next.grid(row=3, column=2, sticky='e')
+        self.navigate_next.grid(row=3, column=3, sticky='e')
 
     def navigate_previous_frame(self):
         """
@@ -1106,25 +1115,41 @@ class InstallFromPythonlibs(ttk.Frame):
             selected_module = 'Module Name : {}'.format(item_dict['values'][0])
             available_version = 'Version : {}'.format(item_dict['values'][1])
             module_summary = 'Summary : {}'.format(item_dict['values'][2])
+            home_page = 'Home Page : {}'.format(item_dict['values'][3])
+            last_updated = 'Last Updated : {}'.format(item_dict['values'][4])
 
-            module_summary = "Not available"
-            for module in self.search_results:
-                if module[0] == item_dict['values'][0]:
-                    module_summary = module[3]
-                    break
-            module_summary = 'Summary : {}'.format(module_summary)
-
-            selected_package_details = '{}\n{}\n{}\n{}'.format(
+            selected_package_details = '{}\n{}\n{}\n{}\n{}'.format(
                 selected_module,
+                available_version,
                 module_summary,
-                installed_version,
-                latest_version)
+                home_page,
+                last_updated,)
             self.package_details.configure(state='normal')
             self.package_details.delete(1.0, 'end')
             self.package_details.insert(1.0, selected_package_details)
             self.package_details.configure(state='disabled')
 
-        except:
+            #search for module name in self.search_results
+            new_options = []
+            for items in self.search_results:
+                if items[0]==item_dict['values'][0]:
+                    self.module_details = items
+                    for x in items[5:]:
+                        new_options.append(x[0])
+                    new_options = tuple(new_options)
+
+            #Update compatibility options in option menu
+            self.option_menu.config(state='normal')
+            self.option_menu['menu'].delete(0,'end')
+
+            #update options menu
+            for opt_tag in new_options:
+                self.option_menu['menu'].add_command(
+                    label=opt_tag,
+                    command=tk._setit(self.options_var, opt_tag))
+
+        except Exception as e:
+            print (e)
             self.package_details.configure(state='normal')
             self.package_details.delete(1.0, 'end')
             self.package_details.insert(1.0, 'No module selected')
@@ -1165,6 +1190,7 @@ class InstallFromPythonlibs(ttk.Frame):
 
             try:
                 self.multi_items_list.populate_rows(results_tuple)
+                self.module_details = None
                 self.controller.debug_bar.config(text='Fetched search results')
 
             except TypeError:
@@ -1193,20 +1219,29 @@ class InstallFromPythonlibs(ttk.Frame):
 
     def update_installation_log(self):
 
-        from pip_tkinter.utils import pip_install_from_PyPI
+        from pip_tkinter.utils import pip_install_from_pythonlibs
 
         try:
             curr_item = self.multi_items_list.scroll_tree.focus()
             item_dict = self.multi_items_list.scroll_tree.item(curr_item)
-            selected_module = item_dict['values'][0]
+            dists = item_dict['values'][5]
 
             self.controller.show_task_frame()
             self.install_queue = multiprocessing.Queue()
 
+            selected_url = ''
+            if self.module_details==None:
+                return
+            else:
+                for x in self.module_details[5:]:
+                    if x[0]==self.options_var.get():
+                        print (x[3])
+                        selected_url = x[3]
+
             self.update_thread = multiprocessing.Process(
-                target=pip_install_from_PyPI,
+                target=pip_install_from_pythonlibs,
                 kwargs={
-                    'package_args':selected_module,
+                    'package_url':selected_url,
                     'install_queue':self.install_queue})
 
             self.install_log_started = False
@@ -1221,7 +1256,6 @@ class InstallFromPythonlibs(ttk.Frame):
 
         except IndexError:
             self.controller.debug_bar.config(text='Select correct package')
-
 
     def log_from_install_queue(self):
         try:

@@ -388,6 +388,19 @@ def pip_install_from_PyPI(package_args=None, install_queue=None):
     install_process = RunpipSubprocess(package_args, install_queue)
     install_process.start_logging_threads()
 
+def pip_install_from_pythonlibs(package_url, install_queue=None):
+    """
+    Install from pythonlibs packages
+    """
+
+    if get_build_platform()=='Windows':
+        permission_prefix = ''
+    elif get_build_platform()=='Linux':
+        permission_prefix = 'gksudo -- '
+    package_args = '{}pip3 install {}'.format(permission_prefix, package_url)
+    install_process = RunpipSubprocess(package_url, install_queue)
+    install_process.start_logging_threads()
+
 def pip_install_from_local_archive(package_args, install_queue=None):
     """
     Wrapper for installing pip package from local Archive
@@ -481,6 +494,8 @@ def pythonlibs_search_command(package_name=None, thread_queue=None):
     ]
     ```
     """
+    from pip_tkinter.config import find_bit_of_python
+    platform_bit = find_bit_of_python()
 
     #Get the path to the resource file for pythonlibs.json
     resource_path = os.path.join(create_resource_directory(), 'pythonlibs.json')
@@ -492,27 +507,52 @@ def pythonlibs_search_command(package_name=None, thread_queue=None):
 
         #Find the similar packages
         similar_package_list = []
+
         for module in package_list:
             #FIX IT: Currently searches for substring, use better search metric
             if package_name in module:
-                #Get the data of the first distribution of 'module'
-                first_dist = pythonlibs_data[module][0]
-                temp = [
-                    module,
-                    first_dist['version'],
-                    first_dist['summary'],
-                    first_dist['home_page'],
-                    first_dist['last_updated']
-                    ]
-                dist_data = []
+                #Check if there are compatible distributions available
+                #If available add to search results else drop it
+                compatible_dists = []
                 for dists in pythonlibs_data[module]:
-                    dist_data.append([
-                        dists['compatibility_tag'],
-                        dists['package_size'],
-                        dists['architecture']])
-                temp.append(dist_data)
-                similar_package_list.append(temp)
-        thread_queue.put(similar_package_list)
+                    #Check if compatibility_tag contains cp34 or py3
+                    if '3' in dists['compatibility_tag']:
+                        #If 'any' , then is compatible with any system
+                        if 'any' in dists['architecture']:
+                            compatible_dists.append((
+                                dists['compatibility_tag'],
+                                dists['package_size'],
+                                dists['architecture'],
+                                dists['url'],))
+                        else:
+                            if platform_bit == '64bit':
+                                if '64' in dists['architecture']:
+                                    compatible_dists.append((
+                                        dists['compatibility_tag'],
+                                        dists['package_size'],
+                                        dists['architecture'],
+                                        dists['url'],))
+
+                            elif platform_bit == '32bit':
+                                if '32' in dists['architecture']:
+                                    compatible_dists.append((
+                                        dists['compatibility_tag'],
+                                        dists['package_size'],
+                                        dists['architecture'],
+                                        dists['url'],))
+
+                if len(compatible_dists)!=0:
+                    #Get the data of the first distribution of 'module'
+                    first_dist = pythonlibs_data[module][0]
+                    temp = [
+                        module,
+                        first_dist['version'],
+                        first_dist['summary'],
+                        first_dist['home_page'],
+                        first_dist['last_updated'],]
+                    temp.extend(compatible_dists)
+                    similar_package_list.append(temp)
+        thread_queue.put(tuple(similar_package_list))
 
 def verify_pypi_url():
     """
