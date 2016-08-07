@@ -390,14 +390,20 @@ def pip_install_from_PyPI(package_args=None, install_queue=None):
 
 def pip_install_from_pythonlibs(package_url, install_queue=None):
     """
-    Install from pythonlibs packages
+    Install from pythonlibs packages in two steps :
+
+    1. Download file
+    2. Use pip install to install file
     """
 
-    if get_build_platform()=='Windows':
-        permission_prefix = ''
-    elif get_build_platform()=='Linux':
-        permission_prefix = 'gksudo -- '
-    package_args = '{}pip3 install {}'.format(permission_prefix, package_url)
+    #Step 1 : Download the file
+    flag = downloadfile(package_url, install_queue)
+
+    from pip.config import RESOURCE_DIR
+
+    #Step 2 : Install the downloaded .whl file
+    package_args = 'pip3 install {}'.format(
+        os.path.join(RESOURCE_DIR,os.path.basename(package_url))
     install_process = RunpipSubprocess(package_url, install_queue)
     install_process.start_logging_threads()
 
@@ -515,7 +521,8 @@ def pythonlibs_search_command(package_name=None, thread_queue=None):
                 #If available add to search results else drop it
                 compatible_dists = []
                 for dists in pythonlibs_data[module]:
-                    #Check if compatibility_tag contains cp34 or py3
+                    #Check if compatibility_tag contains cp34 or cp35 or py3
+                    #Filter out dists with tag with only cp27 or py2
                     if '3' in dists['compatibility_tag']:
                         #If 'any' , then is compatible with any system
                         if 'any' in dists['architecture']:
