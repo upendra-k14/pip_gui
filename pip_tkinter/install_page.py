@@ -1001,14 +1001,14 @@ class InstallFromPythonlibs(ttk.Frame):
     def update_sync_messages(self):
         try:
             message = self.update_queue.get(0)
-            if message[0]==0:
+            if (message[0]==3):
                 self.controller.debug_bar.config(text=message[1])
                 self.sync_button.config(state='normal')
                 return
-            elif message[0]==1:
+            elif (message[0]==1 or message[0]==0):
                 self.controller.debug_bar.config(text='Syncing : {}'.format(str(message[1])))
                 self.after(10, self.update_sync_messages)
-            else:
+            elif (message[0]==2):
                 self.controller.debug_bar.config(text=message[1])
                 self.sync_button.config(state='normal')
                 return
@@ -1036,13 +1036,13 @@ class InstallFromPythonlibs(ttk.Frame):
         self.entry.grid(
             row=0,
             column=0,
-            columnspan=2,
+            columnspan=3,
             padx=3,
             pady=3,
             sticky='nwe')
         self.search_button.grid(
             row=0,
-            column=2,
+            column=3,
             padx=1,
             pady = 0,
             sticky='nw')
@@ -1068,7 +1068,7 @@ class InstallFromPythonlibs(ttk.Frame):
         self.multi_items_list.myframe.grid(
             row=1,
             column=0,
-            columnspan=3,
+            columnspan=4,
             sticky='nsew')
         self.package_subwindow = tk.LabelFrame(
             self,
@@ -1078,7 +1078,7 @@ class InstallFromPythonlibs(ttk.Frame):
         self.package_subwindow.grid(
             row=2,
             column=0,
-            columnspan=3,
+            columnspan=4,
             sticky='nswe')
         self.package_details = tk.Text(
             self.package_subwindow,
@@ -1235,7 +1235,6 @@ class InstallFromPythonlibs(ttk.Frame):
             else:
                 for x in self.module_details[5:]:
                     if x[0]==self.options_var.get():
-                        print (x[3])
                         selected_url = x[3]
 
             self.update_thread = multiprocessing.Process(
@@ -1246,7 +1245,8 @@ class InstallFromPythonlibs(ttk.Frame):
 
             self.install_log_started = False
             self.error_log_started = False
-            self.after(100, self.log_from_install_queue)
+            self.after(100, self.log_from_download_queue)
+            #self.after(100, self.log_from_install_queue)
 
             self.update_thread.start()
 
@@ -1256,6 +1256,44 @@ class InstallFromPythonlibs(ttk.Frame):
 
         except IndexError:
             self.controller.debug_bar.config(text='Select correct package')
+
+    def log_from_download_queue(self):
+        try:
+            self.install_message = self.install_queue.get(0)
+            if (self.install_message[0]==0):
+                self.controller.process_details.config(state='normal')
+                self.controller.process_details.delete(1.0,'end')
+                self.controller.process_details.config(state='disabled')
+
+            elif (self.install_message[0]==1):
+                self.controller.process_details.config(state='normal')
+                self.controller.process_details.insert(
+                    'end',
+                    'Downloading {}'.format(self.install_message[1]))
+                self.controller.process_details.config(state='disabled')
+
+            elif (self.install_message[0]==2):
+                self.controller.process_details.config(state='normal')
+                self.controller.process_details.insert(
+                    'end',
+                    'Done {}'.format(self.install_message[1]))
+                self.controller.process_details.config(state='disabled')
+                self.after(20, self.log_from_install_queue)
+                return
+
+            else:
+                self.controller.process_details.config(state='normal')
+                self.controller.process_details.insert(
+                    'end',
+                    self.install_message[1])
+                self.controller.process_details.config(state='disabled')
+                return
+
+            self.after(20, self.log_from_download_queue)
+
+        except queue.Empty:
+            self.after(100, self.log_from_download_queue)
+
 
     def log_from_install_queue(self):
         try:

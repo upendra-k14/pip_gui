@@ -398,14 +398,19 @@ def pip_install_from_pythonlibs(package_url, install_queue=None):
 
     #Step 1 : Download the file
     flag = downloadfile(package_url, install_queue)
-
-    from pip.config import RESOURCE_DIR
+    from pip_tkinter.config import RESOURCE_DIR
 
     #Step 2 : Install the downloaded .whl file
-    package_args = 'pip3 install {}'.format(
-        os.path.join(RESOURCE_DIR,os.path.basename(package_url))
-    install_process = RunpipSubprocess(package_url, install_queue)
-    install_process.start_logging_threads()
+    if flag:
+        print (os.path.join(
+            os.path.expanduser('~'),
+            os.path.join(RESOURCE_DIR, os.path.basename(package_url))))
+        package_args = 'pip3 install {}'.format(
+            os.path.join(
+                os.path.expanduser('~'),
+                os.path.join(RESOURCE_DIR, os.path.basename(package_url))))
+        install_process = RunpipSubprocess(package_url, install_queue)
+        install_process.start_logging_threads()
 
 def pip_install_from_local_archive(package_args, install_queue=None):
     """
@@ -590,18 +595,26 @@ def downloadfile(url, update_queue):
     download percentage
     """
     import math
-    from urllib.request import urlopen
+    from urllib.request import urlopen, Request
     from urllib.error import HTTPError, URLError
 
     targetfile = os.path.basename(url)
     resource_dir = create_resource_directory()
 
     try:
+        update_queue.put((0,'Started downloading ...'))
+
         file_path = os.path.join(resource_dir, targetfile)
-        req = urlopen(url)
+        req = Request(
+            url=url,
+            headers={'User-Agent':'Mozilla/5.0 (Windows NT 6.1; rv:47.0) Gecko/20100101 Firefox/47.0'})
+        req = urlopen(req)
+
         total_size = int(req.info()['Content-Length'].strip())
+
         downloaded = 0
         chunk_size = 256 * 10240
+
         with open(file_path, 'wb') as fp:
             while True:
                 chunk = req.read(chunk_size)
@@ -610,12 +623,12 @@ def downloadfile(url, update_queue):
                 if not chunk:
                     break
                 fp.write(chunk)
-        update_queue.put((2,'Completed Syncing'))
+        update_queue.put((2,'Completed downloading'))
     except HTTPError as e:
-        update_queue.put((0,"HTTP Error: {} {}".format(e.code, url)))
+        update_queue.put((3,"HTTP Error: {} {}".format(e.code, url)))
         return False
     except URLError as e:
-        error_queue.put((0,"URL Error: {} {}".format(e.reason, url)))
+        update_queue.put((3,"URL Error: {} {}".format(e.reason, url)))
         return False
 
     return True
