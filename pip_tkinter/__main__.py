@@ -12,7 +12,13 @@ logger = logging.getLogger(__name__)
 
 class MainApp(tk.Tk):
     """
-    Main application
+    Main application : initiation point for app
+
+    :param self.parent: Parent of MainApp
+    :param self.container: A child frame of MainApp to enclose contents of
+    MainApp
+    :param theme_style: to set theme of application , tkinter 'clam' theme
+
     """
 
     def __init__(self, root):
@@ -36,6 +42,10 @@ class MainApp(tk.Tk):
         Manage multiple frames. Creates dictionary of multiple frames to
         be used for showing user different GUI frames for different ways of
         installation.
+
+        :param frames_tuple: A tuple to store the sub pages class
+        :param frames_dict: Dictionary to store created sub pages, used to save
+        a reference to sub pages in order to switch between tabs
         """
 
         from pip_tkinter.install_page import InstallPage
@@ -59,6 +69,12 @@ class MainApp(tk.Tk):
         self.show_frame('WelcomePage')
 
     def show_frame(self, frame_name):
+        """
+        Method to switch between different frames and set the size of sub
+        pages
+
+        :param frame: stores the reference of the frame to be shown on the top
+        """
 
         if frame_name!='WelcomePage':
             self.adjust_window(0.75, 0.8)
@@ -72,7 +88,14 @@ class MainApp(tk.Tk):
     def adjust_window(self, xratio, yratio):
         """
         Set the window at center position of the screen and adjust it's
-        size depending on screen size
+        size depending on screen size. Sets the geometry of parent object
+
+        :param screen_width: variable to store the current screen width
+        :param screen_height: variable to store the current screen height
+        :param self.window_width: stores the window width of tkinter frame
+        :param self.window_height: stores the window height of tkinter frame
+        :param x: stores the x coordinate of center of screen
+        :param y: stores the y coordinate of center of screen
         """
 
         # Get the screen width and screen height
@@ -96,10 +119,17 @@ class MainApp(tk.Tk):
         )
 
     def onExit(self):
+        """
+        Method to handle the wrap up to be done when exiting the application
+        """
+
         self.parent.destroy()
 
 
 class MainloopExceptionCatcher:
+    """
+    Class to catch tkinter mainloop exceptions
+    """
 
     def __init__(self, func, subst, widget):
         self.func = func
@@ -121,45 +151,51 @@ class MainloopExceptionCatcher:
 def configure_loggers():
     """
     Configure the loggers for the pip_tkinter application
+
+    :param logger: a Python logging object which serves purpose of logging
+    errors and important information for sake of recording information
+    :param logging_dir: directory in which logging files will be saved
+    :param handler1: a Python logging handler with logging level 'INFO'
+    :param handler2: a Python logging handler with logging level 'ERROR'
+    :param handler3: a Python logging handler with logging level 'DEBUG'
     """
 
     logger.setLevel(logging.DEBUG)
 
-    #Create a logging directory if not there
-    logging_dir = os.path.join(os.path.expanduser('~'),'.pip_tkinter')
-    if not os.path.isdir(logging_dir):
-        os.makedirs(logging_dir)
+    #Create a resource directory if not there
+    from pip_tkinter.utils import create_resource_directory
+    resource_dir = create_resource_directory()
 
     # creating logger for logging output to console
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.INFO)
+    handler1 = logging.StreamHandler()
+    handler1.setLevel(logging.INFO)
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    handler1.setFormatter(formatter)
+    logger.addHandler(handler1)
 
     # Log to a file
-    handler = logging.FileHandler(
-        os.path.join(logging_dir, 'pip_error.log'),
+    handler2 = logging.FileHandler(
+        os.path.join(resource_dir, 'pip_error.log'),
         'a',
         encoding='utf-8',
         delay='true')
-    handler.setLevel(logging.ERROR)
+    handler2.setLevel(logging.ERROR)
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    handler2.setFormatter(formatter)
+    logger.addHandler(handler2)
 
     # create debug file handler and set level to debug
-    handler = logging.FileHandler(
-        os.path.join(logging_dir, 'pip_all.log'),
+    handler3 = logging.FileHandler(
+        os.path.join(resource_dir, 'pip_all.log'),
         'a',
         encoding='utf-8')
-    handler.setLevel(logging.DEBUG)
+    handler3.setLevel(logging.DEBUG)
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    handler3.setFormatter(formatter)
+    logger.addHandler(handler3)
 
 
 if __name__ == "__main__":
