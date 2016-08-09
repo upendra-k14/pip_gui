@@ -5,6 +5,9 @@ import re
 import sys
 import platform
 
+#Resource and logging dir for pip_tkinter
+RESOURCE_DIR = '.pip_tkinter'
+
 def get_build_platform():
     """
     Get OS of the device
@@ -80,6 +83,7 @@ def get_python_distributions_in_windows():
     3. HKEY_LOCAL_MACHINE\Wow6432Node\Python\<Company>\<Tag>\<InstallPath>
 
     """
+    pass
 
 
 if __name__ == "__main__":
