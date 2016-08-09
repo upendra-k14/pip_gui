@@ -679,3 +679,10 @@ class UninstallPackage(ttk.Frame):
         self.navigate_next.config(state='normal')
         self.refresh_button.config(state='normal')
         self.update_thread.terminate()
+
+class FreezeRequirementsPage(self):
+
+    """
+    Page for providing options for 'pip freeze'. User can generate requirement
+    file and save it to desired location
+    """
