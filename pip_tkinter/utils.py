@@ -409,7 +409,7 @@ def pip_install_from_pythonlibs(package_url, install_queue=None):
             os.path.join(
                 os.path.expanduser('~'),
                 os.path.join(RESOURCE_DIR, os.path.basename(package_url))))
-        install_process = RunpipSubprocess(package_url, install_queue)
+        install_process = RunpipSubprocess(package_args, install_queue)
         install_process.start_logging_threads()
 
 def pip_install_from_local_archive(package_args, install_queue=None):

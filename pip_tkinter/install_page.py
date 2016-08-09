@@ -1267,17 +1267,13 @@ class InstallFromPythonlibs(ttk.Frame):
 
             elif (self.install_message[0]==1):
                 self.controller.process_details.config(state='normal')
+                self.controller.process_details.delete(1.0,'end')
                 self.controller.process_details.insert(
                     'end',
-                    'Downloading {}'.format(self.install_message[1]))
+                    'Downloading {}\%\n'.format(self.install_message[1]))
                 self.controller.process_details.config(state='disabled')
 
             elif (self.install_message[0]==2):
-                self.controller.process_details.config(state='normal')
-                self.controller.process_details.insert(
-                    'end',
-                    'Done {}'.format(self.install_message[1]))
-                self.controller.process_details.config(state='disabled')
                 self.after(20, self.log_from_install_queue)
                 return
 
