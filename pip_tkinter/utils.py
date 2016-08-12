@@ -161,7 +161,7 @@ def runpip_using_subprocess(argstring):
     """
     Run pip with argument string containing command and options. Uses
     subprocess module for executing pip commands. Returns output and error
-    once execution of process teriminates
+    once execution of process terminates
 
     :param argstring: is quoted version of what would follow 'pip' on command \
     line.
@@ -454,6 +454,22 @@ def pip_uninstall(package_args, uninstall_queue=None):
     package_args = '{}pip3 uninstall --yes {}'.format(permission_prefix, package_args)
     uninstall_process = RunpipSubprocess(package_args, uninstall_queue)
     uninstall_process.start_logging_threads()
+
+def pip_freeze_command():
+    """
+    Generate requirements
+    """
+    list_output, error = runpip_using_subprocess('pip3 freeze')
+    package_list = []
+    for x in list_output.split("\n"):
+        temp = x.split("===")
+        if len(temp) == 1:
+            temp = x.split("==")
+            if len(temp) != 1:
+                package_list.append(temp)
+        else:
+            package_list.append(temp)
+    return (package_list)
 
 def pythonlibs_search_command(package_name=None, thread_queue=None):
     """
