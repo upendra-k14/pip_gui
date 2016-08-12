@@ -273,7 +273,7 @@ class InstallFromPyPI(ttk.Frame):
         import pkg_resources, os
 
         #Configure style for search bar
-        data= pkg_resources.resource_string(__name__, 'resources/pic.dat')
+        data= pkg_resources.resource_string(__name__, 'pic.dat')
         global s1,s2
         s1 = tk.PhotoImage('search1', data=data, format='gif -index 0')
         s2 = tk.PhotoImage('search2', data=data, format='gif -index 1')
