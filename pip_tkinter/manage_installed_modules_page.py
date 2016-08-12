@@ -135,6 +135,7 @@ class ManageInstalledPage(ttk.Frame):
         # Button text
         update_archive_text = "Update Installed Packages"
         uninstall_archive_text = "Uninstall Package"
+        freeze_req_text = "Freeze Requirements"
 
         # Button style
         navbar_button_style = ttk.Style()
@@ -160,6 +161,14 @@ class ManageInstalledPage(ttk.Frame):
         )
         self.button_uninstall.grid(row=1, column=0, sticky='nwe')
 
+        self.button_freeze = ttk.Button(
+            self.navbar_frame,
+            text=freeze_req_text,
+            style='navbar.TButton',
+            command=lambda : self.show_frame('FreezeRequirementsPage')
+        )
+        self.button_freeze.grid(row=2, column=0, sticky='nwe')
+
     def manage_frames(self):
         """
         Manage multiple frames. Creates dictionary of multiple frames to
@@ -169,7 +178,8 @@ class ManageInstalledPage(ttk.Frame):
 
         frames_tuple = (
             UpdatePackage,
-            UninstallPackage)
+            UninstallPackage,
+            FreezeRequirementsPage,)
 
         self.frames_dict = {}
         for F in frames_tuple:
@@ -680,9 +690,134 @@ class UninstallPackage(ttk.Frame):
         self.refresh_button.config(state='normal')
         self.update_thread.terminate()
 
-class FreezeRequirementsPage(self):
+class FreezeRequirementsPage(ttk.Frame):
 
     """
     Page for providing options for 'pip freeze'. User can generate requirement
     file and save it to desired location
     """
+
+    def __init__(self, parent, controller):
+
+        ttk.Frame.__init__(
+            self,
+            parent,
+            borderwidth=3,
+            padding=0.5,
+            relief='ridge')
+
+        self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
+        self.controller = controller
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+        self.create_multitem_treeview()
+        self.create_buttons()
+
+
+    def create_multitem_treeview(self):
+        """
+        Create multitem treeview to show search results with headers :
+        1. Python Module
+        2. Installed version
+        """
+
+        self.headers = ['Python Module','Installed Version']
+        from pip_tkinter.utils import MultiItemsList
+        self.multi_items_list = MultiItemsList(self, self.headers)
+        self.multi_items_list.myframe.grid(
+            row=0,
+            column=0,
+            columnspan=4,
+            sticky='nswe')
+        self.multi_items_list.scroll_tree.bind(
+            '<<TreeviewSelect>>', lambda x : self.scroll_tree_select())
+        self.multi_items_list.scroll_tree.config(selectmode='extended')
+
+    def scroll_tree_select(self):
+        """
+        Update debug bar with number of packages selected
+        """
+
+        self.controller.debug_bar.config(
+            text="No. of packages selected {}".format(
+                str(len(self.multi_items_list.scroll_tree.selection()))))
+
+    def refresh_installed_packages(self):
+        """
+        Show search results
+        """
+
+        from pip_tkinter.utils import pip_list_command
+
+        self.installed_packages_list = pip_list_command()
+        results_tuple = self.installed_packages_list
+        self.multi_items_list.populate_rows(results_tuple)
+
+        self.controller.debug_bar.config(text='Found installed packages')
+
+    def create_buttons(self):
+        """
+        Create nav and control buttons
+        """
+
+        self.navigate_back = ttk.Button(
+            self,
+            text="Back",
+            command=lambda: self.navigate_previous_frame())
+        self.navigate_back.grid(row=3, column=0, sticky='w', padx=1, pady=1)
+
+        self.refresh_button = ttk.Button(
+            self,
+            text="Refresh",
+            command=lambda: self.refresh_installed_packages())
+        self.refresh_button.grid(row=3, column=1, sticky='e', padx=1, pady=1)
+
+        self.navigate_next = ttk.Button(
+            self,
+            text="Generate Requirements",
+            command=lambda: self.execute_pip_commands())
+        self.navigate_next.grid(row=3, column=2, sticky='e', padx=1, pady=1)
+
+    def navigate_previous_frame(self):
+        """
+        Navigate to previous frame
+        """
+        self.controller.controller.show_frame('WelcomePage')
+
+    def refresh_installed_packages(self):
+        """
+        Update list of installed packages
+        """
+        from pip_tkinter.utils import pip_freeze_command
+
+        self.installed_packages_list = pip_freeze_command()
+        results_tuple = self.installed_packages_list
+        self.multi_items_list.populate_rows(results_tuple)
+
+        self.controller.debug_bar.config(text='Found installed packages')
+
+    def execute_pip_commands(self):
+        """
+        Execute the command for generating requirements file
+        """
+
+        requirements_text = ''
+        for item in self.multi_items_list.scroll_tree.selection():
+            item_dict = self.multi_items_list.scroll_tree.item(item)
+            requirements_text += '{}=={}\n'.format(
+                item_dict['values'][0],
+                item_dict['values'][1])
+
+        from tkinter.filedialog import asksaveasfile
+        from os.path import expanduser
+
+        file_pt = asksaveasfile(
+            mode='w',
+            defaultextension='.txt',
+            initialdir=expanduser('~'))
+
+        if file_pt is None:
+            return
+
+        file_pt.write(requirements_text)
+        file_pt.close()
