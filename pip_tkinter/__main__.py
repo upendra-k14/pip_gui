@@ -197,8 +197,10 @@ def configure_loggers():
     handler3.setFormatter(formatter)
     logger.addHandler(handler3)
 
-
-if __name__ == "__main__":
+def main(args=None):
+    """
+    The main function
+    """
 
     configure_loggers()
     logger.info("Welcome today")
@@ -207,3 +209,7 @@ if __name__ == "__main__":
     # root.resizable(width='false', height='false')
     main_app = MainApp(root)
     root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
