@@ -586,11 +586,12 @@ def verify_pypi_url():
     """
     Check if URL can be accessed
     """
-    try:
-        http_conn = http.client.HTTPConnection('https://pypi.python.org/pypi')
-        http_conn.connect()
+
+    import requests
+    request = requests.get('https://pypi.python.org/pypi')
+    if request.status_code == 200:
         return True
-    except http.client.HTTPException:
+    else:
         return False
 
 def create_resource_directory():

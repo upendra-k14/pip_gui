@@ -1171,7 +1171,7 @@ class InstallFromPythonlibs(ttk.Frame):
         self.search_button.config(state='disabled')
 
         #Spawn a new thread for searching packages,
-        #Search results will be returned in the @param : self.thread_queue
+        #Search results will be returned in the @param : self.search_queue
         self.search_queue = multiprocessing.Queue()
 
         from pip_tkinter.utils import pythonlibs_search_command
