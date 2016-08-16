@@ -242,7 +242,8 @@ class TestGUIApp(unittest.TestCase):
 
             while(True):
                 try:
-                    print (update_page.outdated_list)
+                    update_page.update()
+                    update_page.outdated_list
                     break
                 except AttributeError as e:
                     continue
