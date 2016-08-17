@@ -53,6 +53,7 @@ class TestGUIApp(unittest.TestCase):
             self.check_manage_installed_modules,
             self.check_uninstall_modules,
             self.check_update_modules,
+            self.check_freeze_requirements,
         )
 
         for test_page in check_pages:
@@ -188,15 +189,61 @@ class TestGUIApp(unittest.TestCase):
         install_from_pythonlibs = install_page.frames_dict[
             'InstallFromPythonlibs']
 
-        #WRITE TEST
+        #Set focus to search entry widget
+        install_from_pythonlibs.entry.focus_force()
+        install_from_pythonlibs.entry.update()
+        install_from_pythonlibs.entry.insert(0, 'Hello')
+
+        #Check if entry widget has text 'Hello'
+        self.assertEqual(install_from_pythonlibs.entry.get(),'Hello')
+
+        #Delete contents of entry widget
+        install_from_pythonlibs.entry.focus_force()
+        install_from_pythonlibs.entry.delete(0, 'end')
+        self.assertEqual(install_from_pythonlibs.entry.get(),'')
+
+        #Search for pip using search
+        install_from_pythonlibs.entry.focus_force()
+        install_from_pythonlibs.entry.insert(0, 'al')
+        install_from_pythonlibs.update()
+        install_from_pythonlibs.search_button.invoke()
+
+        #Wait for the search thread to end
+        install_from_pythonlibs.search_thread.join()
+        #Update the GUI with retrieved multi_items_list
+        install_from_pythonlibs.update()
+
+        #Cross check the number of elements of treeview with the list of
+        #not updated packages
+        treeview = install_from_pythonlibs.multi_items_list.scroll_tree
+        tree_children = treeview.get_children()
+        self.assertEqual(
+            len(tree_children),
+            len(install_from_pythonlibs.outdated_list))
+
+        #Cross check if both results are same
+        for item, package in zip(tree_children, install_from_pythonlibs.outdated_list):
+            item_dict = install_from_pythonlibs.multi_items_list.scroll_tree.item(item)
+            self.assertEqual(item_dict['values'][0], package[0])
+
+        #Check if there are some elements in treeview
+        if(len(tree_children)>0):
+            #Select first item and set the focus to first item
+            treeview.selection_set(tree_children[0])
+            treeview.focus(tree_children[0])
+            install_from_pythonlibs.update()
+
+            #get iid of currently focused/selected item
+            curr_item = treeview.focus()
+            self.assertEqual(curr_item, tree_children[0])
 
     def check_manage_installed_modules(self):
         """"
         Test manage installed modules page
         """
 
-        install_page = self.main_app.frames_dict["InstallPage"]
-        install_from_pypi = install_page.frames_dict["InstallFromPyPI"]
+        mng_installed_page = self.main_app.frames_dict["ManageInstalledPage"]
+        uninstall_page = mng_installed_page.frames_dict["UninstallPackage"]
         #Test switching between different tabs.frames in manage installed page
 
     def check_uninstall_modules(self):
@@ -240,6 +287,7 @@ class TestGUIApp(unittest.TestCase):
             update_page.refresh_button.invoke()
             update_page.update()
 
+            #Wait for the oudated list to be generated 
             while(True):
                 try:
                     update_page.update()
@@ -283,7 +331,7 @@ class TestGUIApp(unittest.TestCase):
             len(freeze_req_page.installed_packages_list))
 
         #Cross check if both results are same
-        for item, package in zip(tree_children, uninstall_page.installed_packages_list):
+        for item, package in zip(tree_children, freeze_req_page.installed_packages_list):
             item_dict = freeze_req_page.multi_items_list.scroll_tree.item(item)
             self.assertEqual(item_dict['values'][0], package[0])
 
