@@ -351,7 +351,7 @@ def pip_search_command(package_name=None, thread_queue=None):
                     [pkg_name,'Not installed',latest_version,summary])
             #Else if package is outdated, also show the outdated version
             elif 'INSTALLED:' in x:
-                #If OS is not Windows
+                #If OS is not Windows (Refer to sample output for Linux/Unix)
                 if get_build_platform()!='Windows':
                     st_index = x.index(':')
                     end_index = x.index('(')
@@ -422,6 +422,8 @@ def pip_install_from_PyPI(package_args=None, install_queue=None):
         permission_prefix = ''
     elif get_build_platform()=='Linux':
         permission_prefix = 'gksudo -- '
+    elif get_build_platform()=='Darwin':
+        permission_prefix = ''
     package_args = '{}pip3 install -U --no-cache-dir {}'.format(permission_prefix, package_args)
     install_process = RunpipSubprocess(package_args, install_queue)
     install_process.start_logging_threads()
@@ -458,6 +460,8 @@ def pip_install_from_local_archive(package_args, install_queue=None):
         permission_prefix = ''
     elif get_build_platform()=='Linux':
         permission_prefix = 'gksudo -- '
+    elif get_build_platform()=='Darwin':
+        permission_prefix = ''
     package_args = '{}pip3 install {}'.format(permission_prefix, package_args)
     install_process = RunpipSubprocess(package_args, install_queue)
     install_process.start_logging_threads()
@@ -470,6 +474,8 @@ def pip_install_from_requirements(package_args, install_queue=None):
         permission_prefix = ''
     elif get_build_platform()=='Linux':
         permission_prefix = 'gksudo -- '
+    elif get_build_platform()=='Darwin':
+        permission_prefix = ''
     package_args = '{}pip3 install -r {}'.format(permission_prefix, package_args)
     install_process = RunpipSubprocess(package_args, install_queue)
     install_process.start_logging_threads()
@@ -489,6 +495,8 @@ def pip_uninstall(package_args, uninstall_queue=None):
         permission_prefix = ''
     elif get_build_platform()=='Linux':
         permission_prefix = 'gksudo -- '
+    elif get_build_platform()=='Darwin':
+        permission_prefix = ''
     package_args = '{}pip3 uninstall --yes {}'.format(permission_prefix, package_args)
     uninstall_process = RunpipSubprocess(package_args, uninstall_queue)
     uninstall_process.start_logging_threads()
