@@ -7,6 +7,7 @@ Therefore, three most useful user tasks are implemented :
 a)  Install From PyPI
 b)  Install From Local Archive
 c)  Install From Requirements File
+d)  Install From PythonLibs
 
 The GUI options for switching betweeb these pages are provided as a set of
 buttons stacked vertically in a tkinter frame. Further options can be added
@@ -62,3 +63,30 @@ Install From Local Archive Files.
 
 .. toctree::
     :maxdepth: 2
+
+Install From PythonLibs
+-----------------------
+
+The functionality to download and install Windows binary from
+Pythonlibs (http://www.lfd.uci.edu/~gohlke/pythonlibs/) is provided by this
+page. The implementation can be broken down in two parts :
+
+-   Page Layout
+        The page layout has options for searching through available Windows
+        binaries, installation and sync with backend. The backend is explained
+        in next section.
+
+-   Pythonlibs Backend
+        For optimum user performance ( that is to provide instant search
+        results ), it is necessary to minimize time delay between giving search
+        query and recieving search results. Therefore, application maintains
+        a local Pythonlibs backend with an option for syncing with latest
+        backend available online here:
+        `pythonlibs_modules https://github.com/upendra-k14/pythonlibs_modules`_
+
+        The Pythonlibs backend is essentially a json file with crawled metadata
+        from Pythonlibs. The crawler is deployed as a cron job to daily crawl
+        metadata from Pythonlibs and automatically commit to :
+        `pythonlibs_modules https://github.com/upendra-k14/pythonlibs_modules`_
+
+        The crawler code is `here https://github.com/upendra-k14/pip_gui/tree/master/pythonlibscron`_

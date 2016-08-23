@@ -202,7 +202,7 @@ class TestGUIApp(unittest.TestCase):
         install_from_pythonlibs.entry.delete(0, 'end')
         self.assertEqual(install_from_pythonlibs.entry.get(),'')
 
-        #Search for 'al' using search
+        #Search for pip using search
         install_from_pythonlibs.entry.focus_force()
         install_from_pythonlibs.entry.insert(0, 'al')
         install_from_pythonlibs.update()
@@ -214,7 +214,7 @@ class TestGUIApp(unittest.TestCase):
         install_from_pythonlibs.update()
 
         #Cross check the number of elements of treeview with the list of
-        #available packages
+        #not updated packages
         treeview = install_from_pythonlibs.multi_items_list.scroll_tree
         tree_children = treeview.get_children()
         self.assertEqual(
@@ -287,7 +287,7 @@ class TestGUIApp(unittest.TestCase):
             update_page.refresh_button.invoke()
             update_page.update()
 
-            #Wait for the oudated list to be generated 
+            #Wait for the oudated list to be generated
             while(True):
                 try:
                     update_page.update()
