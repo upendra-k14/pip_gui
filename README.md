@@ -8,6 +8,10 @@ A GUI for "pip"
     - Deployment link ( a cron app ) : http://pythonlibscron-piptrial.rhcloud.com/
 * GSoC Blog : http://www.scorython.wordpress.com/
 
+# Documentation
+
+https://upendra-k14.github.io/pip_gui/
+
 # Installation
 
 From Source
