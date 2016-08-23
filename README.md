@@ -68,6 +68,7 @@ A very simple navigation based minimalistic GUI is intended to be designed. The 
 
 * fix bugs
 * improve search functionality
+* decide whether to implement venv feature
 
 # Bug Tracker
 
