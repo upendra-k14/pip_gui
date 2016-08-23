@@ -86,12 +86,13 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="developer_guide.html">Developer&#8217;s Guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="introduction.html">A short intro of pip_tkinter</a></li>
-<li class="toctree-l2"><a class="reference internal" href="design_philosophy.html">Design Philosophies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design_philosophy.html">Design Principles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_guide.html">Simple User Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="page_descriptions.html">Page Descriptions</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">GUI extensions of pip</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#pip-tkinter-utils-runpip-using-subprocess">pip_tkinter.utils.runpip_using_subprocess</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pip-tkinter-utils-runpipsubprocess">pip_tkinter.utils.RunpipSubprocess</a><ul class="simple">
+<li class="toctree-l3"><a class="reference internal" href="#pip-tkinter-utils-runpipsubprocess">pip_tkinter.utils.RunpipSubprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pip-tkinter-utils-downloadfile">pip_tkinter.utils.downloadfile</a><ul class="simple">
 </ul>
 </li>
 </ul>
@@ -147,11 +148,43 @@
             
   <div class="section" id="gui-extensions-of-pip">
 <h1>GUI extensions of pip<a class="headerlink" href="#gui-extensions-of-pip" title="Permalink to this headline">¶</a></h1>
+<p>These are some most frequently and important parts of code used throught the
+application other than tkinter based page layouts. For more reference, please
+check the <span class="xref std std-ref">pip_tkinter</span>.</p>
 <div class="section" id="pip-tkinter-utils-runpip-using-subprocess">
 <h2>pip_tkinter.utils.runpip_using_subprocess<a class="headerlink" href="#pip-tkinter-utils-runpip-using-subprocess" title="Permalink to this headline">¶</a></h2>
 <p>A utility method to run <cite>pip</cite> console commands and return output. This method
 uses subprocess module to run a console command and when the process execution
-terminates, it returns the console output and errors.</p>
+terminates, it returns the console output and errors.:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">runpip_using_subprocess</span><span class="p">(</span><span class="n">argstring</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run pip with argument string containing command and options. Uses</span>
+<span class="sd">    subprocess module for executing pip commands. Returns output and error</span>
+<span class="sd">    once execution of process terminates</span>
+
+<span class="sd">    :param argstring: is quoted version of what would follow &#39;pip&#39; on command \</span>
+<span class="sd">    line.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#Explicitly specify encoding of environment for subprocess in order to</span>
+    <span class="c1">#avoid errors</span>
+    <span class="n">my_env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
+    <span class="n">my_env</span><span class="p">[</span><span class="s1">&#39;PYTHONIOENCODING&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;utf-8&#39;</span>
+
+    <span class="n">pip_process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+        <span class="n">argstring</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span>
+        <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+        <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">my_env</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1">#Get stdout and stderr from shell</span>
+    <span class="n">pip_output</span><span class="p">,</span> <span class="n">pip_error</span> <span class="o">=</span> <span class="n">pip_process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+
+    <span class="c1">#Decode stdout and stderr strings to utf-8</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">pip_output</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">),</span> <span class="n">pip_error</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="pip-tkinter-utils-runpipsubprocess">
 <h2>pip_tkinter.utils.RunpipSubprocess<a class="headerlink" href="#pip-tkinter-utils-runpipsubprocess" title="Permalink to this headline">¶</a></h2>
@@ -218,7 +251,6 @@ running process to tkinter text widget.:</p>
 
 <span class="sd">    -   Message : a string variable containing the string collected from</span>
 <span class="sd">        stdout and stderr streams</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argstring</span><span class="p">,</span> <span class="n">output_queue</span><span class="p">):</span>
@@ -241,38 +273,141 @@ running process to tkinter text widget.:</p>
 <span class="sd">        Starts logging to output and error queue</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1">#multiplexing between stderr and stdout streams</span>
-        <span class="n">fileio_streams</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),]</span>
-        <span class="n">io_iterator</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">fileio_streams</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[])</span>
+        <span class="c1"># If system platform is not Windows</span>
+        <span class="k">if</span> <span class="n">get_build_platform</span><span class="p">()</span><span class="o">!=</span><span class="s1">&#39;Windows&#39;</span><span class="p">:</span>
 
-        <span class="c1">#send start string : &#39;process_started&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;process_started&#39;</span><span class="p">))</span>
+            <span class="n">fileio_streams</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),]</span>
 
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1">#Do I/O multiplexing</span>
+            <span class="n">io_iterator</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">fileio_streams</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;process_started&#39;</span><span class="p">))</span>
 
-            <span class="c1">#iterate over available file descriptors in io_iterator</span>
-            <span class="k">for</span> <span class="n">file_descrp</span> <span class="ow">in</span> <span class="n">io_iterator</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
 
-                <span class="c1">#if something is there in stdout stream</span>
-                <span class="k">if</span> <span class="n">file_descrp</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">fileno</span><span class="p">():</span>
-                    <span class="n">pipout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
-                    <span class="nb">print</span> <span class="p">(</span><span class="n">pipout</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">pipout</span><span class="p">))</span>
+                <span class="c1">#iterate over available file descriptors in io_iterator</span>
+                <span class="k">for</span> <span class="n">file_descrp</span> <span class="ow">in</span> <span class="n">io_iterator</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
 
-                <span class="c1">#else check in stderr stream</span>
-                <span class="k">elif</span> <span class="n">file_descrp</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">():</span>
-                    <span class="n">piperr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
-                    <span class="nb">print</span> <span class="p">(</span><span class="n">piperr</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="n">piperr</span><span class="p">))</span>
+                    <span class="c1">#if something is there in stdout stream</span>
+                    <span class="k">if</span> <span class="n">file_descrp</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">fileno</span><span class="p">():</span>
+                        <span class="n">pipout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">pipout</span><span class="p">))</span>
 
-            <span class="c1">#Check if process has ended, if process is not completed</span>
-            <span class="c1">#then self.pip_process.poll() returns None</span>
+                    <span class="c1">#else check in stderr stream</span>
+                    <span class="k">elif</span> <span class="n">file_descrp</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">():</span>
+                        <span class="n">piperr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="n">piperr</span><span class="p">))</span>
+
+                <span class="c1">#Check if process has ended, if process is not completed</span>
+                <span class="c1">#then self.pip_process.poll() returns None</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">poll</span><span class="p">()))</span>
+                    <span class="k">break</span>
+
+        <span class="c1">#Else if platform is Windows</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#Create two child threads for this alternate process</span>
+            <span class="c1">#output thread manages stdout</span>
+            <span class="n">output_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">getoutput</span><span class="p">)</span>
+            <span class="c1">#error thread manages stderr</span>
+            <span class="n">error_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">geterror</span><span class="p">)</span>
+
+            <span class="c1">#send &#39;process started&#39; indication with message code : 0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;process_started&#39;</span><span class="p">))</span>
+
+            <span class="c1">#starts both threads</span>
+            <span class="n">output_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">error_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+            <span class="c1">#Wait for both threads to complete their execution</span>
+            <span class="n">output_thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+            <span class="n">error_thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+            <span class="c1">#If both threads are completed, then this alternate process should</span>
+            <span class="c1">#end. If execution completed, then</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1">#Send ending message with process code and message code as 3</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">poll</span><span class="p">()))</span>
-                <span class="nb">print</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">poll</span><span class="p">())</span>
-                <span class="k">break</span>
+
+    <span class="k">def</span> <span class="nf">getoutput</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate over output line by line</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">readline</span><span class="p">,</span> <span class="n">b</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">line</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">geterror</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate over error line by line</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">readline</span><span class="p">,</span> <span class="n">b</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="n">line</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pip_process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="pip-tkinter-utils-downloadfile">
+<h2>pip_tkinter.utils.downloadfile<a class="headerlink" href="#pip-tkinter-utils-downloadfile" title="Permalink to this headline">¶</a></h2>
+<p>This utility is used in a multiprocessing or multithreaded way. It has been
+used to download files with periodic feedback about the percentage of file
+downloaded. It also uses a queue based approach to pass results from one process
+to another process (or from one thread to another thread).:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">downloadfile</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">update_queue</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A utility function to download file in small chunks and also to return</span>
+<span class="sd">    download percentage</span>
+
+<span class="sd">    Code    Purpose</span>
+<span class="sd">    0       Start marker for logging output</span>
+<span class="sd">    1       Output message</span>
+<span class="sd">    2       End marker for logging output</span>
+<span class="sd">    3       Error message</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">math</span>
+    <span class="kn">from</span> <span class="nn">urllib.request</span> <span class="k">import</span> <span class="n">urlopen</span><span class="p">,</span> <span class="n">Request</span>
+    <span class="kn">from</span> <span class="nn">urllib.error</span> <span class="k">import</span> <span class="n">HTTPError</span><span class="p">,</span> <span class="n">URLError</span>
+
+    <span class="n">targetfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">resource_dir</span> <span class="o">=</span> <span class="n">create_resource_directory</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">update_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;Started downloading ...&#39;</span><span class="p">))</span>
+
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resource_dir</span><span class="p">,</span> <span class="n">targetfile</span><span class="p">)</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span>
+            <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+            <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;User-Agent&#39;</span><span class="p">:</span><span class="s1">&#39;Mozilla/5.0 (Windows NT 6.1; rv:47.0) Gecko/20100101 Firefox/47.0&#39;</span><span class="p">})</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+
+        <span class="n">total_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">info</span><span class="p">()[</span><span class="s1">&#39;Content-Length&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+        <span class="n">downloaded</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">chunk_size</span> <span class="o">=</span> <span class="mi">256</span> <span class="o">*</span> <span class="mi">10240</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">chunk</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">chunk_size</span><span class="p">)</span>
+                <span class="n">downloaded</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+                <span class="n">update_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">downloaded</span><span class="o">/</span><span class="n">total_size</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">)))</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">chunk</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+        <span class="n">update_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;Completed downloading&#39;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">update_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="s2">&quot;HTTP Error: </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="n">url</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">except</span> <span class="n">URLError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">update_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="s2">&quot;URL Error: </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">reason</span><span class="p">,</span> <span class="n">url</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="kc">True</span>
 </pre></div>
 </div>
 <div class="toctree-wrapper compound">

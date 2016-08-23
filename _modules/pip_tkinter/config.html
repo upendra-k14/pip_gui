@@ -136,9 +136,13 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">platform</span>
 
+<span class="c1">#Resource and logging dir for pip_tkinter</span>
+<span class="n">RESOURCE_DIR</span> <span class="o">=</span> <span class="s1">&#39;.pip_tkinter&#39;</span>
+
 <div class="viewcode-block" id="get_build_platform"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.config.get_build_platform">[docs]</a><span class="k">def</span> <span class="nf">get_build_platform</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get OS of the device</span>
+<span class="sd">    Returns &#39;Linux&#39;, &#39;Windows&#39; or &#39;Darwin&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span></div>
 
@@ -210,7 +214,8 @@
 <span class="sd">    2. HKEY_LOCAL_MACHINE\Software\Python\&lt;Company&gt;\&lt;Tag&gt;\&lt;InstallPath&gt;</span>
 <span class="sd">    3. HKEY_LOCAL_MACHINE\Wow6432Node\Python\&lt;Company&gt;\&lt;Tag&gt;\&lt;InstallPath&gt;</span>
 
-<span class="sd">    &quot;&quot;&quot;</span></div>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
 
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>

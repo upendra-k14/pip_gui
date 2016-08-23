@@ -182,7 +182,8 @@
 <dl class="function">
 <dt id="pip_tkinter.config.get_build_platform">
 <code class="descclassname">pip_tkinter.config.</code><code class="descname">get_build_platform</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/config.html#get_build_platform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.config.get_build_platform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get OS of the device</p>
+<dd><p>Get OS of the device
+Returns &#8216;Linux&#8217;, &#8216;Windows&#8217; or &#8216;Darwin&#8217;</p>
 </dd></dl>
 
 <dl class="function">
@@ -380,6 +381,106 @@ aborting installation in between</p>
 <dt id="pip_tkinter.install_page.InstallFromPythonlibs">
 <em class="property">class </em><code class="descclassname">pip_tkinter.install_page.</code><code class="descname">InstallFromPythonlibs</code><span class="sig-paren">(</span><em>parent</em>, <em>controller</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/install_page.html#InstallFromPythonlibs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.install_page.InstallFromPythonlibs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tkinter.ttk.Frame</span></code></p>
+<dl class="method">
+<dt id="pip_tkinter.install_page.InstallFromPythonlibs.abort_installation">
+<code class="descname">abort_installation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/install_page.html#InstallFromPythonlibs.abort_installation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.install_page.InstallFromPythonlibs.abort_installation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop pip installation : Currently not sure to provide option for
+aborting installation in between</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.install_page.InstallFromPythonlibs.abort_search_command">
+<code class="descname">abort_search_command</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/install_page.html#InstallFromPythonlibs.abort_search_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.install_page.InstallFromPythonlibs.abort_search_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop searching for packages</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.install_page.InstallFromPythonlibs.check_search_queue">
+<code class="descname">check_search_queue</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/install_page.html#InstallFromPythonlibs.check_search_queue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.install_page.InstallFromPythonlibs.check_search_queue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.install_page.InstallFromPythonlibs.create_buttons">
+<code class="descname">create_buttons</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/install_page.html#InstallFromPythonlibs.create_buttons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.install_page.InstallFromPythonlibs.create_buttons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create back and next buttons, Also creates option menu for selecting
+compatibility tag</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.install_page.InstallFromPythonlibs.create_multitem_treeview">
+<code class="descname">create_multitem_treeview</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/install_page.html#InstallFromPythonlibs.create_multitem_treeview"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.install_page.InstallFromPythonlibs.create_multitem_treeview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create multitem treeview to show search results with headers :
+1. Python Module
+2. Installed Version
+3. Available Version</p>
+<p>List of buttons :
+1. navigate_back
+2. navigate_next
+3. search_button</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.install_page.InstallFromPythonlibs.create_search_bar">
+<code class="descname">create_search_bar</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/install_page.html#InstallFromPythonlibs.create_search_bar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.install_page.InstallFromPythonlibs.create_search_bar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.install_page.InstallFromPythonlibs.execute_pip_commands">
+<code class="descname">execute_pip_commands</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/install_page.html#InstallFromPythonlibs.execute_pip_commands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.install_page.InstallFromPythonlibs.execute_pip_commands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute pip commands</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.install_page.InstallFromPythonlibs.log_from_download_queue">
+<code class="descname">log_from_download_queue</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/install_page.html#InstallFromPythonlibs.log_from_download_queue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.install_page.InstallFromPythonlibs.log_from_download_queue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.install_page.InstallFromPythonlibs.log_from_install_queue">
+<code class="descname">log_from_install_queue</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/install_page.html#InstallFromPythonlibs.log_from_install_queue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.install_page.InstallFromPythonlibs.log_from_install_queue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.install_page.InstallFromPythonlibs.navigate_previous_frame">
+<code class="descname">navigate_previous_frame</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/install_page.html#InstallFromPythonlibs.navigate_previous_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.install_page.InstallFromPythonlibs.navigate_previous_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Navigate to previous frame</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.install_page.InstallFromPythonlibs.scroll_tree_select">
+<code class="descname">scroll_tree_select</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/install_page.html#InstallFromPythonlibs.scroll_tree_select"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.install_page.InstallFromPythonlibs.scroll_tree_select" title="Permalink to this definition">¶</a></dt>
+<dd><p>If treeview is selected, enable update buttons</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.install_page.InstallFromPythonlibs.show_summary">
+<code class="descname">show_summary</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/install_page.html#InstallFromPythonlibs.show_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.install_page.InstallFromPythonlibs.show_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the details of the selected package</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.install_page.InstallFromPythonlibs.sync_pythonlibs_packages">
+<code class="descname">sync_pythonlibs_packages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/install_page.html#InstallFromPythonlibs.sync_pythonlibs_packages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.install_page.InstallFromPythonlibs.sync_pythonlibs_packages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sync the json file for PythonLibs at :
+<a class="reference external" href="https://raw.githubusercontent.com/upendra-k14/pythonlibs_modules/master/pythonlibs.json">https://raw.githubusercontent.com/upendra-k14/pythonlibs_modules/master/pythonlibs.json</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.install_page.InstallFromPythonlibs.update_installation_log">
+<code class="descname">update_installation_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/install_page.html#InstallFromPythonlibs.update_installation_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.install_page.InstallFromPythonlibs.update_installation_log" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.install_page.InstallFromPythonlibs.update_search_results">
+<code class="descname">update_search_results</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/install_page.html#InstallFromPythonlibs.update_search_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.install_page.InstallFromPythonlibs.update_search_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show search results</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.install_page.InstallFromPythonlibs.update_sync_messages">
+<code class="descname">update_sync_messages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/install_page.html#InstallFromPythonlibs.update_sync_messages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.install_page.InstallFromPythonlibs.update_sync_messages" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -497,6 +598,52 @@ installation.</p>
 </div>
 <div class="section" id="module-pip_tkinter.manage_installed_modules_page">
 <span id="pip-tkinter-manage-installed-modules-page-module"></span><h2>pip_tkinter.manage_installed_modules_page module<a class="headerlink" href="#module-pip_tkinter.manage_installed_modules_page" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage">
+<em class="property">class </em><code class="descclassname">pip_tkinter.manage_installed_modules_page.</code><code class="descname">FreezeRequirementsPage</code><span class="sig-paren">(</span><em>parent</em>, <em>controller</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/manage_installed_modules_page.html#FreezeRequirementsPage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tkinter.ttk.Frame</span></code></p>
+<p>Page for providing options for &#8216;pip freeze&#8217;. User can generate requirement
+file and save it to desired location</p>
+<dl class="method">
+<dt id="pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.create_buttons">
+<code class="descname">create_buttons</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/manage_installed_modules_page.html#FreezeRequirementsPage.create_buttons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.create_buttons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create nav and control buttons</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.create_multitem_treeview">
+<code class="descname">create_multitem_treeview</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/manage_installed_modules_page.html#FreezeRequirementsPage.create_multitem_treeview"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.create_multitem_treeview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create multitem treeview to show search results with headers :
+1. Python Module
+2. Installed version</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.execute_pip_commands">
+<code class="descname">execute_pip_commands</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/manage_installed_modules_page.html#FreezeRequirementsPage.execute_pip_commands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.execute_pip_commands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the command for generating requirements file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.navigate_previous_frame">
+<code class="descname">navigate_previous_frame</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/manage_installed_modules_page.html#FreezeRequirementsPage.navigate_previous_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.navigate_previous_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Navigate to previous frame</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.refresh_installed_packages">
+<code class="descname">refresh_installed_packages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/manage_installed_modules_page.html#FreezeRequirementsPage.refresh_installed_packages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.refresh_installed_packages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update list of installed packages</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.scroll_tree_select">
+<code class="descname">scroll_tree_select</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/manage_installed_modules_page.html#FreezeRequirementsPage.scroll_tree_select"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.scroll_tree_select" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update debug bar with number of packages selected</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="class">
 <dt id="pip_tkinter.manage_installed_modules_page.ManageInstalledPage">
 <em class="property">class </em><code class="descclassname">pip_tkinter.manage_installed_modules_page.</code><code class="descname">ManageInstalledPage</code><span class="sig-paren">(</span><em>root</em>, <em>controller=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/manage_installed_modules_page.html#ManageInstalledPage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.manage_installed_modules_page.ManageInstalledPage" title="Permalink to this definition">¶</a></dt>
@@ -808,20 +955,6 @@ on command line.</td>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Class for creating Treeview to show list of packages : provides options
 for selecting items and specifying number of headers for the treeview</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>self.scroll_tree</strong> &#8211; tkinter treeview variable</li>
-<li><strong>parent</strong> &#8211; parent frame for treeview</li>
-<li><strong>headers_list</strong> &#8211; list of headers or fields in treeview</li>
-<li><strong>self.items_list</strong> &#8211; list of items for treeview</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
 <dl class="method">
 <dt id="pip_tkinter.utils.MultiItemsList.create_headers">
 <code class="descname">create_headers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#MultiItemsList.create_headers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.MultiItemsList.create_headers" title="Permalink to this definition">¶</a></dt>
@@ -833,20 +966,24 @@ for selecting items and specifying number of headers for the treeview</p>
 <code class="descname">create_treeview</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#MultiItemsList.create_treeview"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.MultiItemsList.create_treeview" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a multi items list consisting of a frame, horizontal and vertical
 scroll bar and Treeview</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>self.myframe</strong> &#8211; a tkinter frame for encapsulating treeview
-contents with parent frame as self.parent</li>
-<li><strong>vrtl_scrbar</strong> &#8211; vertical scrollbar for treeview</li>
-<li><strong>hrtl_scrbar</strong> &#8211; horizontal scrollbar for treeview</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pip_tkinter.utils.MultiItemsList.headers_list">
+<code class="descname">headers_list</code><em class="property"> = None</em><a class="headerlink" href="#pip_tkinter.utils.MultiItemsList.headers_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>headers_list: list of headers or fields in treeview</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pip_tkinter.utils.MultiItemsList.items_list">
+<code class="descname">items_list</code><em class="property"> = None</em><a class="headerlink" href="#pip_tkinter.utils.MultiItemsList.items_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>self.items_list: list of items for treeview</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pip_tkinter.utils.MultiItemsList.parent">
+<code class="descname">parent</code><em class="property"> = None</em><a class="headerlink" href="#pip_tkinter.utils.MultiItemsList.parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>parent: parent frame for treeview</p>
 </dd></dl>
 
 <dl class="method">
@@ -866,7 +1003,7 @@ contents with parent frame as self.parent</li>
 <dl class="attribute">
 <dt id="pip_tkinter.utils.MultiItemsList.scroll_tree">
 <code class="descname">scroll_tree</code><em class="property"> = None</em><a class="headerlink" href="#pip_tkinter.utils.MultiItemsList.scroll_tree" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialized with None, will store reference to tkinter treeview</p>
+<dd><p>self.scroll_tree: tkinter treeview variable</p>
 </dd></dl>
 
 </dd></dl>
@@ -886,18 +1023,30 @@ Simplified and generalize from contextlib.redirect_stdout.
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Run pip with argument string containing command and options. Uses
 subprocess module for executing pip commands. Logs real time output in
-output queue and error queue.</p>
+output queue.</p>
+<p>In output queue a tuple object is sent consisting of two elements:</p>
+<ul>
+<li><p class="first">Output code : For identification of purpose of message</p>
+<p>Code    Purpose
+0       Start marker for logging output to tkinter text widget
+1       Output message
+2       Error message
+3       End marker for logging output to tkinter text widget</p>
+</li>
+<li><p class="first">Message : a string variable containing the string collected from
+stdout and stderr streams</p>
+</li>
+</ul>
 <dl class="method">
 <dt id="pip_tkinter.utils.RunpipSubprocess.geterror">
 <code class="descname">geterror</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#RunpipSubprocess.geterror"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.RunpipSubprocess.geterror" title="Permalink to this definition">¶</a></dt>
-<dd><p>Iterate over error line by line (DEPRECATED)</p>
+<dd><p>Iterate over error line by line</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pip_tkinter.utils.RunpipSubprocess.getoutput">
 <code class="descname">getoutput</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#RunpipSubprocess.getoutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.RunpipSubprocess.getoutput" title="Permalink to this definition">¶</a></dt>
-<dd><p>Iterate over output line by line : multiplexing output and error
-stream</p>
+<dd><p>Iterate over output line by line</p>
 </dd></dl>
 
 <dl class="method">
@@ -906,6 +1055,30 @@ stream</p>
 <dd><p>Starts logging to output and error queue</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="function">
+<dt id="pip_tkinter.utils.create_resource_directory">
+<code class="descclassname">pip_tkinter.utils.</code><code class="descname">create_resource_directory</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#create_resource_directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.create_resource_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create resource directory if not there</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pip_tkinter.utils.downloadfile">
+<code class="descclassname">pip_tkinter.utils.</code><code class="descname">downloadfile</code><span class="sig-paren">(</span><em>url</em>, <em>update_queue</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#downloadfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.downloadfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>A utility function to download file in small chunks and also to return
+download percentage</p>
+<p>Code    Purpose
+0       Start marker for logging output
+1       Output message
+2       End marker for logging output
+3       Error message</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pip_tkinter.utils.pip_freeze_command">
+<code class="descclassname">pip_tkinter.utils.</code><code class="descname">pip_freeze_command</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#pip_freeze_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.pip_freeze_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate requirements</p>
 </dd></dl>
 
 <dl class="function">
@@ -924,6 +1097,16 @@ stream</p>
 <dt id="pip_tkinter.utils.pip_install_from_local_archive">
 <code class="descclassname">pip_tkinter.utils.</code><code class="descname">pip_install_from_local_archive</code><span class="sig-paren">(</span><em>package_args</em>, <em>install_queue=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#pip_install_from_local_archive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.pip_install_from_local_archive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wrapper for installing pip package from local Archive</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pip_tkinter.utils.pip_install_from_pythonlibs">
+<code class="descclassname">pip_tkinter.utils.</code><code class="descname">pip_install_from_pythonlibs</code><span class="sig-paren">(</span><em>package_url</em>, <em>install_queue=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#pip_install_from_pythonlibs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.pip_install_from_pythonlibs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Install from pythonlibs packages in two steps :</p>
+<ol class="arabic simple">
+<li>Download file</li>
+<li>Use pip install to install file</li>
+</ol>
 </dd></dl>
 
 <dl class="function">
@@ -963,6 +1146,60 @@ stream</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="pip_tkinter.utils.pythonlibs_search_command">
+<code class="descclassname">pip_tkinter.utils.</code><code class="descname">pythonlibs_search_command</code><span class="sig-paren">(</span><em>package_name=None</em>, <em>thread_queue=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#pythonlibs_search_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.pythonlibs_search_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for packages in Pythonlibs packages record
+Convention for results tuple :</p>
+<p>Each element of tuple consists of following elements in order:
+1. package name
+2. version
+3. summary
+4. home page
+5. last updated
+6. This element consists of distribution specific information. For more
+details continue below :</p>
+<p>For each package in json format there are different possible distributions
+depending on compatibility tags like : py2, py3, cp27, cp34 and system
+architecture. Therefore sixth element is list of available distributions
+with following elements in order :</p>
+<blockquote>
+<div><ol class="loweralpha simple">
+<li>compatibility_tag</li>
+<li>package_size</li>
+<li>architecture</li>
+</ol>
+</div></blockquote>
+<p>For example :</p>
+<p><a href="#id1"><span class="problematic" id="id2">``</span></a>`
+&#8220;ViTables&#8221;: [</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>{</dt>
+<dd>&#8220;last_updated&#8221;: &#8220;Dec 25, 2014&#8221;,
+&#8220;compatibility_tag&#8221;: &#8220;py2-none&#8221;,
+&#8220;summary&#8221;: &#8220;ViTables , a GUI for browsing and editing files in PyTables and HDF5 formats.&#8221;,
+&#8220;package_size&#8221;: &#8220;329 KB&#8221;,
+&#8220;home_page&#8221;: &#8220;<a class="reference external" href="http://vitables.org/">http://vitables.org/</a>&#8221;,
+&#8220;version&#8221;: &#8220;2.1&#8221;,
+&#8220;url&#8221;: &#8220;<a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/6kbpejrn/ViTables-2.1-py2-none-any.whl">http://www.lfd.uci.edu/~gohlke/pythonlibs/6kbpejrn/ViTables-2.1-py2-none-any.whl</a>&#8221;,
+&#8220;architecture&#8221;: &#8220;any&#8221;</dd>
+</dl>
+<p>},
+{</p>
+<blockquote>
+<div>&#8220;last_updated&#8221;: &#8220;Dec 25, 2014&#8221;,
+&#8220;compatibility_tag&#8221;: &#8220;py3-none&#8221;,
+&#8220;summary&#8221;: &#8220;ViTables , a GUI for browsing and editing files in PyTables and HDF5 formats.&#8221;,
+&#8220;package_size&#8221;: &#8220;328 KB&#8221;,
+&#8220;home_page&#8221;: &#8220;<a class="reference external" href="http://vitables.org/">http://vitables.org/</a>&#8221;,
+&#8220;version&#8221;: &#8220;2.1&#8221;,
+&#8220;url&#8221;: &#8220;<a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/6kbpejrn/ViTables-2.1-py3-none-any.whl">http://www.lfd.uci.edu/~gohlke/pythonlibs/6kbpejrn/ViTables-2.1-py3-none-any.whl</a>&#8221;,
+&#8220;architecture&#8221;: &#8220;any&#8221;</div></blockquote>
+<p>}</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
 <dt id="pip_tkinter.utils.runpip">
 <code class="descclassname">pip_tkinter.utils.</code><code class="descname">runpip</code><span class="sig-paren">(</span><em>argstring</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#runpip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.runpip" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run pip with argument string containing command and options.(DEPRECATED and
@@ -982,7 +1219,7 @@ replaced with runpip_using_subprocess method)</p>
 <code class="descclassname">pip_tkinter.utils.</code><code class="descname">runpip_using_subprocess</code><span class="sig-paren">(</span><em>argstring</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pip_tkinter/utils.html#runpip_using_subprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pip_tkinter.utils.runpip_using_subprocess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run pip with argument string containing command and options. Uses
 subprocess module for executing pip commands. Returns output and error
-once execution of process teriminates</p>
+once execution of process terminates</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />

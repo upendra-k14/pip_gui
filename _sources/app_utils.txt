@@ -1,12 +1,44 @@
 GUI extensions of pip
 =====================
 
+These are some most frequently and important parts of code used throught the
+application other than tkinter based page layouts. For more reference, please
+check the :ref:`pip_tkinter`.
+
 pip_tkinter.utils.runpip_using_subprocess
 -----------------------------------------
 
 A utility method to run `pip` console commands and return output. This method
 uses subprocess module to run a console command and when the process execution
-terminates, it returns the console output and errors.
+terminates, it returns the console output and errors.::
+
+    def runpip_using_subprocess(argstring):
+        """
+        Run pip with argument string containing command and options. Uses
+        subprocess module for executing pip commands. Returns output and error
+        once execution of process terminates
+
+        :param argstring: is quoted version of what would follow 'pip' on command \
+        line.
+        """
+
+        #Explicitly specify encoding of environment for subprocess in order to
+        #avoid errors
+        my_env = os.environ
+        my_env['PYTHONIOENCODING'] = 'utf-8'
+
+        pip_process = subprocess.Popen(
+            argstring.split(),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env = my_env,
+        )
+
+        #Get stdout and stderr from shell
+        pip_output, pip_error = pip_process.communicate()
+
+        #Decode stdout and stderr strings to utf-8
+        return (pip_output.decode('utf-8'), pip_error.decode('utf-8'))
 
 pip_tkinter.utils.RunpipSubprocess
 ----------------------------------
@@ -75,7 +107,6 @@ running process to tkinter text widget.::
 
         -   Message : a string variable containing the string collected from
             stdout and stderr streams
-
         """
 
         def __init__(self, argstring, output_queue):
@@ -98,39 +129,141 @@ running process to tkinter text widget.::
             Starts logging to output and error queue
             """
 
-            #multiplexing between stderr and stdout streams
-            fileio_streams = [
-                self.pip_process.stdout.fileno(),
-                self.pip_process.stderr.fileno(),]
-            io_iterator = select.select(fileio_streams, [], [])
+            # If system platform is not Windows
+            if get_build_platform()!='Windows':
 
-            #send start string : 'process_started'
-            self.output_queue.put((0,'process_started'))
+                fileio_streams = [
+                    self.pip_process.stdout.fileno(),
+                    self.pip_process.stderr.fileno(),]
 
-            while True:
+                #Do I/O multiplexing
+                io_iterator = select.select(fileio_streams, [], [])
+                self.output_queue.put((0, 'process_started'))
 
-                #iterate over available file descriptors in io_iterator
-                for file_descrp in io_iterator[0]:
+                while True:
 
-                    #if something is there in stdout stream
-                    if file_descrp == self.pip_process.stdout.fileno():
-                        pipout = self.pip_process.stdout.readline()
-                        print (pipout)
-                        self.output_queue.put((1,pipout))
+                    #iterate over available file descriptors in io_iterator
+                    for file_descrp in io_iterator[0]:
 
-                    #else check in stderr stream
-                    elif file_descrp == self.pip_process.stderr.fileno():
-                        piperr = self.pip_process.stderr.readline()
-                        print (piperr)
-                        self.output_queue.put((2,piperr))
+                        #if something is there in stdout stream
+                        if file_descrp == self.pip_process.stdout.fileno():
+                            pipout = self.pip_process.stdout.readline()
+                            self.output_queue.put((1,pipout))
 
-                #Check if process has ended, if process is not completed
-                #then self.pip_process.poll() returns None
+                        #else check in stderr stream
+                        elif file_descrp == self.pip_process.stderr.fileno():
+                            piperr = self.pip_process.stderr.readline()
+                            self.output_queue.put((2,piperr))
+
+                    #Check if process has ended, if process is not completed
+                    #then self.pip_process.poll() returns None
+                    if self.pip_process.poll() != None:
+                        self.output_queue.put((3,self.pip_process.poll()))
+                        break
+
+            #Else if platform is Windows
+            else:
+                #Create two child threads for this alternate process
+                #output thread manages stdout
+                output_thread = threading.Thread(target=self.getoutput)
+                #error thread manages stderr
+                error_thread = threading.Thread(target=self.geterror)
+
+                #send 'process started' indication with message code : 0
+                self.output_queue.put((0, 'process_started'))
+
+                #starts both threads
+                output_thread.start()
+                error_thread.start()
+
+                #Wait for both threads to complete their execution
+                output_thread.join()
+                error_thread.join()
+
+                #If both threads are completed, then this alternate process should
+                #end. If execution completed, then
                 if self.pip_process.poll() != None:
+                    #Send ending message with process code and message code as 3
                     self.output_queue.put((3,self.pip_process.poll()))
-                    print (self.pip_process.poll())
-                    break
 
+        def getoutput(self):
+            """
+            Iterate over output line by line
+            """
+
+            for line in iter(self.pip_process.stdout.readline, b''):
+                self.output_queue.put((1,line))
+            self.pip_process.stdout.close()
+            self.pip_process.wait()
+
+        def geterror(self):
+            """
+            Iterate over error line by line
+            """
+
+            for line in iter(self.pip_process.stderr.readline, b''):
+                self.output_queue.put((2,line))
+            self.pip_process.stderr.close()
+            self.pip_process.wait()
+
+pip_tkinter.utils.downloadfile
+------------------------------
+
+This utility is used in a multiprocessing or multithreaded way. It has been
+used to download files with periodic feedback about the percentage of file
+downloaded. It also uses a queue based approach to pass results from one process
+to another process (or from one thread to another thread).::
+
+    def downloadfile(url, update_queue):
+        """
+        A utility function to download file in small chunks and also to return
+        download percentage
+
+        Code    Purpose
+        0       Start marker for logging output
+        1       Output message
+        2       End marker for logging output
+        3       Error message
+
+        """
+        import math
+        from urllib.request import urlopen, Request
+        from urllib.error import HTTPError, URLError
+
+        targetfile = os.path.basename(url)
+        resource_dir = create_resource_directory()
+
+        try:
+            update_queue.put((0,'Started downloading ...'))
+
+            file_path = os.path.join(resource_dir, targetfile)
+            req = Request(
+                url=url,
+                headers={'User-Agent':'Mozilla/5.0 (Windows NT 6.1; rv:47.0) Gecko/20100101 Firefox/47.0'})
+            req = urlopen(req)
+
+            total_size = int(req.info()['Content-Length'].strip())
+
+            downloaded = 0
+            chunk_size = 256 * 10240
+
+            with open(file_path, 'wb') as fp:
+                while True:
+                    chunk = req.read(chunk_size)
+                    downloaded += len(chunk)
+                    update_queue.put((1,math.floor((downloaded/total_size)*100)))
+                    if not chunk:
+                        break
+                    fp.write(chunk)
+            update_queue.put((2,'Completed downloading'))
+        except HTTPError as e:
+            update_queue.put((3,"HTTP Error: {} {}".format(e.code, url)))
+            return False
+        except URLError as e:
+            update_queue.put((3,"URL Error: {} {}".format(e.reason, url)))
+            return False
+
+        return True
 
 .. toctree::
     :maxdepth: 4

@@ -162,10 +162,13 @@
 <span class="sd">    3. Install From PyPI</span>
 <span class="sd">    4. Install From Local archive</span>
 <span class="sd">    5. Install From Requirements</span>
-<span class="sd">    6. Manage Installed Modules page</span>
-<span class="sd">    7. Uninstall Package</span>
-<span class="sd">    8. Update Package</span>
+<span class="sd">    6. Insall From PythonLibs</span>
+<span class="sd">    7. Manage Installed Modules page</span>
+<span class="sd">    8. Uninstall Package</span>
+<span class="sd">    9. Update Package</span>
+<span class="sd">    10. Freeze Requirements</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="TestGUIApp.setUpClass"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.setUpClass">[docs]</a>    <span class="k">def</span> <span class="nf">setUpClass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Tk</span><span class="p">()</span>
@@ -181,8 +184,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">check_install_from_local_archive</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">check_install_from_requirements</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">check_manage_installed_modules</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">check_uninstalled_modules</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_uninstall_modules</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">check_update_modules</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_freeze_requirements</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">test_page</span> <span class="ow">in</span> <span class="n">check_pages</span><span class="p">:</span>
@@ -282,8 +286,8 @@
 <span class="sd">        Test install from local archive</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">install_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;InstallPage&quot;</span><span class="p">]</span>
-        <span class="n">install_from_arch</span> <span class="o">=</span> <span class="n">install_page</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;InstallFromLocalArchive&quot;</span><span class="p">]</span>
+        <span class="n">install_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s1">&#39;InstallPage&#39;</span><span class="p">]</span>
+        <span class="n">install_from_arch</span> <span class="o">=</span> <span class="n">install_page</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s1">&#39;InstallFromLocalArchive&#39;</span><span class="p">]</span>
 
         <span class="c1">#Set focus to search entry widget</span>
         <span class="n">install_from_arch</span><span class="o">.</span><span class="n">path_to_requirement</span><span class="o">.</span><span class="n">focus_force</span><span class="p">()</span>
@@ -309,29 +313,160 @@
         <span class="c1">#Check if entry widget has text &#39;Hello&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">install_from_req</span><span class="o">.</span><span class="n">path_to_requirement</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span><span class="s1">&#39;Hello&#39;</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="TestGUIApp.check_install_from_pythonlibs"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.check_install_from_pythonlibs">[docs]</a>    <span class="k">def</span> <span class="nf">check_install_from_pythonlibs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test install from pythonlibs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">install_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s1">&#39;InstallPage&#39;</span><span class="p">]</span>
+        <span class="n">install_from_pythonlibs</span> <span class="o">=</span> <span class="n">install_page</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span>
+            <span class="s1">&#39;InstallFromPythonlibs&#39;</span><span class="p">]</span>
+
+        <span class="c1">#Set focus to search entry widget</span>
+        <span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">focus_force</span><span class="p">()</span>
+        <span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Hello&#39;</span><span class="p">)</span>
+
+        <span class="c1">#Check if entry widget has text &#39;Hello&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span><span class="s1">&#39;Hello&#39;</span><span class="p">)</span>
+
+        <span class="c1">#Delete contents of entry widget</span>
+        <span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">focus_force</span><span class="p">()</span>
+        <span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="c1">#Search for pip using search</span>
+        <span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">focus_force</span><span class="p">()</span>
+        <span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;al&#39;</span><span class="p">)</span>
+        <span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">search_button</span><span class="o">.</span><span class="n">invoke</span><span class="p">()</span>
+
+        <span class="c1">#Wait for the search thread to end</span>
+        <span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">search_thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="c1">#Update the GUI with retrieved multi_items_list</span>
+        <span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="c1">#Cross check the number of elements of treeview with the list of</span>
+        <span class="c1">#not updated packages</span>
+        <span class="n">treeview</span> <span class="o">=</span> <span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span>
+        <span class="n">tree_children</span> <span class="o">=</span> <span class="n">treeview</span><span class="o">.</span><span class="n">get_children</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">tree_children</span><span class="p">),</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">outdated_list</span><span class="p">))</span>
+
+        <span class="c1">#Cross check if both results are same</span>
+        <span class="k">for</span> <span class="n">item</span><span class="p">,</span> <span class="n">package</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">tree_children</span><span class="p">,</span> <span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">outdated_list</span><span class="p">):</span>
+            <span class="n">item_dict</span> <span class="o">=</span> <span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">item_dict</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">package</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1">#Check if there are some elements in treeview</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tree_children</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
+            <span class="c1">#Select first item and set the focus to first item</span>
+            <span class="n">treeview</span><span class="o">.</span><span class="n">selection_set</span><span class="p">(</span><span class="n">tree_children</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">treeview</span><span class="o">.</span><span class="n">focus</span><span class="p">(</span><span class="n">tree_children</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">install_from_pythonlibs</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+            <span class="c1">#get iid of currently focused/selected item</span>
+            <span class="n">curr_item</span> <span class="o">=</span> <span class="n">treeview</span><span class="o">.</span><span class="n">focus</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">curr_item</span><span class="p">,</span> <span class="n">tree_children</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
 <div class="viewcode-block" id="TestGUIApp.check_manage_installed_modules"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.check_manage_installed_modules">[docs]</a>    <span class="k">def</span> <span class="nf">check_manage_installed_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;&quot;</span>
 <span class="sd">        Test manage installed modules page</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">install_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;InstallPage&quot;</span><span class="p">]</span>
-        <span class="n">install_from_pypi</span> <span class="o">=</span> <span class="n">install_page</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;InstallFromPyPI&quot;</span><span class="p">]</span></div>
+        <span class="n">mng_installed_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;ManageInstalledPage&quot;</span><span class="p">]</span>
+        <span class="n">uninstall_page</span> <span class="o">=</span> <span class="n">mng_installed_page</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;UninstallPackage&quot;</span><span class="p">]</span></div>
+        <span class="c1">#Test switching between different tabs.frames in manage installed page</span>
 
-<div class="viewcode-block" id="TestGUIApp.check_uninstalled_modules"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.check_uninstalled_modules">[docs]</a>    <span class="k">def</span> <span class="nf">check_uninstalled_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestGUIApp.check_uninstall_modules"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.check_uninstall_modules">[docs]</a>    <span class="k">def</span> <span class="nf">check_uninstall_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Test uninstalled Modules</span>
+<span class="sd">        Test uninstall packages page</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">install_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;ManageInstalledPage&quot;</span><span class="p">]</span>
-        <span class="n">install_from_pypi</span> <span class="o">=</span> <span class="n">install_page</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;UninstallPackage&quot;</span><span class="p">]</span></div>
+        <span class="n">mng_installed_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;ManageInstalledPage&quot;</span><span class="p">]</span>
+        <span class="n">uninstall_page</span> <span class="o">=</span> <span class="n">mng_installed_page</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;UninstallPackage&quot;</span><span class="p">]</span>
+
+        <span class="c1">#invoke the refresh button to populate treeview</span>
+        <span class="n">uninstall_page</span><span class="o">.</span><span class="n">refresh_button</span><span class="o">.</span><span class="n">invoke</span><span class="p">()</span>
+        <span class="n">uninstall_page</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="c1">#Cross check the number of elements of treeview with the list of</span>
+        <span class="c1">#not updated packages</span>
+        <span class="n">treeview</span> <span class="o">=</span> <span class="n">uninstall_page</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span>
+        <span class="n">tree_children</span> <span class="o">=</span> <span class="n">treeview</span><span class="o">.</span><span class="n">get_children</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">tree_children</span><span class="p">),</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">uninstall_page</span><span class="o">.</span><span class="n">installed_packages_list</span><span class="p">))</span>
+
+        <span class="c1">#Cross check if both results are same</span>
+        <span class="k">for</span> <span class="n">item</span><span class="p">,</span> <span class="n">package</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">tree_children</span><span class="p">,</span> <span class="n">uninstall_page</span><span class="o">.</span><span class="n">installed_packages_list</span><span class="p">):</span>
+            <span class="n">item_dict</span> <span class="o">=</span> <span class="n">uninstall_page</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">item_dict</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">package</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
 
 <div class="viewcode-block" id="TestGUIApp.check_update_modules"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.check_update_modules">[docs]</a>    <span class="k">def</span> <span class="nf">check_update_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Test update package page</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">install_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;ManageInstalledPage&quot;</span><span class="p">]</span>
-        <span class="n">install_from_pypi</span> <span class="o">=</span> <span class="n">install_page</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;UpdatePackage&quot;</span><span class="p">]</span></div>
+        <span class="kn">from</span> <span class="nn">pip_tkinter.utils</span> <span class="k">import</span> <span class="n">verify_pypi_url</span>
+
+        <span class="n">mng_installed_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;ManageInstalledPage&quot;</span><span class="p">]</span>
+        <span class="n">update_page</span> <span class="o">=</span> <span class="n">mng_installed_page</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;UpdatePackage&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">verify_pypi_url</span><span class="p">()</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1">#invoke the refresh button to populate treeview</span>
+            <span class="n">update_page</span><span class="o">.</span><span class="n">refresh_button</span><span class="o">.</span><span class="n">invoke</span><span class="p">()</span>
+            <span class="n">update_page</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+            <span class="c1">#Wait for the oudated list to be generated</span>
+            <span class="k">while</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">update_page</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+                    <span class="n">update_page</span><span class="o">.</span><span class="n">outdated_list</span>
+                    <span class="k">break</span>
+                <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+            <span class="c1">#Cross check the number of elements of treeview with the list of</span>
+            <span class="c1">#not updated packages</span>
+            <span class="n">treeview</span> <span class="o">=</span> <span class="n">update_page</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span>
+            <span class="n">tree_children</span> <span class="o">=</span> <span class="n">treeview</span><span class="o">.</span><span class="n">get_children</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tree_children</span><span class="p">),</span><span class="nb">len</span><span class="p">(</span><span class="n">update_page</span><span class="o">.</span><span class="n">outdated_list</span><span class="p">))</span>
+
+            <span class="c1">#Cross check if both results are same</span>
+            <span class="k">for</span> <span class="n">item</span><span class="p">,</span> <span class="n">package</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">tree_children</span><span class="p">,</span> <span class="n">update_page</span><span class="o">.</span><span class="n">outdated_list</span><span class="p">):</span>
+                <span class="n">item_dict</span> <span class="o">=</span> <span class="n">update_page</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">item_dict</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">package</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;Test partially completed for Update Modules Page&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestGUIApp.check_freeze_requirements"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.check_freeze_requirements">[docs]</a>    <span class="k">def</span> <span class="nf">check_freeze_requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test freeze requirements page</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">mng_installed_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_app</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="s2">&quot;ManageInstalledPage&quot;</span><span class="p">]</span>
+        <span class="n">freeze_req_page</span> <span class="o">=</span> <span class="n">mng_installed_page</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span>
+            <span class="s2">&quot;FreezeRequirementsPage&quot;</span><span class="p">]</span>
+
+        <span class="c1">#invoke the refresh button to populate treeview</span>
+        <span class="n">freeze_req_page</span><span class="o">.</span><span class="n">refresh_button</span><span class="o">.</span><span class="n">invoke</span><span class="p">()</span>
+        <span class="n">freeze_req_page</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="c1">#Cross check the number of elements of treeview with the list of</span>
+        <span class="c1">#not updated packages</span>
+        <span class="n">treeview</span> <span class="o">=</span> <span class="n">freeze_req_page</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span>
+        <span class="n">tree_children</span> <span class="o">=</span> <span class="n">treeview</span><span class="o">.</span><span class="n">get_children</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">tree_children</span><span class="p">),</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">freeze_req_page</span><span class="o">.</span><span class="n">installed_packages_list</span><span class="p">))</span>
+
+        <span class="c1">#Cross check if both results are same</span>
+        <span class="k">for</span> <span class="n">item</span><span class="p">,</span> <span class="n">package</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">tree_children</span><span class="p">,</span> <span class="n">freeze_req_page</span><span class="o">.</span><span class="n">installed_packages_list</span><span class="p">):</span>
+            <span class="n">item_dict</span> <span class="o">=</span> <span class="n">freeze_req_page</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">item_dict</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">package</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
 
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="TestGUIApp.tearDownClass"><a class="viewcode-back" href="../../../pip_tkinter.test.html#pip_tkinter.test.test_gui_app.TestGUIApp.tearDownClass">[docs]</a>    <span class="k">def</span> <span class="nf">tearDownClass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

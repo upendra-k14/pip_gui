@@ -84,16 +84,17 @@
             
                 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="developer_guide.html">Developer&#8217;s Guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="introduction.html">A short intro of pip_tkinter</a></li>
-<li class="toctree-l2"><a class="reference internal" href="design_philosophy.html">Design Philosophies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design_philosophy.html">Design Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html">Simple User Model</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="page_descriptions.html">Page Descriptions</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="welcome_page.html">Welcome Page</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Install Page</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#install-from-pypi-page">Install From PyPI Page</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#install-from-local-archive">Install From Local Archive</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#install-from-requirements-file">Install From Requirements File</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#install-from-pythonlibs">Install From PythonLibs</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="manage_installed_page.html">Manage Installed Packages Page</a></li>
@@ -159,6 +160,7 @@ Therefore, three most useful user tasks are implemented :</p>
 <li>Install From PyPI</li>
 <li>Install From Local Archive</li>
 <li>Install From Requirements File</li>
+<li>Install From PythonLibs</li>
 </ol>
 <p>The GUI options for switching betweeb these pages are provided as a set of
 buttons stacked vertically in a tkinter frame. Further options can be added
@@ -216,6 +218,38 @@ Install From Local Archive Files.</p>
 </div>
 <div class="toctree-wrapper compound">
 </div>
+</div>
+<div class="section" id="install-from-pythonlibs">
+<h2>Install From PythonLibs<a class="headerlink" href="#install-from-pythonlibs" title="Permalink to this headline">¶</a></h2>
+<p>The functionality to download and install Windows binary from
+Pythonlibs (<a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/">http://www.lfd.uci.edu/~gohlke/pythonlibs/</a>) is provided by this
+page. The implementation can be broken down in two parts :</p>
+<ul>
+<li><dl class="first docutils">
+<dt>Page Layout</dt>
+<dd><p class="first last">The page layout has options for searching through available Windows
+binaries, installation and sync with backend. The backend is explained
+in next section.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Pythonlibs Backend</dt>
+<dd><p class="first">For optimum user performance ( that is to provide instant search
+results ), it is necessary to minimize time delay between giving search
+query and recieving search results. Therefore, application maintains
+a local Pythonlibs backend with an option for syncing with latest
+backend available online here:
+<a href="#id1"><span class="problematic" id="id2">`pythonlibs_modules https://github.com/upendra-k14/pythonlibs_modules`_</span></a></p>
+<p>The Pythonlibs backend is essentially a json file with crawled metadata
+from Pythonlibs. The crawler is deployed as a cron job to daily crawl
+metadata from Pythonlibs and automatically commit to :
+<a href="#id3"><span class="problematic" id="id4">`pythonlibs_modules https://github.com/upendra-k14/pythonlibs_modules`_</span></a></p>
+<p class="last">The crawler code is <a href="#id5"><span class="problematic" id="id6">`here https://github.com/upendra-k14/pip_gui/tree/master/pythonlibscron`_</span></a></p>
+</dd>
+</dl>
+</li>
+</ul>
 </div>
 </div>
 

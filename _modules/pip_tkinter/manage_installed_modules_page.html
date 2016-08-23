@@ -136,6 +136,7 @@
 <span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
 <span class="kn">import</span> <span class="nn">tkinter</span> <span class="k">as</span> <span class="nn">tk</span>
 <span class="kn">from</span> <span class="nn">tkinter</span> <span class="k">import</span> <span class="n">ttk</span>
 <span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">StringIO</span>
@@ -238,7 +239,7 @@
 
 <div class="viewcode-block" id="ManageInstalledPage.abort_process"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.manage_installed_modules_page.ManageInstalledPage.abort_process">[docs]</a>    <span class="k">def</span> <span class="nf">abort_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">abort_process_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_frame</span><span class="p">]</span><span class="o">.</span><span class="n">abort_installation</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_frame</span><span class="p">]</span><span class="o">.</span><span class="n">abort_process</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Installation aborted&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">go_back_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span></div>
 
@@ -265,6 +266,7 @@
         <span class="c1"># Button text</span>
         <span class="n">update_archive_text</span> <span class="o">=</span> <span class="s2">&quot;Update Installed Packages&quot;</span>
         <span class="n">uninstall_archive_text</span> <span class="o">=</span> <span class="s2">&quot;Uninstall Package&quot;</span>
+        <span class="n">freeze_req_text</span> <span class="o">=</span> <span class="s2">&quot;Freeze Requirements&quot;</span>
 
         <span class="c1"># Button style</span>
         <span class="n">navbar_button_style</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Style</span><span class="p">()</span>
@@ -288,7 +290,15 @@
             <span class="n">style</span><span class="o">=</span><span class="s1">&#39;navbar.TButton&#39;</span><span class="p">,</span>
             <span class="n">command</span><span class="o">=</span><span class="k">lambda</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_frame</span><span class="p">(</span><span class="s1">&#39;UninstallPackage&#39;</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">button_uninstall</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nwe&#39;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">button_uninstall</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nwe&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">button_freeze</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">navbar_frame</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="n">freeze_req_text</span><span class="p">,</span>
+            <span class="n">style</span><span class="o">=</span><span class="s1">&#39;navbar.TButton&#39;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="k">lambda</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_frame</span><span class="p">(</span><span class="s1">&#39;FreezeRequirementsPage&#39;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">button_freeze</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nwe&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ManageInstalledPage.manage_frames"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.manage_installed_modules_page.ManageInstalledPage.manage_frames">[docs]</a>    <span class="k">def</span> <span class="nf">manage_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -299,7 +309,8 @@
 
         <span class="n">frames_tuple</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">UpdatePackage</span><span class="p">,</span>
-            <span class="n">UninstallPackage</span><span class="p">)</span>
+            <span class="n">UninstallPackage</span><span class="p">,</span>
+            <span class="n">FreezeRequirementsPage</span><span class="p">,)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">frames_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">F</span> <span class="ow">in</span> <span class="n">frames_tuple</span><span class="p">:</span>
@@ -357,7 +368,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_multitem_treeview</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_buttons</span><span class="p">()</span>
-
 
 <div class="viewcode-block" id="UpdatePackage.create_multitem_treeview"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.manage_installed_modules_page.UpdatePackage.create_multitem_treeview">[docs]</a>    <span class="k">def</span> <span class="nf">create_multitem_treeview</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -418,7 +428,8 @@
         <span class="n">selected_module</span> <span class="o">=</span> <span class="s1">&#39;Module Name : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item_dict</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="kn">from</span> <span class="nn">pip_tkinter.utils</span> <span class="k">import</span> <span class="n">pip_show_command</span>
-        <span class="n">status_code</span><span class="p">,</span> <span class="n">selected_package_details</span><span class="p">,</span> <span class="n">serror</span> <span class="o">=</span> <span class="n">pip_show_command</span><span class="p">(</span><span class="n">selected_module</span><span class="p">)</span>
+        <span class="n">status_code</span><span class="p">,</span> <span class="n">selected_package_details</span><span class="p">,</span> <span class="n">serror</span> <span class="o">=</span> <span class="n">pip_show_command</span><span class="p">(</span>
+            <span class="n">selected_module</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">package_details</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">package_details</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">)</span>
@@ -447,7 +458,8 @@
 <div class="viewcode-block" id="UpdatePackage.update_outdated_packages"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.manage_installed_modules_page.UpdatePackage.update_outdated_packages">[docs]</a>    <span class="k">def</span> <span class="nf">update_outdated_packages</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="kn">from</span> <span class="nn">pip_tkinter.utils</span> <span class="k">import</span> <span class="n">pip_list_outdated_command</span>
-        <span class="n">results_tuple</span> <span class="o">=</span> <span class="n">pip_list_outdated_command</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdated_list</span> <span class="o">=</span> <span class="n">pip_list_outdated_command</span><span class="p">()</span>
+        <span class="n">results_tuple</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outdated_list</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results_tuple</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">populate_rows</span><span class="p">(</span><span class="n">results_tuple</span><span class="p">)</span>
@@ -530,7 +542,7 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">search_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">refresh_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Select correct package&#39;</span><span class="p">)</span></div>
@@ -542,13 +554,17 @@
 
             <span class="k">if</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">install_message</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;process_started&#39;</span><span class="p">)</span> <span class="ow">and</span>
                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span><span class="o">==</span><span class="kc">False</span><span class="p">)):</span>
+
                 <span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="s1">&#39;end&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
 
 
             <span class="k">elif</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span><span class="o">==</span><span class="kc">True</span><span class="p">):</span>
 
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">install_message</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">install_message</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;0&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">install_message</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Done&#39;</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span>
@@ -564,7 +580,7 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">install_message</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_from_install_queue</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_from_install_queue</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_from_install_queue</span><span class="p">)</span></div>
@@ -746,7 +762,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="s1">&#39;end&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">install_log_started</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">uninstall_log_started</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">error_log_started</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_from_uninstall_queue</span><span class="p">)</span>
 
@@ -754,7 +770,7 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">search_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">refresh_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Select correct package&#39;</span><span class="p">)</span></div>
@@ -766,12 +782,16 @@
 
             <span class="k">if</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">uninstall_message</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;process_started&#39;</span><span class="p">)</span> <span class="ow">and</span>
                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uninstall_log_started</span><span class="o">==</span><span class="kc">False</span><span class="p">)):</span>
+
                 <span class="bp">self</span><span class="o">.</span><span class="n">uninstall_log_started</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="s1">&#39;end&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
 
             <span class="k">elif</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uninstall_log_started</span><span class="o">==</span><span class="kc">True</span><span class="p">):</span>
 
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uninstall_message</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uninstall_message</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;0&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uninstall_message</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Done&#39;</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span>
@@ -787,7 +807,7 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">uninstall_message</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">process_details</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;disabled&#39;</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_from_uninstall_queue</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_from_uninstall_queue</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_from_uninstall_queue</span><span class="p">)</span></div>
@@ -802,6 +822,138 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">refresh_button</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_thread</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span></div></div>
+
+<div class="viewcode-block" id="FreezeRequirementsPage"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage">[docs]</a><span class="k">class</span> <span class="nc">FreezeRequirementsPage</span><span class="p">(</span><span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Page for providing options for &#39;pip freeze&#39;. User can generate requirement</span>
+<span class="sd">    file and save it to desired location</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">controller</span><span class="p">):</span>
+
+        <span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">parent</span><span class="p">,</span>
+            <span class="n">borderwidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">padding</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">relief</span><span class="o">=</span><span class="s1">&#39;ridge&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nse&#39;</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">padx</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span> <span class="o">=</span> <span class="n">controller</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_multitem_treeview</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_buttons</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="FreezeRequirementsPage.create_multitem_treeview"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.create_multitem_treeview">[docs]</a>    <span class="k">def</span> <span class="nf">create_multitem_treeview</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create multitem treeview to show search results with headers :</span>
+<span class="sd">        1. Python Module</span>
+<span class="sd">        2. Installed version</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Python Module&#39;</span><span class="p">,</span><span class="s1">&#39;Installed Version&#39;</span><span class="p">]</span>
+        <span class="kn">from</span> <span class="nn">pip_tkinter.utils</span> <span class="k">import</span> <span class="n">MultiItemsList</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span> <span class="o">=</span> <span class="n">MultiItemsList</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">myframe</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+            <span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">columnspan</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nswe&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span>
+            <span class="s1">&#39;&lt;&lt;TreeviewSelect&gt;&gt;&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">scroll_tree_select</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">selectmode</span><span class="o">=</span><span class="s1">&#39;extended&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FreezeRequirementsPage.scroll_tree_select"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.scroll_tree_select">[docs]</a>    <span class="k">def</span> <span class="nf">scroll_tree_select</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update debug bar with number of packages selected</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;No. of packages selected </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">selection</span><span class="p">()))))</span></div>
+
+    <span class="k">def</span> <span class="nf">refresh_installed_packages</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Show search results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">from</span> <span class="nn">pip_tkinter.utils</span> <span class="k">import</span> <span class="n">pip_list_command</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">installed_packages_list</span> <span class="o">=</span> <span class="n">pip_list_command</span><span class="p">()</span>
+        <span class="n">results_tuple</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">installed_packages_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">populate_rows</span><span class="p">(</span><span class="n">results_tuple</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Found installed packages&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FreezeRequirementsPage.create_buttons"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.create_buttons">[docs]</a>    <span class="k">def</span> <span class="nf">create_buttons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create nav and control buttons</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Back&quot;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">navigate_previous_frame</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_back</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_button</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Refresh&quot;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">refresh_installed_packages</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_button</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Generate Requirements&quot;</span><span class="p">,</span>
+            <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_pip_commands</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">navigate_next</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FreezeRequirementsPage.navigate_previous_frame"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.navigate_previous_frame">[docs]</a>    <span class="k">def</span> <span class="nf">navigate_previous_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Navigate to previous frame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">show_frame</span><span class="p">(</span><span class="s1">&#39;WelcomePage&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FreezeRequirementsPage.refresh_installed_packages"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.refresh_installed_packages">[docs]</a>    <span class="k">def</span> <span class="nf">refresh_installed_packages</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update list of installed packages</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pip_tkinter.utils</span> <span class="k">import</span> <span class="n">pip_freeze_command</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">installed_packages_list</span> <span class="o">=</span> <span class="n">pip_freeze_command</span><span class="p">()</span>
+        <span class="n">results_tuple</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">installed_packages_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">populate_rows</span><span class="p">(</span><span class="n">results_tuple</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">debug_bar</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Found installed packages&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FreezeRequirementsPage.execute_pip_commands"><a class="viewcode-back" href="../../pip_tkinter.html#pip_tkinter.manage_installed_modules_page.FreezeRequirementsPage.execute_pip_commands">[docs]</a>    <span class="k">def</span> <span class="nf">execute_pip_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute the command for generating requirements file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">requirements_text</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">selection</span><span class="p">():</span>
+            <span class="n">item_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_items_list</span><span class="o">.</span><span class="n">scroll_tree</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="n">requirements_text</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">==</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">item_dict</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">item_dict</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="kn">from</span> <span class="nn">tkinter.filedialog</span> <span class="k">import</span> <span class="n">asksaveasfile</span>
+        <span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">expanduser</span>
+
+        <span class="n">file_pt</span> <span class="o">=</span> <span class="n">asksaveasfile</span><span class="p">(</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span>
+            <span class="n">defaultextension</span><span class="o">=</span><span class="s1">&#39;.txt&#39;</span><span class="p">,</span>
+            <span class="n">initialdir</span><span class="o">=</span><span class="n">expanduser</span><span class="p">(</span><span class="s1">&#39;~&#39;</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">file_pt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">file_pt</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">requirements_text</span><span class="p">)</span>
+        <span class="n">file_pt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
 </pre></div>
 
            </div>
