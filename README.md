@@ -67,6 +67,7 @@ A very simple navigation based minimalistic GUI is intended to be designed. The 
 # TODO list
 
 * fix bugs
+* improve search functionality
 
 # Bug Tracker
 
