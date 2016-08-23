@@ -66,16 +66,8 @@ A very simple navigation based minimalistic GUI is intended to be designed. The 
 
 # TODO list
 
-<<<<<<< HEAD
-* write tests
-* fix issues
-* create docs
-* implement new features :
-   * Install from Pythonlibs
-   * Generate requirements file (pip freeze)
-=======
 * fix bugs
->>>>>>> dump_code
+* improve search functionality
 
 # Bug Tracker
 
