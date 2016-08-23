@@ -5,6 +5,7 @@ from pip_tkinter.pip_extensions import GUIListCommand
 from pip_tkinter.utils import verify_pypi_url
 from pip_tkinter.utils import pip_install_from_local_archive
 from pip_tkinter.utils import pip_uninstall
+from pip_tkinter.utils import runpip_using_subprocess
 from pip_tkinter.config import find_bit_of_python
 
 def install_dummy_package():
@@ -20,13 +21,21 @@ def install_dummy_package():
             __name__,
             'pipguidummypackageAAZZBBCC-1.0-py3-none-any.whl')
 
-    status, out, err = pip_install_from_local_archive(resource_path)
-    print (status, out, err)
-    return str(status)
+    out, err = runpip_using_subprocess('pip3 install resource_path')
+
+    if err != None:
+        return str(1)
+    else:
+        return str(0)
 
 def uninstall_dummy_package():
-    status, out, err = pip_uninstall('pipguidummypackageAAZZBBCC')
-    return str(status)
+
+    out, err = runpip_using_subprocess(
+        'pip3 uninstall pipguidummypackageAAZZBBCC')
+    if err != None:
+        return str(1)
+    else:
+        return str(0)
 
 class PipExtensionsTest(unittest.TestCase):
     """
