@@ -11,6 +11,7 @@ RESOURCE_DIR = '.pip_tkinter'
 def get_build_platform():
     """
     Get OS of the device
+    Returns 'Linux', 'Windows' or 'Darwin'
     """
     return platform.system()
 
