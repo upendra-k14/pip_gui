@@ -1,5 +1,5 @@
 # pip_tkinter
-A GUI for "pip"
+A GUI for "pip" developed during the Google Summer of Code 2016
 
 # GSoC Related Links
 * `pip_tkinter` repository : https://github.com/upendra-k14/pip_gui
