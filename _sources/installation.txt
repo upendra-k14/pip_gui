@@ -16,5 +16,4 @@ Installation From Source
 .. Note::
     -   Installation options soon coming for Windows and Mac OS using binaries.
 
-    -   **Caveats** : Currently, the software doesn't work on Linux distros without 'gksu'. Otherwise, you can install gksudo if
-    available on your linux distro. This issue will be soon fixed.
+    -   **Caveats** : Currently, the software doesn't work on Linux distros without 'gksu'. Otherwise, you can install gksudo if available on your linux distro. This issue will be soon fixed.
