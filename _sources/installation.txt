@@ -13,4 +13,7 @@ Installation From Source
 -   From inside the pip_gui folder run : `python3 -m pip_tkinter`
 -   To install and run using entry point: `sudo python3 setup.py install`
 
-.. Note:: Installation options soon coming for Windows and Mac OS.
+.. Note::
+    1. Installation options soon coming for Windows and Mac OS using binaries.
+    2. **Caveats** : Currently, the software doesn't work on Linux distros without 'gksu'. Otherwise, you can install gksudo if
+    available on your linux distro. This issue will be soon fixed.
