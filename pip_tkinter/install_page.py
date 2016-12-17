@@ -565,11 +565,11 @@ class InstallFromLocalArchive(ttk.Frame):
 
     def __init__(self, parent, controller):
         ttk.Frame.__init__(
-                        self,
-                        parent,
-                        borderwidth=3,
-                        padding=0.5,
-                        relief='ridge')
+            self,
+            parent,
+            borderwidth=3,
+            padding=0.5,
+            relief='ridge')
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
         self.controller = controller
         self.rowconfigure(0, weight=1)
@@ -1171,7 +1171,7 @@ class InstallFromPythonlibs(ttk.Frame):
         self.search_button.config(state='disabled')
 
         #Spawn a new thread for searching packages,
-        #Search results will be returned in the @param : self.thread_queue
+        #Search results will be returned in the @param : self.search_queue
         self.search_queue = multiprocessing.Queue()
 
         from pip_tkinter.utils import pythonlibs_search_command

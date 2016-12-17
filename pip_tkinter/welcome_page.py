@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from pip_tkinter.config import SUPPORTED_PIP_VERSION
 
 class WelcomePage(ttk.Frame):
     """
@@ -26,6 +27,7 @@ class WelcomePage(ttk.Frame):
         self.container.columnconfigure(0, weight=1)
         self.container.rowconfigure(0, weight=1)
         self.create_welcome_page()
+        self.check_pip_installed()
 
     def create_welcome_page(self):
         """
@@ -152,6 +154,38 @@ class WelcomePage(ttk.Frame):
 
         elif self.radio_var.get()==2:
             self.controller.show_frame('ManageInstalledPage')
+
+    def check_pip_installed(self):
+        """
+        Check if pip is installed or not and check for compatibility
+        """
+
+        import importlib
+        pip_spec = importlib.find_loader('pip')
+        is_pip_installed = pip_spec is not None
+
+        if is_pip_installed:
+            import pip
+            pip_version = pip.__version__
+            if pip_version<SUPPORTED_PIP_VERSION:
+                self.create_popup_window()
+
+        else:
+            self.create_popup_window()
+
+    def create_popup_window(self):
+        """
+        Create a popup window in order to let user know the compatibility
+        issues
+        """
+        from tkinter import messagebox
+
+        label_text = "Couldn't find appropriate distribution of pip.\n\
+Please install pip with latest version ({}+)".format(SUPPORTED_PIP_VERSION)
+        message_box = messagebox.showwarning(
+            "Compatibility Issue!",
+            label_text)
+
 
 if __name__ == "__main__":
 

@@ -29,11 +29,6 @@ class MultiItemsList(object):
     """
     Class for creating Treeview to show list of packages : provides options
     for selecting items and specifying number of headers for the treeview
-
-    :param self.scroll_tree: tkinter treeview variable
-    :param parent: parent frame for treeview
-    :param headers_list: list of headers or fields in treeview
-    :param self.items_list: list of items for treeview
     """
 
     def __init__(self, parent, headers_list=None):
@@ -41,10 +36,13 @@ class MultiItemsList(object):
         Initialize variables needed for creating Treeview
         """
 
-        #: Initialized with None, will store reference to tkinter treeview
+        #:self.scroll_tree: tkinter treeview variable
         self.scroll_tree = None
+        #:parent: parent frame for treeview
         self.parent = parent
+        #:headers_list: list of headers or fields in treeview
         self.headers_list = headers_list
+        #:self.items_list: list of items for treeview
         self.items_list = None
         self.create_treeview()
         self.create_headers()
@@ -53,13 +51,10 @@ class MultiItemsList(object):
         """
         Create a multi items list consisting of a frame, horizontal and vertical
         scroll bar and Treeview
-
-        :param self.myframe: a tkinter frame for encapsulating treeview
-            contents with parent frame as self.parent
-        :param vrtl_scrbar: vertical scrollbar for treeview
-        :param hrtl_scrbar: horizontal scrollbar for treeview
         """
 
+        #:self.myframe: a tkinter frame for encapsulating treeview 
+        #contents with parent frame as self.parent
         self.myframe = ttk.Frame(self.parent)
         self.myframe.grid(row=1, column=0, columnspan=2, sticky='nswe')
 
@@ -69,10 +64,13 @@ class MultiItemsList(object):
             show='headings',
             selectmode='browse')
 
+        #:vrtl_scrbar: vertical scrollbar for treeview
         vrtl_scrbar = ttk.Scrollbar(
             self.myframe,
             orient="vertical",
             command=self.scroll_tree.yview)
+
+        #:hrtl_scrbar: horizontal scrollbar for treeview
         hrtl_scrbar = ttk.Scrollbar(
             self.myframe,
             orient="horizontal",
@@ -179,8 +177,10 @@ def runpip_using_subprocess(argstring):
         env = my_env,
     )
 
+    #Get stdout and stderr from shell
     pip_output, pip_error = pip_process.communicate()
 
+    #Decode stdout and stderr strings to utf-8
     return (pip_output.decode('utf-8'), pip_error.decode('utf-8'))
 
 class RunpipSubprocess():
@@ -257,23 +257,32 @@ class RunpipSubprocess():
 
         #Else if platform is Windows
         else:
+            #Create two child threads for this alternate process
+            #output thread manages stdout
             output_thread = threading.Thread(target=self.getoutput)
+            #error thread manages stderr
             error_thread = threading.Thread(target=self.geterror)
+
+            #send 'process started' indication with message code : 0
             self.output_queue.put((0, 'process_started'))
 
+            #starts both threads
             output_thread.start()
             error_thread.start()
 
+            #Wait for both threads to complete their execution
             output_thread.join()
             error_thread.join()
 
+            #If both threads are completed, then this alternate process should
+            #end. If execution completed, then
             if self.pip_process.poll() != None:
+                #Send ending message with process code and message code as 3
                 self.output_queue.put((3,self.pip_process.poll()))
 
     def getoutput(self):
         """
-        Iterate over output line by line : multiplexing output and error
-        stream
+        Iterate over output line by line 
         """
 
         for line in iter(self.pip_process.stdout.readline, b''):
@@ -297,19 +306,40 @@ def pip_search_command(package_name=None, thread_queue=None):
     """
     import re
 
+    #Get search results and errors if there
     search_result, errors = runpip_using_subprocess(
         'pip3 search {}'.format(package_name))
 
-    print (errors)
-
+    #If errors, then put error string into queue
     if errors.strip() != '':
         thread_queue.put(errors)
 
     count = 0
     installed_packages = []
 
+    ######################################################################
+    #Parsing shell output
+    #Note : Needs to be updated when json output is available for pip
+    ######################################################################
+
+    #Sample Output in Windows:
+    #
+    #django-editos (1.5) - Django app to manage and display editos
+    #django-github-webhook (0.1.1) - Django view for GitHub webhook recievers
+    #pyserial (3.1.1)      - Python Serial Port Extension
+    #INSTALLED: 2.7
+    #LATEST:    3.1.1
+
+    #Sample Output in Linux/Unix:
+    #
+    #django-editos (1.5)    - Django app to manage and display editos
+    #django-github-webhook (0.1.1)  - Django view for GitHub webhook recievers
+    #pyserial (3.1.1)   - Python Serial Port Extension
+    #INSTALLED: 2.7 (LATEST: 3.1.1)
+
     for x in search_result.split("\n"):
         try:
+            #If first line of package decription
             if ('INSTALLED:' not in x) and (
                 ('(' in x) and (')' in x) and (
                     not x.startswith('-'))):
@@ -320,16 +350,25 @@ def pip_search_command(package_name=None, thread_queue=None):
                 summary = re.split(r'\)\s+- ',x)[1].strip()
                 installed_packages.append(
                     [pkg_name,'Not installed',latest_version,summary])
-                count = count + 1
+            #Else if package is outdated, also show the outdated version
             elif 'INSTALLED:' in x:
-                st_index = x.index(':')
-                end_index = x.index('(')
-                installed_packages[-1][1] = x[st_index+1:end_index].strip()
-            else:
+                #If OS is not Windows (Refer to sample output for Linux/Unix)
+                if get_build_platform()!='Windows':
+                    st_index = x.index(':')
+                    end_index = x.index('(')
+                    installed_packages[-1][1] = x[st_index+1:end_index].strip()
+                #Else if OS is windows ( Refer to Sample Output above)
+                else:
+                    st_index = x.index(':')
+                    installed_packages[-1][1] = x[st_index+1:].strip()
+            #If LINUX/UNIX append package descriptions in subsequent lines
+            elif get_build_platform()!='Windows':
                 installed_packages[-1][3] = '{} {}'.format(
                     installed_packages[-1][3],x.strip())
         except:
             pass
+    ########################################################################
+    ########################################################################
     thread_queue.put([tuple(x) for x in installed_packages])
 
 def pip_list_command():
@@ -384,6 +423,8 @@ def pip_install_from_PyPI(package_args=None, install_queue=None):
         permission_prefix = ''
     elif get_build_platform()=='Linux':
         permission_prefix = 'gksudo -- '
+    elif get_build_platform()=='Darwin':
+        permission_prefix = ''
     package_args = '{}pip3 install -U --no-cache-dir {}'.format(permission_prefix, package_args)
     install_process = RunpipSubprocess(package_args, install_queue)
     install_process.start_logging_threads()
@@ -420,6 +461,8 @@ def pip_install_from_local_archive(package_args, install_queue=None):
         permission_prefix = ''
     elif get_build_platform()=='Linux':
         permission_prefix = 'gksudo -- '
+    elif get_build_platform()=='Darwin':
+        permission_prefix = ''
     package_args = '{}pip3 install {}'.format(permission_prefix, package_args)
     install_process = RunpipSubprocess(package_args, install_queue)
     install_process.start_logging_threads()
@@ -432,6 +475,8 @@ def pip_install_from_requirements(package_args, install_queue=None):
         permission_prefix = ''
     elif get_build_platform()=='Linux':
         permission_prefix = 'gksudo -- '
+    elif get_build_platform()=='Darwin':
+        permission_prefix = ''
     package_args = '{}pip3 install -r {}'.format(permission_prefix, package_args)
     install_process = RunpipSubprocess(package_args, install_queue)
     install_process.start_logging_threads()
@@ -451,6 +496,8 @@ def pip_uninstall(package_args, uninstall_queue=None):
         permission_prefix = ''
     elif get_build_platform()=='Linux':
         permission_prefix = 'gksudo -- '
+    elif get_build_platform()=='Darwin':
+        permission_prefix = ''
     package_args = '{}pip3 uninstall --yes {}'.format(permission_prefix, package_args)
     uninstall_process = RunpipSubprocess(package_args, uninstall_queue)
     uninstall_process.start_logging_threads()
@@ -586,11 +633,12 @@ def verify_pypi_url():
     """
     Check if URL can be accessed
     """
-    try:
-        http_conn = http.client.HTTPConnection('https://pypi.python.org/pypi')
-        http_conn.connect()
+
+    import requests
+    request = requests.get('https://pypi.python.org/pypi')
+    if request.status_code == 200:
         return True
-    except http.client.HTTPException:
+    else:
         return False
 
 def create_resource_directory():
@@ -609,6 +657,13 @@ def downloadfile(url, update_queue):
     """
     A utility function to download file in small chunks and also to return
     download percentage
+
+    Code    Purpose
+    0       Start marker for logging output
+    1       Output message
+    2       End marker for logging output
+    3       Error message
+
     """
     import math
     from urllib.request import urlopen, Request

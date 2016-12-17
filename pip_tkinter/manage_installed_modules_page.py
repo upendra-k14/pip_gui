@@ -297,7 +297,8 @@ class UpdatePackage(ttk.Frame):
         selected_module = 'Module Name : {}'.format(item_dict['values'][0])
 
         from pip_tkinter.utils import pip_show_command
-        status_code, selected_package_details, serror = pip_show_command(selected_module)
+        status_code, selected_package_details, serror = pip_show_command(
+            selected_module)
 
         self.package_details.configure(state='normal')
         self.package_details.delete(1.0, 'end')
@@ -326,7 +327,8 @@ class UpdatePackage(ttk.Frame):
     def update_outdated_packages(self):
 
         from pip_tkinter.utils import pip_list_outdated_command
-        results_tuple = pip_list_outdated_command()
+        self.outdated_list = pip_list_outdated_command()
+        results_tuple = self.outdated_list
 
         if len(results_tuple) > 0:
             self.multi_items_list.populate_rows(results_tuple)

@@ -1,4 +1,4 @@
-Design Philosophies
+Design Principles
 ============================
 
 .. toctree::
