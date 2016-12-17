@@ -565,11 +565,11 @@ class InstallFromLocalArchive(ttk.Frame):
 
     def __init__(self, parent, controller):
         ttk.Frame.__init__(
-                        self,
-                        parent,
-                        borderwidth=3,
-                        padding=0.5,
-                        relief='ridge')
+            self,
+            parent,
+            borderwidth=3,
+            padding=0.5,
+            relief='ridge')
         self.grid(row=0, column=0, sticky='nse', pady=(1,1), padx=(1,1))
         self.controller = controller
         self.rowconfigure(0, weight=1)
