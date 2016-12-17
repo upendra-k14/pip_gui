@@ -319,6 +319,7 @@ def pip_search_command(package_name=None, thread_queue=None):
 
     ######################################################################
     #Parsing shell output
+    #Note : Needs to be updated when json output is available for pip
     ######################################################################
 
     #Sample Output in Windows:

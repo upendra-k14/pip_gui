@@ -7,6 +7,7 @@ import platform
 
 #Resource and logging dir for pip_tkinter
 RESOURCE_DIR = '.pip_tkinter'
+SUPPORTED_PIP_VERSION = '8.3.2'
 
 def get_build_platform():
     """
